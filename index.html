@@ -12,6 +12,10 @@
 html,body{margin:0;height:100%;background:#1b3a5b;overflow:hidden}
 #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#cdd9e6;font-family:sans-serif;font-size:14px;background:#1b3a5b;z-index:5}
 #splash img{width:84px;height:84px;border-radius:18px}
+#btnEntrar{display:none;background:#fff;color:#1b3a5b;border:none;border-radius:12px;padding:13px 46px;font-size:16px;font-weight:800;font-family:sans-serif;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#amp{display:none;flex-direction:column;align-items:center;gap:8px}
+#amp .ic{font-size:34px;animation:vira 1.6s ease-in-out infinite}
+@keyframes vira{0%,15%{transform:rotate(0)}50%,65%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
 #app{border:0;width:100%;height:100%;display:block;background:#1b3a5b}
 #sairOv{position:fixed;inset:0;background:rgba(10,20,35,.55);display:none;align-items:center;justify-content:center;padding:26px;z-index:10}
 #sairOv .cx{background:#fff;border-radius:14px;max-width:340px;width:100%;padding:22px;text-align:center;font-family:sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.3)}
@@ -21,31 +25,71 @@ html,body{margin:0;height:100%;background:#1b3a5b;overflow:hidden}
 #sairOv button{flex:1;border-radius:10px;padding:12px;font-size:14px;font-weight:800;border:1px solid #dce2ec;cursor:pointer}
 #sairOv .fica{background:#f3f5f9;color:#1b3a5b}
 #sairOv .sai{background:#d24b4b;border-color:#d24b4b;color:#fff}
+#sairOv small{display:block;color:#93a1b5;font-size:12px;margin-top:6px}
+#fimOv{position:fixed;inset:0;background:#1b3a5b;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#cdd9e6;font-family:sans-serif;font-size:14px;text-align:center;padding:26px;z-index:20}
+#fimOv img{width:64px;height:64px;border-radius:14px}
+#fimOv b{color:#fff;font-size:18px}
+#fimOv button{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:10px;padding:11px 26px;font-size:14px;font-weight:800;font-family:sans-serif;cursor:pointer;margin-top:8px}
 </style>
 </head>
 <body>
-<div id="splash"><img src="icon-192.png" alt="NT"><div>A carregar o CRM_NT…</div></div>
+<div id="splash"><img src="icon-192.png" alt="NT"><div id="splashTxt">A carregar o CRM_NT…</div><button id="btnEntrar" onclick="entrar()">Entrar ›</button><div id="amp"><span class="ic">⌛</span><span>A preparar…</span></div></div>
 <!-- /exec da implementação ATUAL (o do snapshot de junho já não existe — dava o erro do Drive).
      Se um dia criares mesmo uma implementação nova, é este URL que muda. -->
 <iframe id="app" allow="geolocation *" src="https://script.google.com/macros/s/AKfycbwRVEcxm4FAFO4-7yS3op3eGE1Z_X5ynnVaBPYEwtYKaAwsVa5fDecv0gjF7YUZu_2O/exec"></iframe>
-<div id="sairOv"><div class="cx"><b>Sair da aplicação?</b><p>Queres mesmo fechar o CRM_NT?</p>
+<div id="sairOv"><div class="cx"><b>Sair da aplicação?</b><p>Queres mesmo fechar o CRM_NT?<small>ou carrega outra vez em ‹ para sair</small></p>
 <div class="bt"><button class="fica" onclick="ficar()">Cancelar</button><button class="sai" onclick="sairMesmo()">Sair</button></div></div></div>
+<div id="fimOv"><img src="icon-192.png" alt="NT"><b>Aplicação encerrada</b><div>Podes fechar esta janela — ou carrega em ‹.</div><button onclick="location.reload()">Voltar a entrar</button></div>
 <script>
 var app=document.getElementById('app');
-app.addEventListener('load', function(){ var s=document.getElementById('splash'); if(s) s.style.display='none'; });
+
+/* A app carrega por trás do splash. Quando o iframe acaba de carregar
+ * (ou ao fim de 5s, por segurança), aparece o botão "Entrar ›". */
+function mostrarEntrar(){
+  if(entrou) return;   // já entrou: nada volta a mostrar o botão (o 'load' repete-se e o fallback de 5s dispara na mesma)
+  var t=document.getElementById('splashTxt'); if(t) t.style.display='none';
+  document.getElementById('btnEntrar').style.display='block';
+}
+app.addEventListener('load', mostrarEntrar);
+setTimeout(mostrarEntrar, 5000);
 
 /* ===== guarda do botão "voltar" nativo =====
- * Arma um estado no histórico; cada back é intercetado aqui (no topo, onde o
- * pushState funciona). Primeiro pergunta à app por mensagem se ela resolve
- * (fechar painel / voltar à Agenda). Se responder que não — ou não responder
- * em 350ms (versão antiga em cache) — mostra o diálogo "Sair da aplicação?". */
-var aSair=false, _resp=null;
-try{ history.pushState({crmnt:true}, ''); }catch(e){}
+ * O estado do histórico é armado DENTRO do toque no botão "Entrar" — um gesto
+ * feito diretamente nesta página. É isso que impede o Samsung Internet (e
+ * outros browsers) de ignorar a entrada: a ativação do utilizador dentro do
+ * iframe (outra origem) não conta para a página de fora.
+ * Cada back é intercetado aqui (no topo, onde o pushState funciona). Primeiro
+ * pergunta à app por mensagem se ela resolve (fechar painel / voltar à
+ * Agenda). Se responder que não — ou não responder em 350ms (versão antiga em
+ * cache) — mostra o diálogo "Sair da aplicação?". */
+var aSair=false, armado=false, _resp=null;
+
+/* Depois do toque no "Entrar", o splash mostra a ampulheta até a app avisar
+ * que o primeiro ecrã está pronto ({tipo:'crmnt-pronta'}, enviado pelo
+ * Index.html). Se a app já avisou antes do toque, entra logo. Segurança de
+ * 6s para versões antigas em cache que não enviam o aviso. */
+var pronta=false, entrou=false;
+function esconderSplash(){ document.getElementById('splash').style.display='none'; }
+function entrar(){
+  try{ history.pushState({crmnt:true}, ''); armado=true; }catch(e){}
+  entrou=true;
+  if(pronta){ esconderSplash(); return; }
+  document.getElementById('btnEntrar').style.display='none';
+  document.getElementById('amp').style.display='flex';
+  setTimeout(function(){ if(entrou) esconderSplash(); }, 6000);
+}
 function rearmar(){ try{ history.pushState({crmnt:true}, ''); }catch(e){} }
+/* Enquanto o diálogo está aberto o guarda fica DESARMADO (o estado armado é
+ * consumido por um history.back() nosso, marcado com "strip"): assim, carregar
+ * outra vez no ‹ nativo sai DE VERDADE — o browser fecha/minimiza porque o
+ * gesto é do utilizador e já não há histórico. Nenhum script consegue fechar
+ * um separador que não abriu; só este caminho é fiável. Cancelar rearma. */
+var strip=false;
 window.addEventListener('popstate', function(){
-  if(aSair) return;                                   // saída confirmada: deixa ir
+  if(!armado || aSair) return;                        // antes do Entrar / saída confirmada: deixa ir
+  if(strip){ strip=false; return; }                   // eco do nosso back de desarme: ignora
   var d=document.getElementById('sairOv');
-  if(d.style.display==='flex'){ ficar(); rearmar(); return; }   // back com o diálogo aberto = cancelar (rearma: houve pop)
+  if(d.style.display==='flex') return;                // pop inesperado com diálogo aberto: deixa consumir, não rearma
   var respondeu=false;
   var timer=setTimeout(function(){ if(!respondeu){ _resp=null; mostrarSair(); } }, 350);
   _resp=function(tratado){
@@ -58,13 +102,20 @@ window.addEventListener('popstate', function(){
 window.addEventListener('message', function(ev){
   var d=ev.data||{};
   if(d && d.tipo==='crmnt-voltar-ok' && _resp) _resp(!!d.tratado);
+  if(d && d.tipo==='crmnt-pronta'){ pronta=true; if(entrou) esconderSplash(); }
 });
-function mostrarSair(){ document.getElementById('sairOv').style.display='flex'; }
-function ficar(){ document.getElementById('sairOv').style.display='none'; }   // NÃO rearma: o popstate já rearmou (1 push por cada pop, sempre)
+function mostrarSair(){
+  document.getElementById('sairOv').style.display='flex';
+  strip=true; try{ history.back(); }catch(e){ strip=false; }   // desarma: o próximo ‹ nativo sai mesmo
+}
+function ficar(){ document.getElementById('sairOv').style.display='none'; rearmar(); }   // volta para dentro: rearma o guarda
 function sairMesmo(){
   document.getElementById('sairOv').style.display='none';
   aSair=true;
-  history.go(-2);   // salta o estado armado e sai da página de verdade
+  try{ window.close(); }catch(e){}       // só resulta se o browser deixar (janela aberta por script)
+  setTimeout(function(){                 // não deixou: ecrã de despedida; o histórico já está limpo,
+    document.getElementById('fimOv').style.display='flex';   // por isso um único ‹ fecha de verdade
+  }, 200);
 }
 </script>
 </body>
