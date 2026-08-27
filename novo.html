@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CRM_NT</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#1b3a5b">
+<style>
+html,body{margin:0;height:100%;background:#1b3a5b;overflow:hidden}
+#splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#cdd9e6;font-family:sans-serif;font-size:14px;background:#1b3a5b;z-index:5}
+#splash img{width:84px;height:84px;border-radius:18px}
+#app{border:0;width:100%;height:100%;display:block;background:#1b3a5b}
+#sairOv{position:fixed;inset:0;background:rgba(10,20,35,.55);display:none;align-items:center;justify-content:center;padding:26px;z-index:10}
+#sairOv .cx{background:#fff;border-radius:14px;max-width:340px;width:100%;padding:22px;text-align:center;font-family:sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+#sairOv b{display:block;font-size:18px;color:#1b3a5b;margin-bottom:6px}
+#sairOv p{color:#6b7688;font-size:14px;margin:0 0 18px}
+#sairOv .bt{display:flex;gap:10px}
+#sairOv button{flex:1;border-radius:10px;padding:12px;font-size:14px;font-weight:800;border:1px solid #dce2ec;cursor:pointer}
+#sairOv .fica{background:#f3f5f9;color:#1b3a5b}
+#sairOv .sai{background:#d24b4b;border-color:#d24b4b;color:#fff}
+</style>
+</head>
+<body>
+<div id="splash"><img src="icon-192.png" alt="NT"><div>A carregar o CRM_NT…</div></div>
+<iframe id="app" allow="geolocation *" src="https://script.google.com/macros/s/AKfycbyzQtrXfSWgEOD7lsWX78sfSAERFVD-MsjAYhBmY0C2J9P52orFuwq5pT34DrZ2I3s3/exec"></iframe>
+<div id="sairOv"><div class="cx"><b>Sair da aplicação?</b><p>Queres mesmo fechar o CRM_NT?</p>
+<div class="bt"><button class="fica" onclick="ficar()">Cancelar</button><button class="sai" onclick="sairMesmo()">Sair</button></div></div></div>
+<script>
+var app=document.getElementById('app');
+app.addEventListener('load', function(){ var s=document.getElementById('splash'); if(s) s.style.display='none'; });
+
+/* ===== guarda do botão "voltar" nativo =====
+ * Arma um estado no histórico; cada back é intercetado aqui (no topo, onde o
+ * pushState funciona). Primeiro pergunta à app por mensagem se ela resolve
+ * (fechar painel / voltar à Agenda). Se responder que não — ou não responder
+ * em 350ms (versão antiga em cache) — mostra o diálogo "Sair da aplicação?". */
+var aSair=false, _resp=null;
+try{ history.pushState({crmnt:true}, ''); }catch(e){}
+function rearmar(){ try{ history.pushState({crmnt:true}, ''); }catch(e){} }
+window.addEventListener('popstate', function(){
+  if(aSair) return;                                   // saída confirmada: deixa ir
+  var d=document.getElementById('sairOv');
+  if(d.style.display==='flex'){ ficar(); rearmar(); return; }   // back com o diálogo aberto = cancelar (rearma: houve pop)
+  var respondeu=false;
+  var timer=setTimeout(function(){ if(!respondeu){ _resp=null; mostrarSair(); } }, 350);
+  _resp=function(tratado){
+    respondeu=true; clearTimeout(timer); _resp=null;
+    if(!tratado) mostrarSair();
+  };
+  try{ app.contentWindow.postMessage({tipo:'crmnt-voltar'}, '*'); }catch(e){}
+  rearmar();
+});
+window.addEventListener('message', function(ev){
+  var d=ev.data||{};
+  if(d && d.tipo==='crmnt-voltar-ok' && _resp) _resp(!!d.tratado);
+});
+function mostrarSair(){ document.getElementById('sairOv').style.display='flex'; }
+function ficar(){ document.getElementById('sairOv').style.display='none'; }   // NÃO rearma: o popstate já rearmou (1 push por cada pop, sempre)
+function sairMesmo(){
+  document.getElementById('sairOv').style.display='none';
+  aSair=true;
+  history.go(-2);   // salta o estado armado e sai da página de verdade
+}
+</script>
+</body>
+</html>
