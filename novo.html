@@ -46,6 +46,7 @@ var app=document.getElementById('app');
 /* A app carrega por trás do splash. Quando o iframe acaba de carregar
  * (ou ao fim de 5s, por segurança), aparece o botão "Entrar ›". */
 function mostrarEntrar(){
+  if(entrou) return;   // já entrou: nada volta a mostrar o botão (o 'load' repete-se e o fallback de 5s dispara na mesma)
   var t=document.getElementById('splashTxt'); if(t) t.style.display='none';
   document.getElementById('btnEntrar').style.display='block';
 }
