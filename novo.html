@@ -25,7 +25,11 @@ html,body{margin:0;height:100%;background:#1b3a5b;overflow:hidden}
 </head>
 <body>
 <div id="splash"><img src="icon-192.png" alt="NT"><div>A carregar o CRM_NT…</div></div>
-<iframe id="app" allow="geolocation *" src="https://script.google.com/macros/s/AKfycbyzQtrXfSWgEOD7lsWX78sfSAERFVD-MsjAYhBmY0C2J9P52orFuwq5pT34DrZ2I3s3/exec"></iframe>
+<!-- URL interno do googleusercontent (o mesmo que o wrapper antigo usava): serve a app
+     sem passar pelo script.google.com, que dentro de um iframe é bloqueado pelos cookies
+     de terceiros do Chrome (erro "Google Drive — não é possível abrir o ficheiro").
+     Se um dia a app deixar de carregar aqui, é este URL que a Google reciclou. -->
+<iframe id="app" allow="geolocation *" src="https://n-cqefsaejblk4ssqo5s75ojcxnzxxphrslj2lsba-0lu-script.googleusercontent.com/userCodeAppPanel?createOAuthDialog=true"></iframe>
 <div id="sairOv"><div class="cx"><b>Sair da aplicação?</b><p>Queres mesmo fechar o CRM_NT?</p>
 <div class="bt"><button class="fica" onclick="ficar()">Cancelar</button><button class="sai" onclick="sairMesmo()">Sair</button></div></div></div>
 <script>
