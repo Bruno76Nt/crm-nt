@@ -13,6 +13,9 @@ html,body{margin:0;height:100%;background:#1b3a5b;overflow:hidden}
 #splash{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:#cdd9e6;font-family:sans-serif;font-size:14px;background:#1b3a5b;z-index:5}
 #splash img{width:84px;height:84px;border-radius:18px}
 #btnEntrar{display:none;background:#fff;color:#1b3a5b;border:none;border-radius:12px;padding:13px 46px;font-size:16px;font-weight:800;font-family:sans-serif;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#amp{display:none;flex-direction:column;align-items:center;gap:8px}
+#amp .ic{font-size:34px;animation:vira 1.6s ease-in-out infinite}
+@keyframes vira{0%,15%{transform:rotate(0)}50%,65%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
 #app{border:0;width:100%;height:100%;display:block;background:#1b3a5b}
 #sairOv{position:fixed;inset:0;background:rgba(10,20,35,.55);display:none;align-items:center;justify-content:center;padding:26px;z-index:10}
 #sairOv .cx{background:#fff;border-radius:14px;max-width:340px;width:100%;padding:22px;text-align:center;font-family:sans-serif;box-shadow:0 18px 50px rgba(0,0,0,.3)}
@@ -25,7 +28,7 @@ html,body{margin:0;height:100%;background:#1b3a5b;overflow:hidden}
 </style>
 </head>
 <body>
-<div id="splash"><img src="icon-192.png" alt="NT"><div id="splashTxt">A carregar o CRM_NT…</div><button id="btnEntrar" onclick="entrar()">Entrar ›</button></div>
+<div id="splash"><img src="icon-192.png" alt="NT"><div id="splashTxt">A carregar o CRM_NT…</div><button id="btnEntrar" onclick="entrar()">Entrar ›</button><div id="amp"><span class="ic">⌛</span><span>A preparar…</span></div></div>
 <!-- /exec da implementação ATUAL (o do snapshot de junho já não existe — dava o erro do Drive).
      Se um dia criares mesmo uma implementação nova, é este URL que muda. -->
 <iframe id="app" allow="geolocation *" src="https://script.google.com/macros/s/AKfycbwRVEcxm4FAFO4-7yS3op3eGE1Z_X5ynnVaBPYEwtYKaAwsVa5fDecv0gjF7YUZu_2O/exec"></iframe>
@@ -53,9 +56,20 @@ setTimeout(mostrarEntrar, 5000);
  * Agenda). Se responder que não — ou não responder em 350ms (versão antiga em
  * cache) — mostra o diálogo "Sair da aplicação?". */
 var aSair=false, armado=false, _resp=null;
+
+/* Depois do toque no "Entrar", o splash mostra a ampulheta até a app avisar
+ * que o primeiro ecrã está pronto ({tipo:'crmnt-pronta'}, enviado pelo
+ * Index.html). Se a app já avisou antes do toque, entra logo. Segurança de
+ * 6s para versões antigas em cache que não enviam o aviso. */
+var pronta=false, entrou=false;
+function esconderSplash(){ document.getElementById('splash').style.display='none'; }
 function entrar(){
   try{ history.pushState({crmnt:true}, ''); armado=true; }catch(e){}
-  document.getElementById('splash').style.display='none';
+  entrou=true;
+  if(pronta){ esconderSplash(); return; }
+  document.getElementById('btnEntrar').style.display='none';
+  document.getElementById('amp').style.display='flex';
+  setTimeout(function(){ if(entrou) esconderSplash(); }, 6000);
 }
 function rearmar(){ try{ history.pushState({crmnt:true}, ''); }catch(e){} }
 window.addEventListener('popstate', function(){
@@ -74,6 +88,7 @@ window.addEventListener('popstate', function(){
 window.addEventListener('message', function(ev){
   var d=ev.data||{};
   if(d && d.tipo==='crmnt-voltar-ok' && _resp) _resp(!!d.tratado);
+  if(d && d.tipo==='crmnt-pronta'){ pronta=true; if(entrou) esconderSplash(); }
 });
 function mostrarSair(){ document.getElementById('sairOv').style.display='flex'; }
 function ficar(){ document.getElementById('sairOv').style.display='none'; }   // NÃO rearma: o popstate já rearmou (1 push por cada pop, sempre)
