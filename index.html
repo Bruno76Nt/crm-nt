@@ -97,7 +97,7 @@ window.addEventListener('popstate', function(){
     respondeu=true; clearTimeout(timer); _resp=null;
     if(!tratado) mostrarSair();
   };
-  try{ app.contentWindow.postMessage({tipo:'crmnt-voltar'}, '*'); }catch(e){}
+  difundeVoltar_(app.contentWindow, 2);
   rearmar();
 });
 window.addEventListener('message', function(ev){
@@ -105,6 +105,14 @@ window.addEventListener('message', function(ev){
   if(d && d.tipo==='crmnt-voltar-ok' && _resp) _resp(!!d.tratado);
   if(d && d.tipo==='crmnt-pronta'){ pronta=true; if(entrou) esconderSplash(); }
 });
+/* A moldura da Google mete a app 1 nível de iframe mais fundo no telemóvel do que
+ * num teste simples — enviar só ao contentWindow perdia a mensagem e o diálogo
+ * "Sair?" aparecia logo, mesmo dentro de um menu. Difunde à moldura E às filhas. */
+function difundeVoltar_(w, prof){
+  try{ w.postMessage({tipo:'crmnt-voltar'}, '*'); }catch(e){}
+  if(prof<=0) return;
+  try{ var n=w.frames.length; for(var i=0;i<n;i++) difundeVoltar_(w.frames[i], prof-1); }catch(e){}
+}
 function mostrarSair(){
   document.getElementById('sairOv').style.display='flex';
   strip=true; try{ history.back(); }catch(e){ strip=false; }   // desarma: o próximo ‹ nativo sai mesmo
