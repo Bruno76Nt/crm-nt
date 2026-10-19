@@ -1,0 +1,73 @@
+<!-- CRM_NT — estado.html · v2026-10-20-SB-A · página de estado da app (GitHub Pages) -->
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CRM_NT — Estado</title>
+<style>
+  :root{ --bg:#0f2237; --panel:#16314d; --tx:#eaf2fa; --mut:#9db4c8; --ok:#2fbf71; --mau:#e05555; }
+  @media (prefers-color-scheme: light){ :root{ --bg:#f2f6fa; --panel:#ffffff; --tx:#13293f; --mut:#5b7187; } }
+  body{ margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+        background:var(--bg); color:var(--tx); font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif; }
+  .cartao{ background:var(--panel); border-radius:16px; padding:28px 26px; width:min(420px,calc(100vw - 32px));
+           box-shadow:0 10px 30px rgba(0,0,0,.25); text-align:center; }
+  h1{ font-size:18px; margin:0 0 18px; letter-spacing:.3px; }
+  .luz{ width:84px; height:84px; border-radius:50%; margin:6px auto 14px; display:flex; align-items:center;
+        justify-content:center; font-size:38px; background:#3a4f66; transition:background .3s, box-shadow .3s; }
+  .luz.ok{ background:var(--ok); box-shadow:0 0 34px rgba(47,191,113,.45); }
+  .luz.mau{ background:var(--mau); box-shadow:0 0 34px rgba(224,85,85,.45); }
+  #titulo{ font-size:20px; font-weight:700; margin-bottom:4px; }
+  .mut{ color:var(--mut); font-size:13px; }
+  .linha{ display:flex; justify-content:space-between; gap:12px; margin-top:8px; padding-top:8px;
+          border-top:1px solid rgba(128,148,168,.25); font-size:14px; }
+  button{ margin-top:18px; border:0; border-radius:10px; padding:10px 18px; font-weight:700; cursor:pointer;
+          background:#2b6cb0; color:#fff; font-size:14px; }
+</style>
+</head>
+<body>
+<div class="cartao">
+  <h1>⛑ CRM_NT — estado da aplicação</h1>
+  <div class="luz" id="luz">…</div>
+  <div id="titulo">A verificar…</div>
+  <div class="mut" id="sub">liga à base de dados e mede a resposta</div>
+  <div class="linha"><span>Resposta</span><b id="lat">—</b></div>
+  <div class="linha"><span>Hora do servidor (Lisboa)</span><b id="hora">—</b></div>
+  <div class="linha"><span>Obras na base</span><b id="obras">—</b></div>
+  <div class="linha"><span>Última verificação</span><b id="quando">—</b></div>
+  <button onclick="verifica()">Verificar agora</button>
+  <div class="mut" style="margin-top:12px">verifica sozinho a cada 60 segundos</div>
+</div>
+<script>
+var API_URL='https://nsodckmmvuihaygtjxxz.supabase.co/functions/v1/api';
+function verifica(){
+  var t0=Date.now();
+  var luz=document.getElementById('luz');
+  fetch(API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({fn:'estado', args:[]}) })
+    .then(function(r){ return r.json(); })
+    .then(function(r){
+      var ms=Date.now()-t0;
+      if(r && r.ok){
+        luz.className='luz ok'; luz.textContent='✓';
+        document.getElementById('titulo').textContent='Tudo a funcionar';
+        document.getElementById('sub').textContent='aplicação e base de dados a responder';
+        document.getElementById('lat').textContent=ms+' ms';
+        document.getElementById('hora').textContent=String(r.agora||'').slice(11,16)||'—';
+        document.getElementById('obras').textContent=(r.obras!=null)?r.obras:'—';
+      } else { throw new Error((r&&r.erro)||'resposta inesperada'); }
+    })
+    .catch(function(e){
+      luz.className='luz mau'; luz.textContent='✕';
+      document.getElementById('titulo').textContent='Com problemas';
+      document.getElementById('sub').textContent='a app pode não estar a responder — tenta daqui a uns minutos ('+String(e.message||e).slice(0,60)+')';
+      document.getElementById('lat').textContent='—';
+    })
+    .finally(function(){
+      document.getElementById('quando').textContent=new Date().toLocaleTimeString('pt-PT').slice(0,5);
+    });
+}
+verifica();
+setInterval(verifica, 60000);
+</script>
+</body>
+</html>
