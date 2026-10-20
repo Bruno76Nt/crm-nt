@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>teste F0 (interior)</title>
+<style>
+body{margin:0;padding:18px;font:14px system-ui,Segoe UI,Arial;color:#1b2a3d;max-width:860px}
+h1{font-size:18px;margin:0 0 4px}
+p{margin:6px 0;color:#4a5a6e}
+button{font:inherit;padding:8px 14px;border-radius:8px;border:1px solid #1e4c84;background:#1e4c84;color:#fff;cursor:pointer;margin:4px 6px 4px 0}
+button.sec{background:#fff;color:#1e4c84}
+button:disabled{opacity:.45;cursor:default}
+.log{margin-top:12px;border:1px solid #d6dde8;border-radius:8px;background:#f7f9fc;padding:10px;font:12.5px ui-monospace,Consolas,monospace;white-space:pre-wrap;min-height:120px}
+.ok{color:#1b7a3d}.err{color:#b42318}.warn{color:#9a6400}
+.res{margin-top:12px;padding:10px 12px;border-radius:8px;font-weight:600}
+.res.ok{background:#e3f4e8;color:#1b7a3d}.res.err{background:#fde8e6;color:#b42318}.res.warn{background:#fff4d6;color:#9a6400}
+code{background:#eef2f8;padding:1px 5px;border-radius:4px}
+</style></head><body>
+<h1>Teste F0 — pasta pessoal dentro do iframe</h1>
+<p>Objetivo: provar que, dentro do iframe do CRM_NT, o browser deixa escolher uma pasta, escrever e ler ficheiros nela, e <b>reabrir a mesma pasta depois de recarregar</b> (handle guardado em IndexedDB, como na consola v0.30). Usa <b>Edge ou Chrome</b>. Cria uma pasta de teste vazia (ex.: <code>Documentos\TESTE_F0</code>) antes de começar.</p>
+<div>
+ <button id="b1">1 · Escolher pasta</button>
+ <button id="b2" class="sec" disabled>2 · Escrever + ler ficheiro</button>
+ <button id="b3" class="sec" disabled>3 · Recarregar a página</button>
+ <button id="b4" class="sec">4 · Reabrir pasta guardada</button>
+ <button id="b5" class="sec">Limpar e recomeçar</button>
+</div>
+<div id="res" class="res warn">Ainda sem resultado. Segue os passos 1 → 2 → 3 → 4.</div>
+<div id="log" class="log"></div>
+<p style="margin-top:14px">Quando acabares, envia ao Claude o texto da caixa cinzenta (seleciona e copia) — ou um print.</p>
+<script>
+const $=s=>document.querySelector(s);const L=$('#log');
+function log(m,c){const d=document.createElement('div');if(c)d.className=c;d.textContent=new Date().toLocaleTimeString('pt-PT')+'  '+m;L.appendChild(d);}
+function res(m,c){const r=$('#res');r.className='res '+c;r.textContent=m;}
+let root=null;
+// --- ambiente ---
+log('origem: '+location.origin+'  ·  em iframe: '+(window!==window.top)+'  ·  same-origin com o topo: '+(()=>{try{return location.origin===window.top.location.origin}catch(e){return 'NÃO (cross-origin)'}})());
+log('browser: '+navigator.userAgent.replace(/^.*\) /,''));
+log('showDirectoryPicker: '+(typeof window.showDirectoryPicker)+'  ·  secureContext: '+window.isSecureContext,typeof window.showDirectoryPicker==='function'?'ok':'err');
+if(typeof window.showDirectoryPicker!=='function'){res('FALHOU: este browser não tem File System Access (usa Edge ou Chrome).','err');}
+// --- IndexedDB (igual à consola: base consola_autos, store kv, chave root) ---
+function idb(){return new Promise((ok,ko)=>{const r=indexedDB.open('teste_f0',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>ko(r.error);});}
+async function kvSet(k,v){const db=await idb();return new Promise((ok,ko)=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=ok;t.onerror=()=>ko(t.error);});}
+async function kvGet(k){const db=await idb();return new Promise((ok,ko)=>{const t=db.transaction('kv','readonly');const q=t.objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ko(q.error);});}
+async function kvDel(k){const db=await idb();return new Promise((ok,ko)=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').delete(k);t.oncomplete=ok;t.onerror=()=>ko(t.error);});}
+// --- passos ---
+$('#b1').onclick=async()=>{
+  try{root=await window.showDirectoryPicker({mode:'readwrite',id:'crmnt-teste-f0'});
+    log('1 OK · pasta escolhida: '+root.name,'ok');
+    await kvSet('root',root);log('   handle guardado em IndexedDB (teste_f0/kv/root)','ok');
+    $('#b2').disabled=false;res('Passo 1 OK — agora o passo 2.','warn');
+  }catch(e){log('1 FALHOU · '+e.name+': '+e.message,'err');res('FALHOU no passo 1: '+e.name+' — '+e.message,'err');}
+};
+$('#b2').onclick=async()=>{
+  try{const sub=await root.getDirectoryHandle('OBRAS_TESTE',{create:true});
+    const fh=await sub.getFileHandle('consola.json',{create:true});
+    const w=await fh.createWritable();const txt=JSON.stringify({papel:'DO',nome:'teste F0',escrito_em:new Date().toISOString()},null,2);
+    await w.write(txt);await w.close();
+    const f=await fh.getFile();const back=await f.text();
+    const igual=back===txt;
+    log('2 '+(igual?'OK':'FALHOU')+' · escrito e relido OBRAS_TESTE\\consola.json ('+f.size+' bytes)',igual?'ok':'err');
+    let n=0;for await(const [k] of sub.entries())n++;log('   listagem da pasta: '+n+' entrada(s)','ok');
+    $('#b3').disabled=false;res('Passo 2 OK — agora o passo 3 (recarregar) e depois o 4.','warn');
+  }catch(e){log('2 FALHOU · '+e.name+': '+e.message,'err');res('FALHOU no passo 2: '+e.name+' — '+e.message,'err');}
+};
+$('#b3').onclick=()=>{sessionStorage.setItem('f0_reload','1');location.reload();};
+$('#b4').onclick=async()=>{
+  try{const h=await kvGet('root');
+    if(!h){log('4 FALHOU · não há handle guardado (faz o passo 1 primeiro)','err');res('Sem handle guardado — começa no passo 1.','err');return;}
+    let p=await h.queryPermission({mode:'readwrite'});log('4 · permissão guardada: '+p+(p==='granted'?' (sem pedir!)':' → vai pedir'),p==='granted'?'ok':'warn');
+    if(p!=='granted')p=await h.requestPermission({mode:'readwrite'});
+    log('4 · permissão após pedido: '+p,p==='granted'?'ok':'err');
+    if(p!=='granted'){res('FALHOU no passo 4: o browser não deu a permissão ('+p+').','err');return;}
+    root=h;const sub=await h.getDirectoryHandle('OBRAS_TESTE');const fh=await sub.getFileHandle('consola.json');const f=await fh.getFile();const j=JSON.parse(await f.text());
+    log('4 OK · reaberta a pasta "'+h.name+'" e lido consola.json escrito em '+j.escrito_em,'ok');
+    const rel=sessionStorage.getItem('f0_reload')==='1';
+    res(rel?'TESTE F0 PASSOU: pasta escolhida, ficheiro escrito/lido e pasta reaberta depois de recarregar, tudo dentro do iframe.':'Passo 4 OK (mas sem recarregar antes — faz o 3 e repete o 4 para o teste completo).',rel?'ok':'warn');
+    $('#b2').disabled=false;
+  }catch(e){log('4 FALHOU · '+e.name+': '+e.message,'err');res('FALHOU no passo 4: '+e.name+' — '+e.message,'err');}
+};
+$('#b5').onclick=async()=>{await kvDel('root');sessionStorage.removeItem('f0_reload');root=null;$('#b2').disabled=true;$('#b3').disabled=true;log('limpo · handle apagado do IndexedDB','warn');res('Limpo. Começa no passo 1.','warn');};
+if(sessionStorage.getItem('f0_reload')==='1'){log('página recarregada — carrega agora no passo 4','warn');res('Recarregada. Carrega no passo 4 · Reabrir pasta guardada.','warn');}
+</script>
+</body></html>
