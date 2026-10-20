@@ -1,4 +1,4 @@
-<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-21-AU-1 (módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
+<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -3004,6 +3004,7 @@ function drawObrasLista(){
       +'<button id="tab-diario-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'diario\')"><svg class=li><use href=#li-book /></svg> Diário</button>'
       +'<button class="subtab" style="min-width:31%" onclick="openEvolucao(\''+esc(o.codigo)+'\',\''+esc(lblJS)+'\')"><svg class=li><use href=#li-func /></svg> Mão de obra</button>'
       +(vAnalise?'<button id="tab-analise-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'analise\')"><svg class=li><use href=#li-chart /></svg> Análise de produção</button>':'')
+      +(vAnalise?'<button id="tab-autos-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autos\')"><svg class=li><use href=#li-euro /></svg> Autos subemp.</button>':'')
       +'<button id="tab-gestao-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'gestao\')"><svg class=li><use href=#li-gear /></svg> Gestão</button>'
       +'</div>';
 
@@ -3069,6 +3070,8 @@ function drawObrasLista(){
 
     // ---- separador <svg class=li><use href=#li-chart /></svg> ANÁLISE DE PRODUÇÃO (€; só DO da obra + Admin; carrega ao abrir) ----
     if(vAnalise) h+='<div id="sec-analise-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
+    // ---- separador AUTOS A SUBEMPREITEIROS (o que está registado no CRM a partir dos envios; só DO da obra + Admin) ----
+    if(vAnalise) h+='<div id="sec-autos-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
 
     // ---- separador GESTÃO ----
     h+='<div id="sec-gestao-'+esc(o.codigo)+'" style="display:none;margin-top:8px">'
@@ -3582,7 +3585,8 @@ function toggleObraSec(cod, sec){
   if(sec==='contactos'){ var elc=document.getElementById('sec-contactos-'+cod); if(elc && elc.style.display==='none') carregarContactosObra(cod); }
   if(sec==='diario'){ var eld=document.getElementById('sec-diario-'+cod); if(eld && eld.style.display==='none') carregarDiarioObra(cod, 'sec-diario-'+cod); }
   if(sec==='analise'){ var ela=document.getElementById('sec-analise-'+cod); if(ela && ela.style.display==='none') carregarAnalise(cod); }
-  ['registo','ponto','contactos','diario','analise','gestao'].forEach(function(s){
+  if(sec==='autos'){ var elu=document.getElementById('sec-autos-'+cod); if(elu && elu.style.display==='none') carregarAutosObra_(cod); }
+  ['registo','ponto','contactos','diario','analise','autos','gestao'].forEach(function(s){
     var el=document.getElementById('sec-'+s+'-'+cod);
     var btn=document.getElementById('tab-'+s+'-'+cod);
     if(!el) return;
@@ -4736,6 +4740,31 @@ function renderAutosConsulta_(el){
     if(!obras.length){ el.innerHTML='<div class="hint">Ainda não há autos registados no CRM_NT nas tuas obras.</div>'; return; }
     el.innerHTML=obras.map(function(o){ return '<div class="card" style="cursor:pointer;margin:8px 0" onclick="autosConsultaObra_(\''+esc(o.codigo)+'\',this)"><b>'+esc(o.codigo+' — '+o.nome)+'</b><div class="hint" style="margin-top:3px">'+o.n_autos+' auto(s) · Σ '+Number(o.total||0).toLocaleString('pt-PT',{minimumFractionDigits:2})+' €'+(o.a_aprovar?' · <span style="color:var(--warn);font-weight:700">'+o.a_aprovar+' aguarda(m) Admin</span>':'')+'</div><div class="autosObraDet"></div></div>'; }).join('');
   }).catch(function(){ el.innerHTML='<div class="alert">Erro de ligação.</div>'; });
+}
+// Secção «Autos subemp.» do cartão da obra: valor de cada auto, estado do fluxo e Σ (dados dos envios pelo CRM_NT)
+function carregarAutosObra_(cod){
+  var el=document.getElementById('sec-autos-'+cod); if(!el) return;
+  el.innerHTML='<div class="loading">A carregar…</div>';
+  callSec('autosEstadoObra',cod).then(function(r){
+    if(!r||!r.ok){ el.innerHTML='<div class="hint">'+esc((r&&r.erro)||'Sem acesso.')+'</div>'; return; }
+    var P={2:'enviado ao Controller',3:'importado · aguarda Admin',5:'lançado no ERP',6:'enviado ao sub'};
+    var eur=function(n){ return Number(n||0).toLocaleString('pt-PT',{minimumFractionDigits:2})+' €'; };
+    var h='<div class="card" style="margin:0"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b>Σ autos da obra</b><b style="font-size:17px">'+eur(r.total)+'</b></div>'
+      +'<div class="hint">'+r.n_autos+' auto(s) válido(s) · '+r.n_subs+' subempreiteiro(s)'+(r.por_estado&&r.por_estado.a_aprovar?' · <span style="color:var(--warn);font-weight:700">aguarda Admin '+eur(r.por_estado.a_aprovar)+'</span>':'')+(r.por_estado&&r.por_estado.sem_autorizacao?' · <span style="color:var(--red);font-weight:700">sem autorização '+eur(r.por_estado.sem_autorizacao)+'</span>':'')+'</div>';
+    if(!(r.autos||[]).length){ h+='<div class="hint" style="margin-top:6px">Ainda não há autos desta obra enviados pelo CRM_NT.</div>'; }
+    (r.por_sub||[]).forEach(function(sb){
+      h+='<div style="margin-top:8px;border-top:1px solid var(--line);padding-top:6px"><div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:13px">'+esc(sb.sub_nome)+'</b><span>'+eur(sb.total)+'</span></div>';
+      (r.autos||[]).filter(function(a){ return (a.sub_codigo||a.sub_nome)===(sb.sub_codigo||sb.sub_nome); }).forEach(function(a){
+        var est=a.substituido?'substituído':(a.passo===4?(a.aprovacao==='recusado'?'recusado':'aprovado'):(P[a.passo]||''))+(a.sem_autorizacao?' · SEM AUTORIZAÇÃO':'');
+        h+='<div style="display:flex;justify-content:space-between;gap:8px;font-size:12.5px;'+(a.substituido?'color:var(--muted);text-decoration:line-through':'')+'"><span>'+esc(a.especialidade+' '+String(a.numero).padStart(3,'0')+(a.substitutivo?'S':'')+' · '+a.periodo)+'</span><b>'+eur(a.valor_mes)+'</b></div><div class="hint" style="margin:-2px 0 4px">'+esc(est)+'</div>';
+      });
+      h+='</div>';
+    });
+    if((r.por_periodo||[]).length) h+='<div style="margin-top:8px;border-top:1px solid var(--line);padding-top:6px;font-size:12.5px">'+(r.por_periodo||[]).map(function(p){ return '<div style="display:flex;justify-content:space-between"><span>'+esc(p.periodo)+' · '+p.n+' auto(s)</span><span>'+eur(p.total)+' <span class="hint">acum. '+eur(p.acumulado)+'</span></span></div>'; }).join('')+'</div>';
+    if(window.innerWidth>=1000) h+='<button class="btn btn-ic" style="margin-top:10px" onclick="tab(\'autos\')"><svg class=li><use href=#li-euro /></svg> Abrir a consola de autos</button>';
+    h+='</div>';
+    el.innerHTML=h;
+  }).catch(function(){ el.innerHTML='<div class="hint">Erro de ligação.</div>'; });
 }
 function autosConsultaObra_(cod,card){
   var det=card.querySelector('.autosObraDet'); if(!det) return; if(det.innerHTML){ det.innerHTML=''; return; }
