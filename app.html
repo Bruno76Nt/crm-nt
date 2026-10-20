@@ -1,4 +1,4 @@
-<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
+<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -136,6 +136,26 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--panel);di
 nav button{flex:1;background:transparent;border:none;color:var(--muted);font-family:inherit;font-weight:600;font-size:11px;padding:10px 2px;cursor:pointer;border-radius:7px;transition:all .15s;white-space:nowrap}
 nav button.on{background:var(--accent);color:#fff;padding-top:10px;margin-top:0;box-shadow:none;border-top:none}
 .ov{position:fixed;inset:0;z-index:60;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center}.ov.on{display:flex}
+/* PV-1 · cartão de validação de ponto (pele v4) */
+.vcard{padding:11px 13px;margin-top:8px;display:flex;flex-direction:column;gap:7px}
+.vcard.flag{border-color:#f2c9ce}
+.vtop{display:flex;align-items:flex-start;gap:10px}
+.vnum{font-family:var(--mono);font-size:11.5px;color:var(--muted);background:#eef1f5;border-radius:6px;padding:2px 6px;flex:0 0 auto;margin-top:1px}
+.vnm{flex:1;min-width:0}.vnm b{display:block;font-size:13.5px;letter-spacing:.2px}.vnm small{color:var(--muted);font-size:11.5px}
+.vhr{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}.vhr>div{font-size:12px;color:var(--muted)}.vhr b{font-size:17px;color:var(--text);font-family:var(--mono);font-weight:700;margin-left:4px}
+.vhr .cor{font-size:11.5px;color:var(--muted);margin-left:auto;text-align:right;flex-basis:100%}
+.vchips{display:flex;flex-wrap:wrap;gap:5px}
+.vch{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:#fff}
+.vch svg.li{width:13px;height:13px}
+.vch.ok{background:var(--ok-bg);color:var(--green);border-color:transparent}.vch.err{background:var(--red-bg);color:var(--red);border-color:transparent}.vch.warn{background:var(--warn-bg);color:var(--amber);border-color:transparent}
+.valert{display:flex;gap:8px;align-items:flex-start;background:var(--red-bg);color:var(--red);border-radius:7px;padding:7px 10px;font-size:12.5px;line-height:1.35}
+.valert svg.li{margin-top:2px;flex:0 0 auto}
+.vact{display:flex;gap:6px;align-items:center;margin-top:2px;flex-wrap:wrap}.vact .sp{flex:1}.vact .emp{flex:1 1 100%;font-size:12px}
+@media (min-width:1000px){.vact .emp{flex:1 1 auto}}
+.vb{height:36px;padding:0 12px;border-radius:7px;border:1px solid #c9d2dd;background:#fff;color:#3d566e;font-size:12.5px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;font-family:inherit;flex:1}
+.vb.pri{background:var(--accent);border-color:var(--accent);color:#fff;flex:2}.vb.rej{color:var(--red)}.vb.ico{flex:0 0 36px;width:36px;padding:0}
+.vgt{font-size:11.5px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600;margin:14px 2px 8px;display:flex;align-items:center;gap:8px}
+@media (min-width:1000px){.vb{height:32px;flex:0 0 auto}.vb.pri{flex:0 0 auto}.vb.ico{flex:0 0 32px;width:32px}.vhr .cor{flex-basis:auto}}
 .sheet{background:var(--panel);width:100%;max-width:560px;border-radius:12px 12px 0 0;border:1px solid var(--line);padding:18px 16px 26px;max-height:92vh;overflow:auto}
 .sheet h2{margin:0 0 4px;font-size:18px;text-transform:none;color:var(--text);font-weight:700}.sheet .sub{color:var(--muted);font-size:13px;margin-bottom:12px}
 label{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin:11px 0 5px;text-transform:none}
@@ -185,6 +205,9 @@ nav button svg.li{display:inline-block}
 .wrap{max-width:820px}
 body[data-tab=home] .wrap,body[data-tab=list] .wrap,body[data-tab=obras] .wrap,body[data-tab=gobras] .wrap,body[data-tab=agenda] .wrap,body[data-tab^=cons-] .wrap{max-width:1240px}
 body[data-tab=autos] .wrap{max-width:1500px}
+.sheet.wide{max-width:1240px}
+.vgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;align-items:start}
+.vgrid>.vcard{margin-top:0}
 nav button .nb{background:#ffc107;color:#000;font-size:11px;padding:1px 7px;border-radius:999px;font-weight:700;margin-left:6px}
 body[data-perfil=ctrl] nav{display:flex!important}
 body[data-perfil=ctrl] nav button:not(#t-autos):not(#t-ferias){display:none}
@@ -271,7 +294,7 @@ window.addEventListener('load', function(){
 <symbol id=li-card viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><circle cx="9" cy="11" r="1.8"/><path d="M6.5 15.5c.4-1.4 1.4-2 2.5-2s2.1.6 2.5 2"/><path d="M15 10h3M15 13h3"/></symbol>
 <symbol id=li-zz viewBox="0 0 24 24"><path d="M19 13.5A7.5 7.5 0 0 1 10.5 5 7.5 7.5 0 1 0 19 13.5"/></symbol>
 <symbol id=li-eye viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6"/><circle cx="12" cy="12" r="2.6"/></symbol>
-<symbol id=li-flag viewBox="0 0 24 24"><path d="M6 21V4"/><path d="M6 5h11l-2.5 3.5L17 12H6"/></symbol>
+<symbol id=li-edit viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol><symbol id=li-x viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol><symbol id=li-check viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id=li-flag viewBox="0 0 24 24"><path d="M6 21V4"/><path d="M6 5h11l-2.5 3.5L17 12H6"/></symbol>
 <symbol id=li-folder viewBox="0 0 24 24"><path d="M3.5 6.5h6l2 2.5h9v10h-17z"/></symbol>
 <symbol id=li-target viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></symbol>
 <symbol id=li-box viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="m4 8 8 4 8-4M12 12v8"/></symbol>
@@ -5559,25 +5582,16 @@ function funcRotuloHTML(x, tam){
 function cartaoConsola(x){
   var podeConfirmar = x.estado==='VAL_DO';
   var jaFechado = x.estado==='CONFIRMADO' || x.estado==='REJEITADO';
-  var h='<div class="card" style="padding:10px 12px;margin-top:8px;border-color:#c9d2dd;box-shadow:0 1px 3px rgba(20,40,70,.08)" data-val-linha="'+x.linha+'">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
-    +'<div>'+funcRotuloHTML(x,14)+'</div>'+estadoBadge(x.estado)+'</div>'
-    +'<div class="emp">'+esc(fmtD(x.data))+' · <svg class=li><use href=#li-obra /></svg> '+esc(x.obra)+'</div>'
-    +((x.dist!=null&&x.dist>200)?'<div class="emp" style="color:var(--red)">⚠ entrada a '+x.dist+'m da obra (fora dos 200m)</div>':(x.dist!=null?'<div class="emp" style="color:var(--green)">✓ entrada a '+x.dist+'m da obra</div>':''))
-    +((x.distSaida!=null&&x.distSaida>200)?'<div class="emp" style="color:var(--red)">⚠ saída a '+x.distSaida+'m da obra (fora dos 200m)</div>':(x.distSaida!=null?'<div class="emp" style="color:var(--green)">✓ saída a '+x.distSaida+'m da obra</div>':''))
-    +(x.gps&&x.gps.length?'<div style="font-size:12.5px;color:#fff;background:var(--red);border-radius:9px;padding:6px 9px;margin-top:5px;font-weight:700"><svg class=li><use href=#li-flag /></svg> GPS suspeito: '+x.gps.map(function(g){return esc(g);}).join(' · ')+'</div>':'')
-    +(x.prec?'<div class="emp">precisão GPS: ±'+esc(x.prec)+'m'+(x.precSaida?' / ±'+esc(x.precSaida)+'m à saída':'')+'</div>':'')
-    +(x.trabalho?'<div class="emp" style="margin-top:4px"><svg class=li><use href=#li-note /></svg> '+esc(x.trabalho)+'</div>':'')
-    +'<div style="font-size:15px;margin-top:4px">entrada <b>'+esc(x.entrada||'—')+'</b> · saída <b>'+esc(x.saida||'—')+'</b>'
-    +(x.entradaOrig||x.saidaOrig?' <span class="emp">(corrigido'+(x.corrigidoPor?' por '+esc(x.corrigidoPor):'')+'; orig. '+esc(x.entradaOrig||'—')+'›'+esc(x.saidaOrig||'—')+')</span>':'')+'</div>';
-  if(x.estado==='REJEITADO'){ h+='<div class="emp" style="color:var(--red)">rejeitado: '+esc(x.motivo||'')+'</div>'; }
+  var h='<div class="card vcard'+(x.gps&&x.gps.length?' flag':'')+'" style="border-color:#c9d2dd;box-shadow:0 1px 3px rgba(20,40,70,.08)" data-val-linha="'+x.linha+'">'
+    +vcorpo_(x, '<div class="emp">'+esc(fmtD(x.data))+' · <svg class=li><use href=#li-obra /></svg> '+esc(x.obra)+'</div>');
   if(!jaFechado){
-    h+='<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">';
-    if(podeConfirmar) h+='<button class="save" style="flex:1;margin:0;min-width:110px" onclick="confirmarRegLocal('+x.linha+')">Confirmar</button>';
-    else h+='<span class="emp" style="flex:1">Aguarda validação'+(x.temEnc?' (encarregado/DO)':' (DO)')+'.</span>';
-    h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px" onclick="abrirCorrigir('+x.linha+')">✎</button>';
-    h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px" onclick="abrirTrocarObra('+x.linha+',\'correrConsola\')"><svg class=li><use href=#li-swap /></svg></button>';
-    h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px;color:var(--red)" onclick="rejAbrir('+x.linha+')">✕</button>';
+    h+='<div class="vact">';
+    if(!podeConfirmar) h+='<span class="emp">Aguarda validação'+(x.temEnc?' (encarregado/DO)':' (DO)')+'.</span>';
+    h+='<span class="sp"></span>';
+    h+='<button class="vb ico" title="Corrigir horas" onclick="abrirCorrigir('+x.linha+')"><svg class=li><use href=#li-edit /></svg></button>';
+    h+='<button class="vb ico" title="Mudar de obra" onclick="abrirTrocarObra('+x.linha+',\'correrConsola\')"><svg class=li><use href=#li-swap /></svg></button>';
+    h+='<button class="vb ico rej" title="Rejeitar" onclick="rejAbrir('+x.linha+')"><svg class=li><use href=#li-x /></svg></button>';
+    if(podeConfirmar) h+='<button class="vb pri" onclick="confirmarRegLocal('+x.linha+')"><svg class=li><use href=#li-check /></svg> Confirmar</button>';
     h+='</div>';
     h+=rejPanelHTML_(x.linha,'cons');
     h+='<div id="corrigir-'+x.linha+'" style="display:none;margin-top:8px;gap:8px;align-items:flex-end;flex-wrap:wrap">'
@@ -5700,7 +5714,7 @@ function guardarCorrigir(linha, cb){
 }
 function openPontoObra(codigo, label){
   _valObraCod=codigo; _valObraLabel=label;
-  var el=document.getElementById('sheetEl');
+  var el=document.getElementById('sheetEl'); el.classList.add('wide');
   el.innerHTML='<div class="loading">A carregar ponto…</div>'; open_();
   correrPontoObra();
 }
@@ -5721,21 +5735,42 @@ function papelPontoAtual_(){
 }
 function desenhaPontoObra(dias, papel){
   var el=document.getElementById('sheetEl');
-  var h='<h2><svg class=li><use href=#li-users /></svg> Ponto da obra</h2><div class="sub">'+esc(_valObraLabel)+'</div>';
+  var nTot=0, nGps=0; dias.forEach(function(d){ nTot+=(d.porValidar||0); (d.registos||[]).forEach(function(x){ if(x.gps&&x.gps.length) nGps++; }); });
+  var h='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><h2 style="margin:0"><svg class=li><use href=#li-users /></svg> Ponto da obra</h2><span style="flex:1"></span>'
+    +(nGps?'<span class="badge" style="background:var(--red-bg);color:var(--red)">'+nGps+' GPS suspeito</span>':'')+(nTot?'<span class="badge" style="background:var(--warn-bg);color:var(--amber)">'+nTot+' por validar</span>':'')+'</div>'
+    +'<div class="sub">'+esc(_valObraLabel)+(dias.length?' · '+nTot+' por validar em '+dias.length+' dia'+(dias.length>1?'s':''):'')+'</div>';
   if(!dias.length){
     h+='<div class="hint" style="margin-top:12px">Sem registos de ponto nesta obra.</div>';
     h+='<button class="ghost" style="margin-top:12px" onclick="closeOv()">Fechar</button>';
     el.innerHTML=h; return;
   }
   dias.forEach(function(dia){
-    h+='<div class="sec" style="font-size:14px;margin-top:14px">'+esc(fmtD(dia.data))
-      +(dia.porValidar>0?' <span class="badge" style="background:var(--warn-bg);color:var(--amber)">'+dia.porValidar+' por validar</span>':'')+'</div>';
+    h+='<div class="vgt"><svg class=li><use href=#li-clip /></svg> '+esc(fmtD(dia.data))
+      +(dia.porValidar>0?' <span class="badge" style="background:var(--warn-bg);color:var(--amber)">'+dia.porValidar+' por validar</span>':'')+'</div><div class="vgrid">';
     dia.registos.forEach(function(x){
       h+=cartaoValidacao(x, papel);
     });
+    h+='</div>';
   });
   h+='<button class="ghost" style="margin-top:14px" onclick="closeOv()">Fechar</button>';
   el.innerHTML=h;
+}
+// PV-1 · corpo comum do cartão de validação (Ponto da obra do DO/encarregado e consola do administrativo)
+function vcorpo_(x, extraLinha){
+  var ch='';
+  if(x.dist!=null) ch+='<span class="vch '+(x.dist>200?'err':'ok')+'"><svg class=li><use href=#li-pin /></svg>entrada '+esc(x.dist)+' m'+(x.dist>200?' — fora dos 200 m':'')+'</span>';
+  if(x.saida&&x.distSaida!=null) ch+='<span class="vch '+(x.distSaida>200?'err':'ok')+'"><svg class=li><use href=#li-pin /></svg>saída '+esc(x.distSaida)+' m'+(x.distSaida>200?' — fora dos 200 m':'')+'</span>';
+  else if(!x.saida) ch+='<span class="vch err"><svg class=li><use href=#li-pin /></svg>sem saída</span>';
+  if(x.prec){ var precMax=Math.max(Number(x.prec)||0, Number(x.precSaida)||0); var pr_=function(v){ var n=Number(v); return isNaN(n)?esc(v):String(Math.round(n)); };
+    ch+='<span class="vch'+(precMax>30?' warn':'')+'" title="precisão do GPS"><svg class=li><use href=#li-target /></svg>±'+pr_(x.prec)+' m'+(x.precSaida?' / ±'+pr_(x.precSaida)+' m':'')+'</span>'; }
+  if(x.trabalho) ch+='<span class="vch"><svg class=li><use href=#li-note /></svg>'+esc(x.trabalho)+'</span>';
+  return '<div class="vtop">'+(x.funcNum?'<span class="vnum">'+esc(x.funcNum)+'</span>':'')+'<div class="vnm"><b>'+esc(x.func)+'</b>'+(x.funcCat?'<small>'+esc(x.funcCat)+'</small>':'')+'</div>'+estadoBadge(x.estado)+'</div>'
+    +(extraLinha||'')
+    +'<div class="vhr"><div>entrada<b>'+esc(x.entrada||'—')+'</b></div><div>saída<b>'+esc(x.saida||'—')+'</b></div>'
+    +(x.entradaOrig||x.saidaOrig?'<div class="cor">corrigido'+(x.corrigidoPor?' por '+esc(x.corrigidoPor):'')+'<br>orig. '+esc(x.entradaOrig||'—')+' › '+esc(x.saidaOrig||'—')+'</div>':'')+'</div>'
+    +(ch?'<div class="vchips">'+ch+'</div>':'')
+    +(x.gps&&x.gps.length?'<div class="valert"><svg class=li><use href=#li-flag /></svg><div><b>GPS suspeito</b> — '+x.gps.map(function(g){return esc(g);}).join(' · ')+'</div></div>':'')
+    +(x.estado==='REJEITADO'?'<div class="emp" style="color:var(--red)">rejeitado: '+esc(x.motivo||'')+'</div>':'');
 }
 // cartão de um registo (reutilizável) — ações conforme papel
 function cartaoValidacao(x, papel){
@@ -5748,37 +5783,23 @@ function cartaoValidacao(x, papel){
   // em qualquer estado, mesmo registos sem saída (picagens fantasma)
   var plV=String(MEPAPEL||'').toLowerCase();
   var podeRej = (papel==='admin') || (plV.indexOf('admin')>=0 && plV.indexOf('administrativo')<0);
-  var h='<div class="card" style="padding:10px 12px;margin-top:8px" data-val-linha="'+x.linha+'">'
-    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">'
-    +'<div>'+funcRotuloHTML(x,14)+'</div>'+estadoBadge(x.estado)+'</div>'
-    +'<div style="font-size:15px;margin-top:4px">entrada <b>'+esc(x.entrada||'—')+'</b> · saída <b>'+esc(x.saida||'—')+'</b>'
-    +(x.entradaOrig||x.saidaOrig?' <span class="emp">(corrigido'+(x.corrigidoPor?' por '+esc(x.corrigidoPor):'')+'; orig. '+esc(x.entradaOrig||'—')+'›'+esc(x.saidaOrig||'—')+')</span>':'')+'</div>'
-    +((x.dist!=null&&x.dist>200)?'<div class="emp" style="color:var(--red)">⚠ entrada a '+x.dist+'m da obra (fora dos 200m)</div>':(x.dist!=null?'<div class="emp" style="color:var(--green)">✓ entrada a '+x.dist+'m da obra</div>':''))
-    +((x.distSaida!=null&&x.distSaida>200)?'<div class="emp" style="color:var(--red)">⚠ saída a '+x.distSaida+'m da obra (fora dos 200m)</div>':(x.distSaida!=null?'<div class="emp" style="color:var(--green)">✓ saída a '+x.distSaida+'m da obra</div>':''))
-    +(x.gps&&x.gps.length?'<div style="font-size:12.5px;color:#fff;background:var(--red);border-radius:9px;padding:6px 9px;margin-top:5px;font-weight:700"><svg class=li><use href=#li-flag /></svg> GPS suspeito: '+x.gps.map(function(g){return esc(g);}).join(' · ')+'</div>':'')
-    +(x.prec?'<div class="emp">precisão GPS: ±'+esc(x.prec)+'m'+(x.precSaida?' / ±'+esc(x.precSaida)+'m à saída':'')+'</div>':'')
-    +(x.trabalho?'<div class="emp" style="margin-top:4px"><svg class=li><use href=#li-note /></svg> '+esc(x.trabalho)+'</div>':'');
-  if(x.estado==='REJEITADO'){ h+='<div class="emp" style="color:var(--red)">rejeitado: '+esc(x.motivo||'')+'</div>'; }
+  var h='<div class="card vcard'+(x.gps&&x.gps.length?' flag':'')+'" data-val-linha="'+x.linha+'">'+vcorpo_(x);
+  var bE='<button class="vb ico" title="Corrigir horas" onclick="abrirCorrigir('+x.linha+')"><svg class=li><use href=#li-edit /></svg></button>';
+  var bS='<button class="vb ico" title="Mudar de obra" onclick="abrirTrocarObra('+x.linha+',\'correrPontoObra\')"><svg class=li><use href=#li-swap /></svg></button>';
+  var bR='<button class="vb ico rej" title="Rejeitar" onclick="rejAbrir('+x.linha+')"><svg class=li><use href=#li-x /></svg></button>';
   if(!jaFechado){
-    h+='<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">';
+    h+='<div class="vact">';
     if(papel==='admin'){
-      if(podeValidar) h+='<button class="save" style="flex:1;margin:0;min-width:110px" onclick="validarReg('+x.linha+',\'admin\',this)">Confirmar</button>';
-      else h+='<span class="emp" style="flex:1">Aguarda validação'+(x.temEnc?' (encarregado/DO)':' (DO)')+'.</span>';
-      h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px" onclick="abrirCorrigir('+x.linha+')">✎</button>';
-      h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px" onclick="abrirTrocarObra('+x.linha+',\'correrPontoObra\')"><svg class=li><use href=#li-swap /></svg></button>';
-      h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px;color:var(--red)" onclick="rejAbrir('+x.linha+')">✕</button>';
+      if(!podeValidar) h+='<span class="emp">Aguarda validação'+(x.temEnc?' (encarregado/DO)':' (DO)')+'.</span>';
+      h+='<span class="sp"></span>'+bE+bS+bR;
+      if(podeValidar) h+='<button class="vb pri" onclick="validarReg('+x.linha+',\'admin\',this)"><svg class=li><use href=#li-check /></svg> Confirmar</button>';
     } else if(podeValidar){
-      h+='<button class="save" style="flex:1;margin:0;min-width:120px" onclick="validarReg('+x.linha+',\''+papel+'\',this)">Validar</button>';
-      h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px" onclick="abrirCorrigir('+x.linha+')">✎ Corrigir</button>';
-      h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px" onclick="abrirTrocarObra('+x.linha+',\'correrPontoObra\')"><svg class=li><use href=#li-swap /></svg> Obra</button>';
-      if(podeRej) h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px;color:var(--red)" onclick="rejAbrir('+x.linha+')">✕</button>';
+      h+='<span class="sp"></span>'+bE+bS+(podeRej?bR:'')+'<button class="vb pri" onclick="validarReg('+x.linha+',\''+papel+'\',this)"><svg class=li><use href=#li-check /></svg> Validar</button>';
     } else {
-      if(x.estado==='VAL_DO') h+='<span class="emp" style="flex:1">Validado ✓ — aguarda confirmação do administrativo.</span>';
-      else if(papel==='do' && x.temEnc && x.estado==='PENDENTE') h+='<span class="emp" style="flex:1">Aguarda validação do encarregado.</span>';
-      else if(papel==='encarregado' && x.estado!=='PENDENTE') h+='<span class="emp" style="flex:1">Já validado. Segue para o DO.</span>';
-      h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px" onclick="abrirCorrigir('+x.linha+')">✎ Corrigir</button>';
-      h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px" onclick="abrirTrocarObra('+x.linha+',\'correrPontoObra\')"><svg class=li><use href=#li-swap /></svg> Obra</button>';
-      if(podeRej && papel!=='admin') h+='<button class="btn btn-ic" style="flex:0 0 auto;padding:8px 12px;color:var(--red)" onclick="rejAbrir('+x.linha+')">✕</button>';
+      if(x.estado==='VAL_DO') h+='<span class="emp">Validado — aguarda confirmação do administrativo.</span>';
+      else if(papel==='do' && x.temEnc && x.estado==='PENDENTE') h+='<span class="emp">Aguarda validação do encarregado.</span>';
+      else if(papel==='encarregado' && x.estado!=='PENDENTE') h+='<span class="emp">Já validado. Segue para o DO.</span>';
+      h+='<span class="sp"></span>'+bE+bS+((podeRej && papel!=='admin')?bR:'');
     }
     h+='</div>';
     if(podeRej) h+=rejPanelHTML_(x.linha,'obra');
@@ -6052,7 +6073,7 @@ function drawNotas(){
   cont.innerHTML+=rodape;
 }
 function open_(){document.getElementById('ov').classList.add('on');}
-function closeOv(){document.getElementById('ov').classList.remove('on');}
+function closeOv(){document.getElementById('ov').classList.remove('on'); var sh=document.getElementById('sheetEl'); if(sh) sh.classList.remove('wide');}
 function busy(t){document.getElementById('sheetEl').innerHTML='<div class="loading">'+t+'</div>';}
 function bindOv_(){ var o=document.getElementById('ov'); if(o) o.addEventListener('click',e=>{if(e.target.id==='ov')closeOv();}); }
 bindOv_();
