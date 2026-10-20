@@ -1,4 +1,4 @@
-<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
+<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -136,6 +136,37 @@ nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--panel);di
 nav button{flex:1;background:transparent;border:none;color:var(--muted);font-family:inherit;font-weight:600;font-size:11px;padding:10px 2px;cursor:pointer;border-radius:7px;transition:all .15s;white-space:nowrap}
 nav button.on{background:var(--accent);color:#fff;padding-top:10px;margin-top:0;box-shadow:none;border-top:none}
 .ov{position:fixed;inset:0;z-index:60;background:rgba(15,23,42,.45);display:none;align-items:flex-end;justify-content:center}.ov.on{display:flex}
+/* FC-1 · ficha do contacto (pele v4) */
+.card.sub-aberta{border:2px solid var(--accent)!important;padding:0!important;overflow:hidden}
+.fch{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.fch .av{width:42px;height:42px;border-radius:9px;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:0 0 auto}
+.fch .ttl{min-width:0;flex:1 1 200px}.fch .ttl b{font-size:16px;display:block}.fch .ttl small{display:block;color:var(--muted);font-size:12px;margin-top:1px}
+.fch .pl{display:flex;gap:5px;flex-wrap:wrap}.fch .acts2{display:flex;gap:6px;margin-left:auto;align-items:center}
+.fch .acts2 .btn{height:34px}
+.ftabs{display:flex;gap:2px;padding:0 8px;border-bottom:1px solid var(--line);background:#fafbfc;overflow-x:auto}
+.ftab{display:inline-flex;align-items:center;gap:6px;padding:10px 11px;color:#3d566e;border:0;border-bottom:3px solid transparent;background:none;font-weight:500;font-size:13px;white-space:nowrap;cursor:pointer;margin-bottom:-1px;font-family:inherit;border-radius:0}
+.ftab.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:700}
+.ftab .n{font-family:var(--mono);font-size:11px;background:#eef1f5;color:#6c757d;border-radius:999px;padding:0 7px}
+#fichaBody{padding:12px 14px 16px}
+#fichaBody h2{font-size:14px;color:var(--accent);margin:0;text-transform:none}#fichaBody .sub{margin-bottom:6px}
+#fichaBody label{text-transform:uppercase;letter-spacing:.3px;font-size:11px;margin:8px 0 4px}
+#fichaBody input,#fichaBody select,#fichaBody textarea{border-radius:7px;border-color:#c9d2dd;padding:8px 10px;font-size:14px}
+#fichaBody .opts{gap:6px}#fichaBody .opt{flex:0 0 auto;min-width:0;padding:6px 12px;border-radius:999px;border-color:#c9d2dd;font-size:12.5px}
+#fichaBody .save{width:auto;display:inline-flex;align-items:center;gap:6px;padding:9px 16px;font-size:13.5px;margin:14px 6px 0 0}
+#fichaBody .ghost{width:auto;display:inline-flex;align-items:center;padding:9px 14px;margin:14px 6px 0 0}
+#fichaBody .fld{min-width:0}
+.nifbox{display:flex;gap:10px;align-items:center;padding:8px 11px;border:1px solid #bcd3ea;background:var(--accent-bg);border-radius:8px;font-size:12.5px;margin-top:6px;flex-wrap:wrap}
+.nifbox.ok{border-color:#a9d6bb;background:var(--ok-bg)}.nifbox.mut{border-color:var(--line);background:#f6f8fb;color:var(--muted)}
+.nifbox .ic{width:30px;height:30px;border-radius:7px;background:#fff;color:var(--accent);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.nifbox .hint{font-size:11.5px}
+.sheet .fch{padding:4px 0 10px}.sheet .ftabs{margin:0 -16px;padding:0 10px}.sheet #fichaBody{padding:8px 0 0}
+@media (min-width:1000px){
+.card.sub-aberta{grid-column:1/-1}
+#fichaBody .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 16px;align-items:end}
+#fichaBody .fgrid>*:not(.fld){grid-column:1/-1}
+#fichaBody .fld.wide{grid-column:1/-1}
+#fichaBody .save,#fichaBody .ghost{margin-top:12px}
+}
 /* PV-1 · cartão de validação de ponto (pele v4) */
 .vcard{padding:11px 13px;margin-top:8px;display:flex;flex-direction:column;gap:7px}
 .vcard.flag{border-color:#f2c9ce}
@@ -294,7 +325,7 @@ window.addEventListener('load', function(){
 <symbol id=li-card viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><circle cx="9" cy="11" r="1.8"/><path d="M6.5 15.5c.4-1.4 1.4-2 2.5-2s2.1.6 2.5 2"/><path d="M15 10h3M15 13h3"/></symbol>
 <symbol id=li-zz viewBox="0 0 24 24"><path d="M19 13.5A7.5 7.5 0 0 1 10.5 5 7.5 7.5 0 1 0 19 13.5"/></symbol>
 <symbol id=li-eye viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6"/><circle cx="12" cy="12" r="2.6"/></symbol>
-<symbol id=li-edit viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol><symbol id=li-x viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol><symbol id=li-check viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id=li-flag viewBox="0 0 24 24"><path d="M6 21V4"/><path d="M6 5h11l-2.5 3.5L17 12H6"/></symbol>
+<symbol id=li-link viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol><symbol id=li-edit viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol><symbol id=li-x viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol><symbol id=li-check viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol><symbol id=li-flag viewBox="0 0 24 24"><path d="M6 21V4"/><path d="M6 5h11l-2.5 3.5L17 12H6"/></symbol>
 <symbol id=li-folder viewBox="0 0 24 24"><path d="M3.5 6.5h6l2 2.5h9v10h-17z"/></symbol>
 <symbol id=li-target viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></symbol>
 <symbol id=li-box viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="m4 8 8 4 8-4M12 12v8"/></symbol>
@@ -1627,7 +1658,7 @@ function etapaTag_(e){
 // WhatsApp: nºs portugueses de 9 dígitos ganham o indicativo 351; internacionais seguem como estão.
 function waLink_(t){ var d=String(t||'').replace(/\D/g,''); if(!d) return ''; if(d.indexOf('00')===0) d=d.slice(2); if(d.length===9) d='351'+d; return 'https://wa.me/'+d; }
 function card(s){const pl=phone(s.tel||s.tel2||s.fixo),ai=availInfo(s),wa=waLink_(s.tel||s.tel2);
-  return '<div class="card" id="subcard-'+esc(s.id)+'" style="border-color:#c9d2dd;box-shadow:0 1px 3px rgba(20,40,70,.08)"><div class="row1"><div><div class="name">'+esc(s.nome)+'</div>'+(s.empresa?'<div class="emp">'+esc(s.empresa)+'</div>':'')+'</div><span class="badge '+ai.c+'">'+ai.l+'</span></div>'
+  return '<div class="card" id="subcard-'+esc(s.id)+'" style="border-color:#c9d2dd;box-shadow:0 1px 3px rgba(20,40,70,.08)"><div class="row1"><div><div class="name" style="cursor:pointer" onclick="abrirFichaSub(\''+s.id+'\',\'ficha\')">'+esc(s.nome)+'</div>'+(s.empresa?'<div class="emp">'+esc(s.empresa)+'</div>':'')+'</div><span class="badge '+ai.c+'">'+ai.l+'</span></div>'
    +'<div class="tags">'+etapaTag_(s.etapa)+(s.resp?'<span class="tag" style="background:#f3f5f8;color:var(--muted)"><svg class=li><use href=#li-user /></svg> '+esc(s.resp)+'</span>':'')+(s.zona?'<span class="tag zona">'+esc(s.zona)+'</span>':'')+(s.tipo||'').split(',').filter(Boolean).map(t=>'<span class="tag tipo">'+esc(t.trim())+'</span>').join('')+'</div>'
    +(function(){ var als=alocAtivasDe_(s.id); if(!als.length) return '';
       var a1=als[0];
@@ -1637,13 +1668,13 @@ function card(s){const pl=phone(s.tel||s.tel2||s.fixo),ai=availInfo(s),wa=waLink
    +'<div class="meta" style="border-top:1px dashed var(--line);padding-top:7px;margin-top:9px"><span>'+stars(s.aval)+'</span><span><svg class=li><use href=#li-phone /></svg> '+(s.ultima?fmt(s.ultima):'nunca')+'</span>'+(s.voltar?'<span>lembrete: <b>'+fmtD(s.voltar)+'</b></span>':'')+'</div>'
    +'<div class="acts">'+(pl?'<a class="btn btn-call" href="tel:'+pl+'" onclick="afterCall(\''+s.id+'\')"><svg class=li><use href=#li-phone /></svg> Ligar</a>':'<span class="btn btn-call" style="opacity:.4">Sem nº</span>')
    +(wa?'<a class="btn" style="background:#fff;color:#3d566e;border:1px solid #c9d2dd;text-decoration:none;display:flex;align-items:center;justify-content:center" href="'+wa+'" target="_blank" rel="noopener" onclick="afterCall(\''+s.id+'\')"><svg class=li><use href=#li-chat /></svg> WhatsApp</a>':'')
-   +'<button class="btn btn-reg" onclick="openReg(\''+s.id+'\')">Registar</button></div>'
+   +'<button class="btn btn-reg" onclick="abrirFichaSub(\''+s.id+'\',\'chamada\')">Registar</button></div>'
    +'<div class="acts" style="margin-top:6px">'
-   +'<button class="btn btn-ic" onclick="openHist(\''+s.id+'\')" title="Histórico"><svg class=li><use href=#li-clock /></svg></button>'
-   +'<button class="btn btn-ic'+(s.reserva?' tem-info':'')+'" onclick="openReserva(\''+s.id+'\')" title="Reservar contacto"><svg class=li><use href=#li-pin /></svg></button>'
-   +'<button class="btn btn-ic'+(alocAtivasDe_(s.id).length?' tem-info':'')+'" onclick="openAloc(\''+s.id+'\')" title="Obras / alocações"><svg class=li><use href=#li-obra /></svg></button>'
-   +'<button class="btn btn-ic" onclick="openAdd(\''+s.id+'\')" title="Editar">✎</button>'
-   +'<button class="btn btn-ic" onclick="abrirEncaminhar(\''+s.id+'\',\''+esc(String(s.nome).replace(/\x27/g,""))+'\')" title="Encaminhar contacto"><svg class=li><use href=#li-mail /></svg></button></div></div>';
+   +'<button class="btn btn-ic" onclick="abrirFichaSub(\''+s.id+'\',\'relacao\')" title="Relação"><svg class=li><use href=#li-clock /></svg></button>'
+   +'<button class="btn btn-ic'+(s.reserva?' tem-info':'')+'" onclick="abrirFichaSub(\''+s.id+'\',\'reserva\')" title="Reservar contacto"><svg class=li><use href=#li-pin /></svg></button>'
+   +'<button class="btn btn-ic'+(alocAtivasDe_(s.id).length?' tem-info':'')+'" onclick="abrirFichaSub(\''+s.id+'\',\'obras\')" title="Obras / alocações"><svg class=li><use href=#li-obra /></svg></button>'
+   +'<button class="btn btn-ic" onclick="abrirFichaSub(\''+s.id+'\',\'ficha\')" title="Ficha / editar"><svg class=li><use href=#li-edit /></svg></button>'
+   +'<button class="btn btn-ic" onclick="abrirFichaSub(\''+s.id+'\',\'encaminhar\')" title="Encaminhar contacto"><svg class=li><use href=#li-mail /></svg></button></div></div>';
 }
 function lembreteCard(l, admin){
   var n=daysTo(l.data); var dias=Math.abs(n);
@@ -2178,13 +2209,13 @@ function cancelarReserva(id){
 }
 function openHist(id){
   var s=SUBS.find(function(x){return x.id===id;}); if(!s) return;
-  document.getElementById('sheetEl').innerHTML='<div class="loading">A carregar a relação…</div>';
-  open_();
+  fichaHost_().innerHTML='<div class="loading">A carregar a relação…</div>';
+  fichaOpen_();
   callSec('relacaoSub', id).then(function(r){
-    if(!r || r.erro){ document.getElementById('sheetEl').innerHTML='<h2>Relação</h2><div class="hint">'+esc((r&&r.erro)||'Não foi possível carregar.')+'</div><button class="ghost" onclick="closeOv()">Fechar</button>'; return; }
+    if(!r || r.erro){ fichaHost_().innerHTML='<h2>Relação</h2><div class="hint">'+esc((r&&r.erro)||'Não foi possível carregar.')+'</div><button class="ghost" onclick="closeOv()">Fechar</button>'; return; }
     renderRelacao(s, r);
   }).catch(function(e){
-    document.getElementById('sheetEl').innerHTML='<h2>Relação</h2><div class="hint">Não foi possível carregar. '+(e&&e.message?e.message:'')+'</div><button class="ghost" onclick="closeOv()">Fechar</button>';
+    fichaHost_().innerHTML='<h2>Relação</h2><div class="hint">Não foi possível carregar. '+(e&&e.message?e.message:'')+'</div><button class="ghost" onclick="closeOv()">Fechar</button>';
   });
 }
 // Linha do tempo 360º: eventos partilhados, notas privadas (o servidor é que filtra).
@@ -2262,7 +2293,7 @@ function renderRelacao(s, r){
       +'</div>';
   }
   html+='<button class="ghost" style="margin-top:12px" onclick="closeOv()">Fechar</button>';
-  document.getElementById('sheetEl').innerHTML=html;
+  fichaHost_().innerHTML=html;
 }
 function fmtDataHora(s){
   if(!s) return '';
@@ -2284,7 +2315,7 @@ let regId=null,regR='Atendeu',regFim=null;
  * deriva do desfecho (acabaram os 5 chips); «Alocado a (DO)» saiu — pertence às
  * alocações <svg class=li><use href=#li-obra /></svg>. O servidor (registarChamada) recebe os mesmos dados de sempre. */
 function openReg(id){const s=SUBS.find(x=>x.id===id);regId=id;regR='Atendeu';regFim=null;
-  document.getElementById('sheetEl').innerHTML=
+  fichaHost_().innerHTML=
    '<h2><svg class=li><use href=#li-phone /></svg> Registar chamada</h2><div class="sub">'+esc(s.nome)+(s.tel?' · '+esc(s.tel):'')+'</div>'
    +'<label>A chamada</label><div class="opts" id="oR">'+RES.map(x=>'<div class="opt'+(x==='Atendeu'?' on':'')+'" onclick="pick(\'oR\',this);escolheRes(\''+x+'\')">'+x+'</div>').join('')+'</div>'
    +'<div id="regFimWrap"><label>E o que ficou?</label><div class="opts" id="oF">'
@@ -2297,7 +2328,7 @@ function openReg(id){const s=SUBS.find(x=>x.id===id);regId=id;regR='Atendeu';reg
    +'<div id="regCampos"></div>'
    +'<div id="regMsg" class="emp" style="color:var(--red);min-height:16px"></div>'
    +'<button class="save" onclick="saveReg()">Guardar</button><button class="ghost" onclick="closeOv()">Cancelar</button>';
-  open_(); escolheRes('Atendeu');}
+  fichaOpen_(); escolheRes('Atendeu');}
 function escolheRes(x){
   regR=x;
   var w=document.getElementById('regFimWrap');
@@ -2364,7 +2395,7 @@ function openReserva(id){
       +(s.reserva.semData?' · a definir (expira '+fmtD(s.reserva.data)+')':' · entra '+fmtD(s.reserva.data))
       +'. Reservar de novo substitui — fica a valer a reserva mais recente.</div>';
   }
-  document.getElementById('sheetEl').innerHTML=
+  fichaHost_().innerHTML=
     '<h2><svg class=li><use href=#li-pin /></svg> Reservar contacto</h2><div class="sub">'+esc(s.nome)+' — fica prometido para ti, à vista de todos os DO</div>'
     +'<label>Para a obra *</label><div style="position:relative"><input id="rvOb" autocomplete="off" placeholder="procurar código ou nome da obra…" value="'+esc(s.obra||'')+'" oninput="filtraObrasRv()" onfocus="filtraObrasRv()"><div id="rvObList" style="position:absolute;left:0;right:0;top:100%;z-index:5;background:#fff;border:1px solid var(--line);border-radius:10px;max-height:220px;overflow:auto;display:none;box-shadow:0 6px 18px rgba(20,40,70,.18)"></div></div>'
     +'<label>Quando entra?</label><div class="opts" id="rvModo">'
@@ -2377,7 +2408,7 @@ function openReserva(id){
     +'<div id="rvMsg" class="emp" style="color:var(--red);min-height:16px;margin-top:4px"></div>'
     +'<button class="save" onclick="salvarReserva(\''+esc(s.id)+'\')"><svg class=li><use href=#li-pin /></svg> Reservar</button>'
     +'<button class="ghost" onclick="closeOv()">Cancelar</button>';
-  open_();
+  fichaOpen_();
 }
 function rvModo_(sem, el){
   _rvSem=sem; setOne('rvModo', el);
@@ -2421,7 +2452,7 @@ function openNaoEntrou(id){
   var s=SUBS.find(function(x){return x.id===id;});
   var rv=s && s.reservaVencida;
   _neSim=false;
-  document.getElementById('sheetEl').innerHTML=
+  fichaHost_().innerHTML=
     '<h2>✕ Não entrou</h2><div class="sub">'+esc(s?s.nome:'')+(rv&&rv.obra?' · '+esc(rv.obra):'')+(rv&&rv.data?' · entrava a '+fmtD(rv.data):'')+'</div>'
     +'<label>Porquê?</label><div class="opts" id="neMot">'
     +'<div class="opt" data-m="Adiou a entrada" onclick="setOne(\'neMot\',this)"><svg class=li><use href=#li-cal /></svg> Adiou</div>'
@@ -2438,7 +2469,7 @@ function openNaoEntrou(id){
     +'<div id="neMsg" class="emp" style="color:var(--red);min-height:16px"></div>'
     +'<button class="save" onclick="salvarNaoEntrou(\''+esc(id)+'\')">Guardar</button>'
     +'<button class="ghost" onclick="closeOv()">Cancelar</button>';
-  open_();
+  fichaOpen_();
 }
 function neDataTgl_(sim){
   _neSim=sim;
@@ -2469,9 +2500,9 @@ function renovarReserva(id){
 }
 var _DOS_LISTA=null;
 function abrirEncaminhar(subId, subNome){
-  var el=document.getElementById('sheetEl');
+  var el=fichaHost_();
   el.innerHTML='<h2><svg class=li><use href=#li-mail /></svg> Encaminhar contacto</h2><div class="sub">'+esc(subNome)+'</div><div class="loading">a carregar…</div>';
-  open_();
+  fichaOpen_();
   function desenha(){
     var meuNome=MENOME;
     var dest=(_DOS_LISTA||[]).filter(function(d){ return d.nome && d.nome!==meuNome; })
@@ -2551,10 +2582,103 @@ function saveReg(){
     if(ne==='inativar'){ busy('A inativar…'); callSec('atualizarContacto',{id:regId,estado:'Inativo'}).then(function(){ closeOv(); recarregar(); }); return; }
     closeOv(); recarregar(); });}
 let addId=null;
+// ===== FC-1 · FICHA DO CONTACTO (pele v4): o cartão expande-se no lugar em PC, folha no telemóvel; =====
+// os submenus de sempre (openAdd/openHist/openReg/openReserva/openNaoEntrou/openAloc/abrirEncaminhar) desenham no corpo da ficha.
+var _FICHA={id:null,tab:null};
+var FICHA_TABS=[['ficha','Ficha','li-edit'],['relacao','Relação','li-clock'],['chamada','Chamada','li-phone'],['reserva','Reserva','li-pin'],['obras','Obras','li-obra'],['encaminhar','Encaminhar','li-mail']];
+function fichaHost_(){ var b=_FICHA.id?document.getElementById('fichaBody'):null; return b||document.getElementById('sheetEl'); }
+function fichaOpen_(){ if(_FICHA.id&&document.getElementById('fichaBody')) return; open_(); }
+function fichaChromeHTML_(s){
+  var ini=String(s.nome||'?').split(/\s+/).map(function(x){return x[0]||'';}).join('').slice(0,2).toUpperCase();
+  var pl=phone(s.tel||s.tel2||s.fixo), wa=waLink_(s.tel||s.tel2), ai=availInfo(s);
+  var sub=[s.empresa?esc(s.empresa):'', s.nif?'<span style="font-family:var(--mono)">NIF '+esc(s.nif)+'</span>':'', s.erpCodigo?'<span class="badge" style="background:var(--ok-bg);color:var(--green);font-size:10px"><svg class=li><use href=#li-link /></svg> ERP '+esc(s.erpCodigo)+'</span>':''].filter(Boolean).join(' · ');
+  var pills=etapaTag_(s.etapa)+(s.zona?'<span class="tag zona">'+esc(s.zona)+'</span>':'')+(s.tipo||'').split(',').filter(Boolean).map(function(t){return '<span class="tag tipo">'+esc(t.trim())+'</span>';}).join('')+'<span class="badge '+ai.c+'">'+ai.l+'</span>'+(s.aval&&s.aval!=='Lista negra'?'<span class="tag" style="background:var(--warn-bg);color:var(--amber)">'+stars(s.aval)+'</span>':'');
+  return '<div class="fch"><div class="av">'+esc(ini)+'</div><div class="ttl"><b>'+esc(s.nome)+'</b>'+(sub?'<small>'+sub+'</small>':'')+'</div><div class="pl">'+pills+'</div>'
+    +'<div class="acts2">'+(pl?'<a class="btn btn-call" style="flex:0 0 auto;padding:0 12px" href="tel:'+pl+'" onclick="afterCall(\''+s.id+'\')"><svg class=li><use href=#li-phone /></svg> Ligar'+(window.innerWidth>=1000?' · '+esc(pl):'')+'</a>':'')
+    +(wa?'<a class="btn" style="flex:0 0 auto;padding:0 12px;background:#fff;color:#3d566e;border:1px solid #c9d2dd;text-decoration:none;display:inline-flex;align-items:center;gap:6px" href="'+wa+'" target="_blank" rel="noopener" onclick="afterCall(\''+s.id+'\')"><svg class=li><use href=#li-chat /></svg> WhatsApp</a>':'')
+    +'<button class="btn btn-ic" style="flex:0 0 auto" onclick="fecharFichaSub()" title="Fechar"><svg class=li><use href=#li-x /></svg></button></div></div>'
+    +'<div class="ftabs">'+FICHA_TABS.map(function(t){ var n=t[0]==='obras'?alocAtivasDe_(s.id).length:0; return '<button class="ftab" id="ftab-'+t[0]+'" onclick="fichaTab_(\''+t[0]+'\')"><svg class=li><use href=#'+t[2]+' /></svg>'+t[1]+(n?' <span class="n">'+n+'</span>':'')+'</button>'; }).join('')+'</div>'
+    +'<div id="fichaBody"></div>';
+}
+function abrirFichaSub(id, tab){
+  var s=SUBS.find(function(x){return x.id===id;}); if(!s) return;
+  var pc=window.innerWidth>=1000;
+  if(_FICHA.id&&_FICHA.id!==id&&pc){ _FICHA={id:null,tab:null}; render(); }
+  _FICHA={id:id,tab:tab||'ficha'};
+  var host;
+  if(pc){ host=document.getElementById('subcard-'+id); if(!host){ _FICHA={id:null,tab:null}; return; } host.classList.add('sub-aberta'); host.innerHTML=fichaChromeHTML_(s); host.scrollIntoView({block:'start',behavior:'smooth'}); }
+  else { host=document.getElementById('sheetEl'); host.classList.remove('wide'); host.innerHTML=fichaChromeHTML_(s); open_(); }
+  fichaObserva_();
+  fichaTab_(_FICHA.tab);
+}
+function fecharFichaSub(){
+  var pc=window.innerWidth>=1000; _FICHA={id:null,tab:null};
+  if(!pc){ document.getElementById('ov').classList.remove('on'); }
+  if(curTab==='list') render();
+}
+function fichaTab_(tab){
+  if(!_FICHA.id) return; _FICHA.tab=tab; var id=_FICHA.id; var s=SUBS.find(function(x){return x.id===id;});
+  FICHA_TABS.forEach(function(t){ var b=document.getElementById('ftab-'+t[0]); if(b) b.classList.toggle('on', t[0]===tab); });
+  if(tab==='ficha') openAdd(id); else if(tab==='relacao') openHist(id); else if(tab==='chamada') openReg(id); else if(tab==='reserva') openReserva(id);
+  else if(tab==='obras') openAloc(id); else if(tab==='encaminhar') abrirEncaminhar(id, s?String(s.nome).replace(/\x27/g,''):'');
+  fichaGrelha_();
+}
+// agrupa label+campo em .fld para o formulário ficar em grelha no PC (idempotente; corre também quando o corpo muda)
+function fichaGrelha_(){
+  var b=document.getElementById('fichaBody'); if(!b||b.querySelector('.fgrid')) return;
+  var kids=[].slice.call(b.children); if(!kids.length) return;
+  var g=document.createElement('div'); g.className='fgrid';
+  var i=0;
+  while(i<kids.length){
+    var el=kids[i];
+    if(el.tagName==='LABEL'){
+      var f=document.createElement('div'); f.className='fld'; f.appendChild(el); var nx=kids[i+1];
+      if(nx&&nx.tagName!=='LABEL'&&nx.tagName!=='BUTTON'&&nx.tagName!=='H2'){ f.appendChild(nx); i++; if(nx.classList.contains('opts')||nx.tagName==='TEXTAREA'||nx.classList.contains('two')) f.classList.add('wide'); var nx2=kids[i+1]; if(nx2&&(nx2.id==='dW'||nx2.id==='nifBox')){ f.appendChild(nx2); i++; } }
+      g.appendChild(f);
+    } else g.appendChild(el);
+    i++;
+  }
+  b.appendChild(g);
+}
+var _fichaObs=null;
+function fichaObserva_(){
+  if(_fichaObs) _fichaObs.disconnect();
+  var b=document.getElementById('fichaBody'); if(!b) return;
+  _fichaObs=new MutationObserver(function(ms){ for(var k=0;k<ms.length;k++){ if(ms[k].target===b){ setTimeout(fichaGrelha_,0); break; } } });
+  _fichaObs.observe(b,{childList:true});
+}
+// ---- NIF ↔ tabela de subempreiteiros do ERP ----
+function nifValidoPT_(n){ n=String(n||'').replace(/\D/g,''); if(!/^\d{9}$/.test(n)) return false; var t=n.split('').map(Number),soma=0; for(var i=0;i<8;i++) soma+=t[i]*(9-i); var r=soma%11, cd=r<2?0:11-r; return cd===t[8]; }
+var _nifUlt='';
+function nifSugere_(inicial){
+  var box=document.getElementById('nifBox'); if(!box) return;
+  var n=val('aNif').replace(/\D/g,''), erp=val('aErp');
+  if(n.length<9){ _nifUlt=''; if(!n&&erp){ document.getElementById('aErp').value=''; } box.innerHTML=(n&&erp)?'<div class="nifbox"><span><svg class=li><use href=#li-link /></svg> ligado ao ERP <b>'+esc(erp)+'</b></span><span style="flex:1"></span><button type="button" class="btn btn-ic" onclick="nifDesligar_()">desligar</button></div>':''; return; }
+  if(n===_nifUlt&&!inicial) return; _nifUlt=n;
+  if(!nifValidoPT_(n)){ box.innerHTML='<div class="formwarn on">NIF inválido (9 dígitos com dígito de controlo).</div>'; return; }
+  box.innerHTML='<div class="nifbox"><span class="hint">a procurar na tabela do ERP…</span></div>';
+  callSec('subPorNif', n).then(function(r){
+    if(!r||!r.ok||val('aNif').replace(/\D/g,'')!==n) return;
+    var erpAgora=val('aErp');
+    if(r.entidade){
+      var e=r.entidade, ligado=(erpAgora===e.codigo);
+      var outros=(r.contactos||[]).filter(function(c){return c.id!==addId;});
+      box.innerHTML='<div class="nifbox'+(ligado?' ok':'')+'"><div class="ic"><svg class=li><use href=#li-link /></svg></div><div style="flex:1;min-width:0"><b>'+(ligado?'Ligado ao ERP: ':'Encontrado na tabela do ERP: ')+esc(e.codigo)+' · '+esc(e.nome)+'</b>'
+        +'<div class="hint">'+(e.email?'e-mail na tabela: '+esc(e.email):'a tabela não tem e-mail — o do contacto fica gravado nela (o Controller usa-o nos autos)')+(outros.length?' · também ligado a: '+outros.map(function(c){return esc(c.nome);}).join(', '):'')+'</div></div>'
+        +(ligado?'<button type="button" class="btn btn-ic" style="flex:0 0 auto" onclick="nifDesligar_()">desligar</button>':'<button type="button" class="btn btn-reg" style="flex:0 0 auto;padding:7px 12px" onclick="nifUsar_(\''+esc(e.codigo)+'\',\''+esc(e.nome).replace(/'/g,'&#39;')+'\',\''+esc(e.email)+'\')"><svg class=li><use href=#li-check /></svg> Usar e ligar</button>')+'</div>';
+    } else {
+      box.innerHTML='<div class="nifbox mut"><span>NIF válido — não está na tabela de subempreiteiros do ERP'+(erpAgora?' (ligado a '+esc(erpAgora)+')':'')+'.</span>'+(erpAgora?'<span style="flex:1"></span><button type="button" class="btn btn-ic" onclick="nifDesligar_()">desligar</button>':'')+'</div>';
+    }
+  }).catch(function(){ box.innerHTML=''; });
+}
+function nifUsar_(codigo,nome,email){ document.getElementById('aErp').value=codigo; var e=document.getElementById('aE'); if(e&&!e.value.trim()) e.value=nome; var m=document.getElementById('aM'); if(m&&!m.value.trim()&&email) m.value=email; _nifUlt=''; nifSugere_(true); }
+function nifDesligar_(){ document.getElementById('aErp').value=''; _nifUlt=''; nifSugere_(true); }
 function openAdd(id, pre){addId=id||null;const s=id?SUBS.find(x=>x.id===id):(pre||{});   // pre = valores preservados ao voltar da confirmação
-  document.getElementById('sheetEl').innerHTML=
+  fichaHost_().innerHTML=
    '<h2>'+(id?'Editar':'Novo')+' subempreiteiro</h2><div class="sub">'+(id?esc(s.nome):'Obrigatórios: nome, telemóvel, zona, tipo')+'</div>'
-   +'<label>Nome *</label><input id="aN" value="'+esc(s.nome)+'"><label>Empresa</label><input id="aE" value="'+esc(s.empresa)+'">'
+   +'<label>Nome *</label><input id="aN" value="'+esc(s.nome)+'">'
+   +'<label>NIF</label><input id="aNif" inputmode="numeric" maxlength="11" placeholder="9 dígitos — liga à tabela do ERP" value="'+esc(s.nif||'')+'" oninput="nifSugere_()" style="font-family:var(--mono)"><input type="hidden" id="aErp" value="'+esc(s.erpCodigo||'')+'"><div id="nifBox" class="wide"></div>'
+   +'<label>Empresa</label><input id="aE" value="'+esc(s.empresa)+'">'
    +'<label>Telemóvel principal *</label><input id="aT" inputmode="tel" value="'+esc(s.tel)+'" oninput="dup()"><div class="formwarn" id="dW"></div>'
    +'<div class="two"><div><label>Telemóvel alt.</label><input id="aT2" value="'+esc(s.tel2)+'" oninput="dup()"></div><div><label>Fixo</label><input id="aF" value="'+esc(s.fixo)+'" oninput="dup()"></div></div>'
    +'<label>Email</label><input id="aM" value="'+esc(s.email)+'">'
@@ -2573,7 +2697,7 @@ function openAdd(id, pre){addId=id||null;const s=id?SUBS.find(x=>x.id===id):(pre
    +'<button class="save" onclick="saveAdd()">'+(id?'Guardar':'Criar')+'</button>'
    +(id?('<button class="ghost" style="border-color:'+(String(s.estado||'').toUpperCase().indexOf('INATIV')>=0?'var(--green);color:var(--green)':'var(--red);color:var(--red)')+'" onclick="toggleEstado(\''+s.id+'\',\''+(String(s.estado||'').toUpperCase().indexOf('INATIV')>=0?'Ativo':'Inativo')+'\')">'+(String(s.estado||'').toUpperCase().indexOf('INATIV')>=0?'Reativar contacto':'Inativar contacto')+'</button>'):'')
    +'<button class="ghost" onclick="closeOv()">Cancelar</button>';
-  open_();}
+  fichaOpen_(); nifSugere_(true);}
 // aviso de duplicado em tempo real: compara os TRÊS números introduzidos com os TRÊS de cada contacto
 function dup(){
   const w=document.getElementById('dW'); if(!w) return;
@@ -2592,8 +2716,9 @@ function dup(){
 function saveAdd(){const tipos=[].slice.call(document.querySelectorAll('#aTP .opt.on')).map(o=>o.textContent).join(', ');
   const docEl=document.querySelector('#aDoc .opt.on');
   var tipoRelEl=document.querySelector('#aTipoRel .opt.on');
-  const o={id:addId,nome:val('aN'),empresa:val('aE'),tel:val('aT'),tel2:val('aT2'),fixo:val('aF'),email:val('aM'),zona:val('aZ'),tipo:tipos,notas:val('aNo'),aval:val('aAv'),doc:docEl?docEl.textContent:'',funcionarios:val('aFunc'),tipoRel:tipoRelEl?tipoRelEl.textContent:'Em prospeção',resp:val('aResp'),quem:ME};
+  const o={id:addId,nome:val('aN'),empresa:val('aE'),tel:val('aT'),tel2:val('aT2'),fixo:val('aF'),email:val('aM'),zona:val('aZ'),tipo:tipos,notas:val('aNo'),aval:val('aAv'),doc:docEl?docEl.textContent:'',funcionarios:val('aFunc'),tipoRel:tipoRelEl?tipoRelEl.textContent:'Em prospeção',resp:val('aResp'),quem:ME,nif:val('aNif').replace(/\D/g,''),erpCodigo:val('aErp')};
   if(!o.nome||!o.tel||!o.zona||!tipos){alert('Preenche nome, telemóvel, zona e tipo.');return;}
+  if(o.nif&&!nifValidoPT_(o.nif)){alert('NIF inválido (9 dígitos com dígito de controlo). Apaga-o ou corrige.');return;}
   if(addId){ busy('A guardar…'); callSec('atualizarContacto',o).then(()=>{closeOv();recarregar();}); }
   else{ confirmarNovoContacto(o); }}   // criar: mostra resumo para validação antes de gravar
 
@@ -2610,6 +2735,7 @@ function confirmarNovoContacto(o){
   h+='<div class="card" style="padding:4px 12px">'
     +linha('Nome', o.nome)
     +(o.empresa?linha('Empresa', o.empresa):'')
+    +(o.nif?linha('NIF', o.nif+(o.erpCodigo?' · ERP '+o.erpCodigo:'')):'')
     +linha('Telemóvel', o.tel)
     +(o.tel2?linha('Telemóvel alt.', o.tel2):'')
     +(o.fixo?linha('Fixo', o.fixo):'')
@@ -2622,7 +2748,7 @@ function confirmarNovoContacto(o){
     +'</div>';
   h+='<button class="save" onclick="criarContactoConfirmado()">✓ Confirmo — criar contacto</button>';
   h+='<button class="ghost" onclick="voltarAoFormulario()">‹ Corrigir dados</button>';
-  document.getElementById('sheetEl').innerHTML=h;
+  fichaHost_().innerHTML=h;
 }
 function voltarAoFormulario(){ if(_novoContacto) openAdd(null, _novoContacto); }
 function criarContactoConfirmado(){
@@ -2674,8 +2800,8 @@ function openAloc(id){
     +'<label>Nº de homens</label><input id="aHom" type="number" min="0" inputmode="numeric">'
     +'<label>Nota desta obra (privada)</label><textarea id="aNoAl" rows="2"></textarea>'
     +'<button class="save" onclick="entrarObra()">Registar entrada</button><button class="ghost" onclick="closeOv()">Fechar</button>';
-  document.getElementById('sheetEl').innerHTML=html;
-  open_();
+  fichaHost_().innerHTML=html;
+  fichaOpen_();
   // notas privadas das alocações: pedidas ao servidor, que só devolve as tuas (Admin vê todas)
   if(ativas.length){
     callSec('notasAlocacoes', id).then(function(r){
@@ -2726,7 +2852,7 @@ var _avalFecho=0;
 function saiuObra(id){
   var s=SUBS.find(function(x){return x.id===alocSubId;});
   _avalFecho=0;
-  document.getElementById('sheetEl').innerHTML='<h2>Saiu da obra</h2><div class="sub">'+esc(s?s.nome:'')+'</div>'
+  fichaHost_().innerHTML='<h2>Saiu da obra</h2><div class="sub">'+esc(s?s.nome:'')+'</div>'
     +'<div class="hint" style="margin-top:6px">Antes de fechar, avalia o trabalho — é isto que decide a quem ligamos primeiro da próxima vez.</div>'
     +'<div id="avEstrelas" style="display:flex;gap:6px;justify-content:center;margin:16px 0">'
       +[1,2,3,4,5].map(function(n){return '<span onclick="escolheAval('+n+')" id="avE'+n+'" style="font-size:34px;cursor:pointer;filter:grayscale(1)">★</span>';}).join('')+'</div>'
@@ -2741,7 +2867,7 @@ function confirmarSaiu(id){
   callSec('fecharAlocacao',{id:id, aval:_avalFecho}).then(function(r){
     if(r&&r.erro){ closeOv(); alert(r.erro); return; }
     if(r&&r.sugerirFidelizar){
-      document.getElementById('sheetEl').innerHTML='<h2>★ 2ª obra concluída</h2>'
+      fichaHost_().innerHTML='<h2>★ 2ª obra concluída</h2>'
         +'<div class="sub">'+esc(r.subNome||'')+'</div>'
         +'<div style="margin:12px 0;font-size:14px">Já concluiu <b>'+r.concluidas+'</b> obras connosco. Fidelizar este subempreiteiro?</div>'
         +'<button class="save" onclick="fidelizarAgora(\''+esc(r.subId)+'\')">★ Fidelizar</button>'
@@ -2767,7 +2893,7 @@ function atribuirEnc(codigo, nome){
 }
 function verFicaLivre(subId, data){
   var s=SUBS.find(function(x){return x.id===subId;});
-  document.getElementById('sheetEl').innerHTML='<div class="loading">A carregar…</div>'; open_();
+  fichaHost_().innerHTML='<div class="loading">A carregar…</div>'; fichaOpen_();
   callSec('chamadaFicaLivre',subId,data).then(function(c){
     var html='<h2>Fica livre</h2><div class="sub">'+esc(s?s.nome:'')+'</div>';
     if(!c){ html+='<div class="hint" style="margin-top:10px">Não encontrei a chamada que originou esta disponibilidade.</div>'; }
@@ -2784,8 +2910,8 @@ function verFicaLivre(subId, data){
     }
     html+='<button class="save" onclick="openReg(\''+subId+'\')">Registar novo contacto</button>'
         +'<button class="ghost" onclick="closeOv()">Fechar</button>';
-    document.getElementById('sheetEl').innerHTML=html;
-  }).catch(function(e){ document.getElementById('sheetEl').innerHTML='<h2>Fica livre</h2><div class="hint">Erro ao carregar.</div><button class="ghost" onclick="closeOv()">Fechar</button>'; });
+    fichaHost_().innerHTML=html;
+  }).catch(function(e){ fichaHost_().innerHTML='<h2>Fica livre</h2><div class="hint">Erro ao carregar.</div><button class="ghost" onclick="closeOv()">Fechar</button>'; });
 }
 function mes1_(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-01'; }
 function hojeISOc_(){ var d=new Date(); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
@@ -6073,8 +6199,8 @@ function drawNotas(){
   cont.innerHTML+=rodape;
 }
 function open_(){document.getElementById('ov').classList.add('on');}
-function closeOv(){document.getElementById('ov').classList.remove('on'); var sh=document.getElementById('sheetEl'); if(sh) sh.classList.remove('wide');}
-function busy(t){document.getElementById('sheetEl').innerHTML='<div class="loading">'+t+'</div>';}
+function closeOv(){ if(_FICHA.id){ fecharFichaSub(); return; } document.getElementById('ov').classList.remove('on'); var sh=document.getElementById('sheetEl'); if(sh) sh.classList.remove('wide');}
+function busy(t){fichaHost_().innerHTML='<div class="loading">'+t+'</div>';}
 function bindOv_(){ var o=document.getElementById('ov'); if(o) o.addEventListener('click',e=>{if(e.target.id==='ov')closeOv();}); }
 bindOv_();
 boot();
