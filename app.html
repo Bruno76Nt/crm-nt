@@ -1,4 +1,4 @@
-<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-20-SB-I (SB-H + Agenda alinhada com o mock: títulos escuros c/ subtítulo, ícone em quadrado base-soft, badges suaves, sem riscas no PC, itens neutros, Feito outline) · NÃO COLAR NO APPS SCRIPT -->
+<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-20-SB-J (SB-I + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -161,6 +161,16 @@ svg.li{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;str
 .lidot{display:inline-block;width:8px;height:8px;border-radius:999px;vertical-align:1px}
 /* ===== VISTA PC (≥1000px) — telemóvel fica intocado abaixo deste breakpoint ===== */
 .cardgrid{display:flex;flex-direction:column;gap:10px}
+.dformbtn{width:100%;background:#fff;border:1.5px dashed #c9d2dd;border-radius:8px;padding:11px;color:var(--navy);font-weight:600;font-size:13px;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:inherit;margin-top:8px}
+.dform{display:none;margin-top:8px}
+.dformcol.aberta .dform{display:block}
+.dvtabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-top:10px;overflow-x:auto}
+.dvtab{display:flex;align-items:center;gap:6px;padding:8px 11px;color:#3d566e;border-bottom:2px solid transparent;cursor:pointer;font-weight:500;white-space:nowrap;font-size:12.5px}
+.dvtab.on{color:var(--navy);border-bottom-color:var(--navy);font-weight:700}
+.dvn{min-width:20px;height:17px;border-radius:999px;padding:0 6px;font-size:10px;font-weight:700;font-family:var(--mono);display:inline-flex;align-items:center;justify-content:center;background:var(--accent-bg);color:var(--navy)}
+.dvtab.on .dvn{background:var(--navy);color:#fff}
+.dgal{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:6px}
+.dgal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:7px;border:1px solid var(--line)}
 .sec-prev{display:none}
 .sec-card.aberto .sec-prev{display:none!important}
 nav button svg.li{display:none}
@@ -194,6 +204,10 @@ body[data-tab=agenda] .sec-prev b{color:var(--text);font-weight:600}
 body[data-tab=agenda] .sec-card.aberto .sec-body{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
 body[data-tab=agenda] .sec-card.aberto .sec-body>.hint,body[data-tab=agenda] .sec-card.aberto .sec-body>div[id],body[data-tab=agenda] .sec-card.aberto .sec-body>.emp{grid-column:1/-1}
 body[data-tab=agenda] .sec-body .alert{margin:0}
+.dwrap{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+.dformbtn{display:none}
+.dform{display:block;margin-top:0}
+.dgal{grid-template-columns:repeat(5,1fr)}
 }
 @media (min-width:1280px){
 body[data-tab=obras] #obrasLista{grid-template-columns:repeat(3,1fr)}
@@ -3187,7 +3201,10 @@ function carregarDiarioObra(cod, elId){
   });
 }
 function desenhaDiarioObra(cod, el, entradas){
-  var h='<div style="display:flex;gap:4px;flex-wrap:wrap" id="dtp-'+esc(cod)+'">'
+  _DENT[cod]=entradas; _DELID[cod]=el.id;
+  if(!_DVIS[cod]) _DVIS[cod]={v:'tudo',asc:false};
+  var vis=_DVIS[cod];
+  var f='<div style="display:flex;gap:4px;flex-wrap:wrap" id="dtp-'+esc(cod)+'">'
     +DTIPOS.map(function(t,i){ return '<div class="opt'+(i===0?' on':'')+'" data-t="'+esc(t[0])+'" onclick="setOne(\'dtp-'+esc(cod)+'\',this)" style="padding:5px 9px;font-size:11.5px">'+t[1]+' '+esc(t[0])+'</div>'; }).join('')+'</div>'
     +'<input id="dtx-'+esc(cod)+'" placeholder="o que aconteceu hoje… (uma frase chega)" style="margin-top:8px">'
     +'<div style="display:flex;gap:8px;margin-top:8px;align-items:center">'
@@ -3196,16 +3213,57 @@ function desenhaDiarioObra(cod, el, entradas){
     +'<button class="save" style="width:100%;margin-top:8px" onclick="gravarDiarioObra(\''+esc(cod)+'\',\''+esc(el.id)+'\',this)">Registar no diário</button>'
     +'<div id="dmsg-'+esc(cod)+'" class="emp" style="color:var(--red);min-height:15px"></div>'
     +'<div class="emp" style="font-size:10.5px">Fica assinado com o teu nome e a hora. As entradas não se apagam — é o registo da obra.</div>';
-  // timeline agrupada por dia, recente primeiro
-  if(!entradas.length){ h+='<div class="hint" style="margin-top:8px">Ainda sem entradas. O quotidiano da obra — material, frentes, humidade, trabalhos a mais — fica aqui.</div>'; }
+  // ---- separadores por categoria + ordem + PDF (SB-J) ----
+  var nDO=0,nEnc=0,nFunc=0,nFotos=0;
+  entradas.forEach(function(e){
+    if(e.papel==='func') nFunc++;
+    else if(e.papel==='enc') nEnc++;
+    else nDO++;
+    if(e.fotos) nFotos+=e.fotos.filter(function(x){return String(x||'').trim()!=='';}).length;
+  });
+  function dtab(id,lbl,n){ return '<div class="dvtab'+(vis.v===id?' on':'')+'" onclick="dvSet(\''+esc(cod)+'\',\''+id+'\')">'+lbl+' <span class="dvn">'+n+'</span></div>'; }
+  var tabs='<div class="dvtabs">'
+    +dtab('tudo','Tudo',entradas.length)
+    +dtab('do','DO',nDO)
+    +dtab('enc','Encarregado',nEnc)
+    +dtab('func','Funcion\u00e1rios',nFunc)
+    +dtab('fotos','<svg class=li><use href=#li-cam /></svg> Fotografias',nFotos)
+    +'</div>'
+    +'<div style="display:flex;gap:6px;align-items:center;margin:8px 0 2px">'
+    +'<button class="btn btn-ic" style="padding:5px 10px;font-size:11.5px" onclick="dvOrdem(\''+esc(cod)+'\')">'+(vis.asc?'\u2191 antigas primeiro':'\u2193 recentes primeiro')+'</button>'
+    +'<button class="btn btn-ic" style="padding:5px 10px;font-size:11.5px;margin-left:auto" onclick="exportarDiarioPDF(\''+esc(cod)+'\')"><svg class=li><use href=#li-doc /></svg> Exportar PDF</button>'
+    +'</div>';
+  var corpo = (vis.v==='fotos') ? _dGaleria_(cod, _dOrdena_(entradas, vis.asc))
+                                : _dTimeline_(cod, _dFiltra_(_dOrdena_(entradas, vis.asc), vis.v));
+  el.innerHTML='<div class="dwrap"><div class="dformcol">'
+    +'<button class="dformbtn" onclick="this.parentElement.classList.toggle(\'aberta\')"><svg class=li><use href=#li-plus /></svg> Nova entrada no di\u00e1rio</button>'
+    +'<div class="dform">'+f+'</div></div>'
+    +'<div class="dmain">'+tabs+corpo+'</div></div>';
+}
+var _DENT={}, _DVIS={}, _DELID={};
+function _dOrdena_(entradas, asc){ var a=entradas.slice(); if(asc) a.reverse(); return a; }
+function _dFiltra_(entradas, v){
+  if(v==='tudo') return entradas;
+  return entradas.filter(function(e){
+    if(v==='func') return e.papel==='func';
+    if(v==='enc')  return e.papel==='enc';
+    return e.papel!=='func' && e.papel!=='enc';   // 'do' = DO + Admin
+  });
+}
+function dvSet(cod, v){ _DVIS[cod].v=v; _dRedesenha_(cod); }
+function dvOrdem(cod){ _DVIS[cod].asc=!_DVIS[cod].asc; _dRedesenha_(cod); }
+function _dRedesenha_(cod){ var el=document.getElementById(_DELID[cod]); if(el) desenhaDiarioObra(cod, el, _DENT[cod]||[]); }
+function _dTimeline_(cod, entradas){
+  var L='';
+  if(!entradas.length){ L+='<div class="hint" style="margin-top:8px">Ainda sem entradas. O quotidiano da obra — material, frentes, humidade, trabalhos a mais — fica aqui.</div>'; }
   var diaAnt='';
   entradas.forEach(function(e){
     var dia=String(e.quando||'').slice(0,10), hora=String(e.quando||'').slice(11,16);
-    if(dia!==diaAnt){ h+='<div style="font-size:11px;font-weight:800;color:var(--navy);margin:12px 0 2px;border-bottom:1px solid var(--line);padding-bottom:3px">'+esc(fmtD(dia))+'</div>'; diaAnt=dia; }
+    if(dia!==diaAnt){ L+='<div style="font-size:11px;font-weight:800;color:var(--navy);margin:12px 0 2px;border-bottom:1px solid var(--line);padding-bottom:3px">'+esc(fmtD(dia))+'</div>'; diaAnt=dia; }
     // <svg class=li><use href=#li-func /></svg> nota de funcionário (v-B 23/09): projeção do ponto, intercalada na cronologia
     // da linha do tempo (hora da saída); só leitura — corrige-se na validação do ponto
     if(e.papel==='func'){
-      h+='<div style="background:#f4f7fb;border:1px solid #c9d7e8;border-left:4px solid #1e4c84;border-radius:10px;padding:8px 10px;margin-top:6px">'
+      L+='<div style="background:#f4f7fb;border:1px solid #c9d7e8;border-left:4px solid #1e4c84;border-radius:10px;padding:8px 10px;margin-top:6px">'
         +'<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
         +'<span style="border-radius:999px;padding:2px 8px;font-size:10px;font-weight:800;background:#e8eef6;color:#1e4c84"><svg class=li><use href=#li-func /></svg> Nota de funcionário</span>'
         +'<span class="emp">'+esc(hora)+'</span></div>'
@@ -3215,7 +3273,7 @@ function desenhaDiarioObra(cod, el, entradas){
       return;
     }
     var c=DTCOR[e.tipo]||DTCOR['Outro'];
-    h+='<div style="background:#fff;border:1px solid #dce2ec;border-radius:10px;padding:8px 10px;margin-top:6px">'
+    L+='<div style="background:#fff;border:1px solid #dce2ec;border-radius:10px;padding:8px 10px;margin-top:6px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center;gap:6px">'
       +'<span style="border-radius:999px;padding:2px 8px;font-size:10px;font-weight:800;background:'+c[0]+';color:'+c[1]+'">'+_dtipoIco_(e.tipo)+' '+esc(e.tipo)+'</span>'
       +'<span class="emp">'+esc(hora)+'</span></div>'
@@ -3230,7 +3288,64 @@ function desenhaDiarioObra(cod, el, entradas){
       +'<div style="font-size:10.5px;color:var(--muted);margin-top:4px">✎ '+esc(e.autor)+(e.papel==='enc'?' (encarregado)':(e.papel==='do'?' (DO)':''))+((e.fotos&&e.fotos.length)?' · '+e.fotos.length+' foto'+(e.fotos.length>1?'s':''):'')+'</div>'
       +'</div>';
   });
-  el.innerHTML=h;
+  return L;
+}
+function _dGaleria_(cod, entradas){
+  var L='', diaAnt='';
+  var alguma=false;
+  entradas.forEach(function(e){
+    var fts=(e.fotos||[]).filter(function(x){return String(x||'').trim()!=='';});
+    if(!fts.length) return;
+    alguma=true;
+    var dia=String(e.quando||'').slice(0,10), hora=String(e.quando||'').slice(11,16);
+    if(dia!==diaAnt){ L+='<div style="font-size:11px;font-weight:800;color:var(--navy);margin:12px 0 4px;border-bottom:1px solid var(--line);padding-bottom:3px">'+esc(fmtD(dia))+'</div>'; diaAnt=dia; }
+    L+='<div class="emp" style="font-size:11px;margin:4px 0 4px">'+esc(e.autor||'')+' \u00b7 '+esc(hora)+'</div>'
+      +'<div class="dgal">'+fts.map(function(fid){
+        var ehUrl=/^https?:\/\//.test(String(fid));
+        var ver=ehUrl?fid:('https://drive.google.com/file/d/'+fid+'/view');
+        var mini=ehUrl?fid:('https://drive.google.com/thumbnail?id='+fid+'&sz=w400');
+        return '<a href="'+esc(ver)+'" target="_blank" rel="noopener"><img src="'+esc(mini)+'" loading="lazy"></a>';
+      }).join('')+'</div>';
+  });
+  if(!alguma) L='<div class="hint" style="margin-top:8px">Ainda sem fotografias neste di\u00e1rio.</div>';
+  return L;
+}
+function exportarDiarioPDF(cod){
+  var entradas=_DENT[cod]||[];
+  var ob=(OBRAS||[]).filter(function(o){return o.codigo===cod;})[0];
+  var titulo=ob?ob.label:cod;
+  var agora=new Date();
+  var H='<!doctype html><html lang="pt"><head><meta charset="utf-8"><title>Di\u00e1rio de Obra \u2014 '+esc(titulo)+'</title>'
+    +'<style>body{font-family:system-ui,Arial,sans-serif;color:#1f2937;margin:28px;font-size:12.5px}'
+    +'h1{font-size:17px;color:#163963;margin:0 0 2px}.sub{color:#6c757d;font-size:11px;margin-bottom:16px}'
+    +'.dia{font-size:12px;font-weight:700;color:#163963;border-bottom:1px solid #ccc;margin:16px 0 6px;padding-bottom:2px}'
+    +'.ent{border:1px solid #ddd;border-radius:6px;padding:8px 10px;margin-bottom:8px;page-break-inside:avoid}'
+    +'.hd{font-size:11px;color:#6c757d;margin-bottom:3px}.hd b{color:#1f2937}'
+    +'.tg{border:1px solid #bbb;border-radius:999px;padding:1px 7px;font-size:10px;margin-left:5px}'
+    +'img{width:130px;height:98px;object-fit:cover;border-radius:5px;border:1px solid #ccc;margin:4px 4px 0 0}'
+    +'@media print{a{color:#1f2937;text-decoration:none}}</style></head><body>'
+    +'<h1>Di\u00e1rio de Obra \u2014 '+esc(titulo)+'</h1>'
+    +'<div class="sub">CRM_NT \u00b7 Norte TOS \u00b7 exportado a '+agora.toLocaleDateString('pt-PT')+' '+agora.toLocaleTimeString('pt-PT').slice(0,5)+' \u00b7 '+entradas.length+' entrada(s)</div>';
+  var diaAnt='';
+  entradas.forEach(function(e){
+    var dia=String(e.quando||'').slice(0,10), hora=String(e.quando||'').slice(11,16);
+    if(dia!==diaAnt){ H+='<div class="dia">'+esc(fmtD(dia))+'</div>'; diaAnt=dia; }
+    var papel=e.papel==='func'?'Funcion\u00e1rio':(e.papel==='enc'?'Encarregado':'DO');
+    H+='<div class="ent"><div class="hd"><b>'+esc(e.autor||'')+'</b>'+(e.funcNum?' \u00b7 n\u00ba '+esc(e.funcNum):'')+' \u00b7 '+esc(hora)
+      +'<span class="tg">'+papel+'</span>'+(e.tipo&&e.papel!=='func'?'<span class="tg">'+esc(e.tipo)+'</span>':'')+'</div>'
+      +'<div style="white-space:pre-wrap">'+esc(e.texto||'')+'</div>';
+    var fts=(e.fotos||[]).filter(function(x){return String(x||'').trim()!=='';});
+    if(fts.length){ H+='<div>'+fts.map(function(fid){
+        var ehUrl=/^https?:\/\//.test(String(fid));
+        var mini=ehUrl?fid:('https://drive.google.com/thumbnail?id='+fid+'&sz=w400');
+        return '<img src="'+esc(mini)+'">';
+      }).join('')+'</div>'; }
+    H+='</div>';
+  });
+  H+='<script>window.onload=function(){setTimeout(function(){window.print();},600);};<\/script></body></html>';
+  var w=window.open('','_blank');
+  if(!w){ alert('O navegador bloqueou a janela de exporta\u00e7\u00e3o. Permite pop-ups para a app e tenta outra vez.'); return; }
+  w.document.open(); w.document.write(H); w.document.close();
 }
 function dfoConta_(cod){
   var inp=document.getElementById('dfo-'+cod), n=inp&&inp.files?inp.files.length:0;
