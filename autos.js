@@ -175,7 +175,7 @@ async function viewConfig(){
   m.innerHTML=`<h2>Configurações</h2>
   <div class="card"><h3 style="margin-top:0">Pasta pessoal ${S.papel==='CONTROLLER'?'CONTROLO_AUTOS':'OBRAS'}</h3><div class="row"><span>${S.root?`<b>${esc(S.root.name)}</b> (ligada)`:(pend?`"${esc(pend.name)}" memorizada — <button id="bRe">reabrir</button>`:'nenhuma')}</span><button class="sec" id="bPick">Escolher outra pasta…</button></div>
     <p class="hint">A pasta onde ficam as obras (uma subpasta por obra). Só funciona no Edge ou Chrome; a permissão fica memorizada neste computador para o teu utilizador do CRM_NT. Noutro PC, escolhe a pasta outra vez — nada se perde.</p>
-    <div class="row" style="margin-top:8px"><label style="flex:1"><span>Caminho completo da pasta no Windows (para "Abrir no Excel"; requer correr uma vez o instalar_abrir_no_excel.cmd)</span><input id="cfgPath" style="width:100%" placeholder="C:\\Users\\...\\OBRAS" value="${esc(S.cfg.caminho||'')}"></label></div></div>
+    <div class="row" style="margin-top:8px"><label style="flex:1"><span>Caminho completo desta pasta no Windows (para «Abrir no Excel» — abre diretamente no Excel instalado, sem instalador)</span><input id="cfgPath" style="width:100%" placeholder="C:\\Users\\...\\OBRAS" value="${esc(S.cfg.caminho||'')}"></label></div></div>
   <div class="card"><h3 style="margin-top:0">Utilizador</h3><div class="kv"><span>Nome</span><span><b>${esc(CTX.nome)}</b> <span class="tag ok">do login do CRM_NT</span> — fica nos Autos emitidos e nos envios</span><span>Papel</span><span><span class="chip ${S.papel==='CONTROLLER'?'ctrl':'do'}">${S.papel==='CONTROLLER'?'Controller':'Diretor de Obra'}</span> <span class="hint">definido pelo CRM_NT</span></span><span>Dia de fecho</span><span><b>${CFG.dia_fecho}</b> · regra global do CRM_NT (Admin)</span></div>
     <p class="hint">O <code>consola.json</code> da pasta é escrito com estes valores — a consola autónoma abre a mesma pasta sem notar diferença.</p></div>
   <button id="bCfg" ${S.root?'':'disabled'}>Guardar</button>
@@ -942,10 +942,17 @@ async function emitirAuto(a,dados){
 
 /* ---------- abrir no Excel ---------- */
 function caminhoAuto(id){const base=S.cfg?.caminho;if(!base)return null;return `${base}\\${S.obraDir.name}\\autos\\${id}.xlsx`;}
+function urlExcel_(p){
+  // C:\\Users\\x\\a.xlsx → file:///C:/Users/x/a.xlsx ; \\\\servidor\\partilha\\a.xlsx → file://servidor/partilha/a.xlsx
+  let f=String(p).replace(/\\/g,'/');
+  if(!f.startsWith('//'))f='//'+(f.startsWith('/')?'':'/')+f;
+  return 'ms-excel:ofe|u|file:'+encodeURI(f);
+}
 function abrirNoExcel(id){
   const p=caminhoAuto(id);
   if(!p){toast('Para abrir no Excel indica o caminho completo da pasta OBRAS em Configurações (ex.: C:\\Users\\nome\\Documents\\OBRAS)','warn');if(typeof go==='function')go('config');return;}
-  const url='consolaautos:'+encodeURIComponent(p);
+  const url=urlExcel_(p);
+  if(p.length>216)toast('Caminho com '+p.length+' caracteres — o Excel só aceita até 216 por este método; se não abrir, usa ⧉ copiar caminho','warn');
   try{console.log('[autos] abrir no Excel →',url);}catch(e){}
   // dentro do CRM a consola corre num iframe: o pedido de protocolo externo é feito pela janela de topo
   // (mesma origem no GitHub Pages); se o browser recusar, tenta pela própria frame e, por fim, por janela nova
@@ -953,7 +960,7 @@ function abrirNoExcel(id){
   try{if(window.top&&window.top!==window){window.top.location.href=url;lancado=true;}}catch(e){console.warn('[autos] top.location recusado',e);}
   if(!lancado){try{const a=document.createElement('a');a.href=url;document.body.appendChild(a);a.click();a.remove();lancado=true;}catch(e){console.warn('[autos] anchor recusado',e);}}
   if(!lancado){try{window.open(url,'_blank');}catch(e){console.warn('[autos] window.open recusado',e);}}
-  toast('A abrir '+id+'.xlsx — se o browser perguntar, permite «consolaautos»; se nada acontecer, corre uma vez o instalar_abrir_no_excel.cmd (pasta CONSOLA) neste PC ou usa ⧉ copiar caminho');
+  toast('A abrir '+id+'.xlsx no Excel — à primeira vez o browser pergunta se pode abrir o Excel: «Permitir sempre». Se nada acontecer, usa ⧉ copiar caminho.');
 }
 async function copiarCaminho(id){const p=caminhoAuto(id)||`${S.obraDir.name}\\autos\\${id}.xlsx`;try{await navigator.clipboard.writeText(p);toast('Caminho copiado: '+p,'ok');}catch(e){prompt('Caminho do ficheiro:',p);}}
 
