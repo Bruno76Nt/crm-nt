@@ -4855,7 +4855,7 @@ function relExportar(todos){
 // ===== MÓDULO AUTOS (F1b) · consola de autos de subempreiteiros =====
 // autos.js (a consola v0.30 levantada para o CRM) e exceljs.min.js (a mesma biblioteca que a consola embute)
 // vivem no repositório ao lado do app.html e só são carregados quando se abre o separador Autos em PC.
-var AUTOS_VER='2026-10-22-1';
+var AUTOS_VER='2026-10-22-2';
 var _autosP=null;
 function carregarScript_(src){ return new Promise(function(res,rej){ var sc=document.createElement('script'); sc.src=src; sc.onload=function(){res();}; sc.onerror=function(){rej(new Error('Não consegui carregar '+src));}; document.head.appendChild(sc); }); }
 function carregarAutosJS_(){

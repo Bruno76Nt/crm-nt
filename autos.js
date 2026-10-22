@@ -946,7 +946,13 @@ function abrirNoExcel(id){
   const p=caminhoAuto(id);
   if(!p){toast('Para abrir no Excel indica o caminho completo da pasta OBRAS em Configurações (ex.: C:\\Users\\nome\\Documents\\OBRAS)','warn');if(typeof go==='function')go('config');return;}
   const url='consolaautos:'+encodeURIComponent(p);
-  const a=document.createElement('a');a.href=url;document.body.appendChild(a);a.click();a.remove();
+  try{console.log('[autos] abrir no Excel →',url);}catch(e){}
+  // dentro do CRM a consola corre num iframe: o pedido de protocolo externo é feito pela janela de topo
+  // (mesma origem no GitHub Pages); se o browser recusar, tenta pela própria frame e, por fim, por janela nova
+  let lancado=false;
+  try{if(window.top&&window.top!==window){window.top.location.href=url;lancado=true;}}catch(e){console.warn('[autos] top.location recusado',e);}
+  if(!lancado){try{const a=document.createElement('a');a.href=url;document.body.appendChild(a);a.click();a.remove();lancado=true;}catch(e){console.warn('[autos] anchor recusado',e);}}
+  if(!lancado){try{window.open(url,'_blank');}catch(e){console.warn('[autos] window.open recusado',e);}}
   toast('A abrir '+id+'.xlsx — se o browser perguntar, permite «consolaautos»; se nada acontecer, corre uma vez o instalar_abrir_no_excel.cmd (pasta CONSOLA) neste PC ou usa ⧉ copiar caminho');
 }
 async function copiarCaminho(id){const p=caminhoAuto(id)||`${S.obraDir.name}\\autos\\${id}.xlsx`;try{await navigator.clipboard.writeText(p);toast('Caminho copiado: '+p,'ok');}catch(e){prompt('Caminho do ficheiro:',p);}}
