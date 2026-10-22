@@ -1,4 +1,4 @@
-// CRM_NT · módulo AUTOS · autos.js · build 2026-10-20
+// CRM_NT · módulo AUTOS · autos.js · build 2026-10-22
 // A Consola de Autos v0.30 levantada para dentro do CRM_NT: o código da consola está aqui tal e qual
 // (gerado por build_autos.py a partir de consola_v0.30.html, com os patches assinalados P1–P13);
 // o CRM entra só onde a consola não podia: login (nome/papel), obras do CRM, tabela de subempreiteiros,
@@ -944,10 +944,10 @@ async function emitirAuto(a,dados){
 function caminhoAuto(id){const base=S.cfg?.caminho;if(!base)return null;return `${base}\\${S.obraDir.name}\\autos\\${id}.xlsx`;}
 function abrirNoExcel(id){
   const p=caminhoAuto(id);
-  if(!p){toast('Indica primeiro o caminho da pasta OBRAS no ecrã Obras','warn');return;}
+  if(!p){toast('Para abrir no Excel indica o caminho completo da pasta OBRAS em Configurações (ex.: C:\\Users\\nome\\Documents\\OBRAS)','warn');if(typeof go==='function')go('config');return;}
   const url='consolaautos:'+encodeURIComponent(p);
   const a=document.createElement('a');a.href=url;document.body.appendChild(a);a.click();a.remove();
-  toast('A abrir '+id+'.xlsx — se nada acontecer, corre uma vez o instalar_abrir_no_excel.cmd (pasta CONSOLA) ou usa ⧉ copiar caminho');
+  toast('A abrir '+id+'.xlsx — se o browser perguntar, permite «consolaautos»; se nada acontecer, corre uma vez o instalar_abrir_no_excel.cmd (pasta CONSOLA) neste PC ou usa ⧉ copiar caminho');
 }
 async function copiarCaminho(id){const p=caminhoAuto(id)||`${S.obraDir.name}\\autos\\${id}.xlsx`;try{await navigator.clipboard.writeText(p);toast('Caminho copiado: '+p,'ok');}catch(e){prompt('Caminho do ficheiro:',p);}}
 
