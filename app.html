@@ -1,4 +1,4 @@
-<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-22-AU-4 (autos.js: «Abrir no Excel» pelo ms-excel:ofe|u|file:///, sem instalador nem PowerShell; base AU-3) · anterior: v2026-10-22-AU-3 (autos.js com mensagens do «Abrir no Excel» apontadas a Configurações; base FC-1) · anterior: v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
+<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-23-OR-1 (separador «Orçamento» no cartão da obra: versão corrente, trabalhos não previstos, versões, importar adenda — fonte única no Supabase; base AU-4) · anterior: v2026-10-22-AU-4 (autos.js: «Abrir no Excel» pelo ms-excel:ofe|u|file:///, sem instalador nem PowerShell; base AU-3) · anterior: v2026-10-22-AU-3 (autos.js com mensagens do «Abrir no Excel» apontadas a Configurações; base FC-1) · anterior: v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -271,6 +271,37 @@ body[data-tab=agenda] .sec-body .alert{margin:0}
 body[data-tab=obras] #obrasLista{grid-template-columns:repeat(3,1fr)}
 .cardgrid{grid-template-columns:repeat(3,1fr)}
 }
+/* ===== OR-1 · Orçamento da obra ===== */
+.orc-bar{display:flex;gap:10px;align-items:center;padding:9px 11px;border:1px solid var(--line);background:var(--accent-bg);border-radius:8px;font-size:12.5px;flex-wrap:wrap}
+.orc-bar .v{width:30px;height:30px;border-radius:7px;background:var(--panel);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:0 0 auto}
+.orc-bar b{font-size:13px}.orc-bar small{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}.orc-bar .sp{flex:1}
+.orc-chips{display:flex;gap:6px;margin:10px 0;flex-wrap:wrap}
+.orc-chips span{padding:5px 11px;border:1px solid var(--line);border-radius:999px;font-size:12px;color:var(--muted);font-weight:600;cursor:pointer;background:var(--panel)}
+.orc-chips span.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.orc-kp{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.orc-kp div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.orc-kp small{display:block;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.3px;font-weight:700}
+.orc-kp b{font-size:15px;display:block;margin-top:2px}.orc-kp b.bad{color:var(--red)}.orc-kp b.okc{color:var(--green)}
+.orc-wrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.orct{border-collapse:collapse;width:100%;font-size:12.5px;text-transform:none}
+.orct th{background:var(--accent-bg);color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:.03em;font-weight:700;text-align:left;padding:6px 8px;white-space:nowrap}
+.orct td{border-bottom:1px solid var(--line);padding:6px 8px;vertical-align:middle}
+.orct td.num,.orct th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.orct tr.cap td{background:var(--panel2);font-weight:700;color:var(--navy);font-size:11.5px;text-transform:uppercase;letter-spacing:.3px}
+.orct tr.tm td{background:#fffdf4}.orct tr.new td{background:#f0f9f3}.orct tr.rem td{color:var(--muted);text-decoration:line-through}
+.orct td.mono{font-family:ui-monospace,Consolas,monospace;font-size:12px;white-space:nowrap}
+.orc-pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--accent-bg);color:var(--navy);white-space:nowrap;text-transform:none}
+.orc-pill.ok{background:var(--ok-bg);color:var(--green)}.orc-pill.warn{background:var(--warn-bg);color:var(--amber)}.orc-pill.err{background:var(--red-bg);color:var(--red)}.orc-pill.mut{background:var(--panel2);color:var(--muted)}.orc-pill.pur{background:#e9e3f7;color:#5b3f9e}
+.orc-box{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--panel)}
+.orc-box.w{border-color:#ffe69c;background:var(--warn-bg)}.orc-box.e{border-color:#f1aeb5;background:var(--red-bg)}.orc-box h4{font-size:13px;margin:0 0 6px}
+.orc-steps{display:flex;gap:4px;margin:0 0 10px}.orc-steps span{flex:1;text-align:center;font-size:11px;font-weight:700;padding:5px 0;border-radius:999px;background:var(--panel2);color:var(--muted)}
+.orc-steps span.done{background:var(--accent-bg);color:var(--navy)}.orc-steps span.on{background:var(--navy);color:#fff}
+.orc-b{height:30px;padding:0 10px;border-radius:7px;border:1px solid var(--line);background:var(--panel);color:var(--text);font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:5px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.orc-b.pri{background:var(--navy);border-color:var(--navy);color:#fff}.orc-b.danger{color:var(--red);border-color:var(--red)}.orc-b:disabled{opacity:.5;cursor:not-allowed}
+.orc-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.orc-form label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.orc-form input,.orc-form select{width:100%;margin-top:3px;font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:7px;background:var(--panel);color:var(--text)}
+.orc-sel{font:inherit;padding:4px 6px;border:1px solid var(--line);border-radius:6px;background:var(--panel);max-width:360px}
+@media (max-width:999px){.orc-kp{grid-template-columns:repeat(2,1fr)}.orc-form{grid-template-columns:1fr}.orct{font-size:12px}.orct th,.orct td{padding:5px 6px}}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -3118,6 +3149,7 @@ function drawObrasLista(){
     var nPend=(PENDOBRAS[o.codigo]||0);
     var temPonto=!!o.temPonto;
     var vAnalise=(ehAdmT || o.doObra===MENOME);   // <svg class=li><use href=#li-chart /></svg> só DO da obra + Admin (o servidor confirma)
+    var vOrc=(admin || o.doObra===MENOME);          // Orçamento: Admin, Administrativo e DO da obra (o servidor confirma; Controller lê pela consola)
     // ===== ACORDEÃO (v-A 09/09): cartão fechado = identidade + sinais; toque abre =====
     // meta rápida ao estilo da Consola de Autos (equipas / homens hoje / fim previsto)
     var _ms=o.subs||[], _mNeg=0, _mHoje=0;
@@ -3154,6 +3186,7 @@ function drawObrasLista(){
       +'<button class="subtab" style="min-width:31%" onclick="openEvolucao(\''+esc(o.codigo)+'\',\''+esc(lblJS)+'\')"><svg class=li><use href=#li-func /></svg> Mão de obra</button>'
       +(vAnalise?'<button id="tab-analise-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'analise\')"><svg class=li><use href=#li-chart /></svg> Análise de produção</button>':'')
       +(vAnalise?'<button id="tab-autos-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autos\')"><svg class=li><use href=#li-euro /></svg> Autos subemp.</button>':'')
+      +(vOrc?'<button id="tab-orc-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'orc\')"><svg class=li><use href=#li-doc /></svg> Orçamento</button>':'')
       +'<button id="tab-gestao-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'gestao\')"><svg class=li><use href=#li-gear /></svg> Gestão</button>'
       +'</div>';
 
@@ -3221,6 +3254,8 @@ function drawObrasLista(){
     if(vAnalise) h+='<div id="sec-analise-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
     // ---- separador AUTOS A SUBEMPREITEIROS (o que está registado no CRM a partir dos envios; só DO da obra + Admin) ----
     if(vAnalise) h+='<div id="sec-autos-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
+    // ---- separador ORÇAMENTO (OR-1: fonte única no Supabase; DO da obra, Admin, Administrativo) ----
+    if(vOrc) h+='<div id="sec-orc-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
 
     // ---- separador GESTÃO ----
     h+='<div id="sec-gestao-'+esc(o.codigo)+'" style="display:none;margin-top:8px">'
@@ -3735,7 +3770,8 @@ function toggleObraSec(cod, sec){
   if(sec==='diario'){ var eld=document.getElementById('sec-diario-'+cod); if(eld && eld.style.display==='none') carregarDiarioObra(cod, 'sec-diario-'+cod); }
   if(sec==='analise'){ var ela=document.getElementById('sec-analise-'+cod); if(ela && ela.style.display==='none') carregarAnalise(cod); }
   if(sec==='autos'){ var elu=document.getElementById('sec-autos-'+cod); if(elu && elu.style.display==='none') carregarAutosObra_(cod); }
-  ['registo','ponto','contactos','diario','analise','autos','gestao'].forEach(function(s){
+  if(sec==='orc'){ var elo=document.getElementById('sec-orc-'+cod); if(elo && elo.style.display==='none') carregarOrcObra_(cod); }
+  ['registo','ponto','contactos','diario','analise','autos','orc','gestao'].forEach(function(s){
     var el=document.getElementById('sec-'+s+'-'+cod);
     var btn=document.getElementById('tab-'+s+'-'+cod);
     if(!el) return;
@@ -4926,6 +4962,170 @@ function autosConsultaObra_(cod,card){
       return '<div style="display:flex;justify-content:space-between;gap:8px;'+(a.substituido?'color:var(--muted);text-decoration:line-through':'')+'"><span>'+esc(a.sub_nome.split(' ')[0]+' · '+a.especialidade+' '+String(a.numero).padStart(3,'0')+(a.substitutivo?'S':'')+' · '+a.periodo)+'</span><b>'+Number(a.valor_mes||0).toLocaleString('pt-PT',{minimumFractionDigits:2})+' €</b></div><div class="hint" style="margin:-2px 0 5px">'+esc(est)+'</div>'; }).join('')
       +'<div style="display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:5px;font-weight:700"><span>Σ obra</span><span>'+Number(r.total||0).toLocaleString('pt-PT',{minimumFractionDigits:2})+' €</span></div></div>';
   });
+}
+
+// ===================== OR-1 · ORÇAMENTO DA OBRA (fonte única no Supabase) =====================
+// Lê orcDaObra (sem preços) + orcTmLista; importa versões com orcImportar/orcAtivar (xlsx lido aqui com ExcelJS,
+// o mesmo leitor da Consola de Autos); trabalhos não previstos com orcTmProposta/orcTmDecisao. Mock validado 23/10.
+var _ORC={};
+function orcNum_(n,d){ return (n==null||isNaN(Number(n)))?'—':Number(n).toLocaleString('pt-PT',{minimumFractionDigits:(d==null?2:d),maximumFractionDigits:(d==null?2:d)}); }
+function orcData_(v){ if(!v) return ''; try{ var d=new Date(v); return isNaN(d)?String(v):d.toLocaleDateString('pt-PT')+(String(v).length>10?' '+d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}):''); }catch(e){ return String(v); } }
+var ORC_TM_LBL={proposto:['proposto · aguarda quantidade',''],quantificado:['quantificado · a orçamentar no ERP',''],orcamentado:['orçamentado · aguarda cliente','warn'],aprovado:['aprovado pelo cliente','ok'],recusado:['recusado pelo cliente','err'],integrado:['integrado','ok'],sem_destino:['sem destino','err']};
+function carregarOrcObra_(cod, vista){
+  var el=document.getElementById('sec-orc-'+cod); if(!el) return;
+  el.innerHTML='<div class="loading">A carregar…</div>';
+  Promise.all([callSec('orcDaObra',cod,{}), callSec('orcTmLista',cod)]).then(function(rs){
+    var r=rs[0], t=rs[1];
+    if(!r||!r.ok){ el.innerHTML='<div class="hint">'+esc((r&&r.erro)||'Sem acesso.')+'</div>'; return; }
+    var S=_ORC[cod]||{}; S.r=r; S.tms=(t&&t.ok)?t.tms:[]; S.vista=vista||S.vista||'artigos'; S.filtro=S.filtro||'todos'; S.versoes=null; S.imp=null; S.cmp=null; _ORC[cod]=S;
+    orcDesenha_(cod); if(S.vista==='versoes') orcCarregarVersoes_(cod);
+  }).catch(function(){ el.innerHTML='<div class="hint">Erro de ligação.</div>'; });
+}
+function orcPodeEditar_(S){ return ['Admin','Administrativo','DO'].indexOf(S.r.papel_na_obra)>=0; }
+function orcVista_(cod,v){ var S=_ORC[cod]; if(!S) return; S.vista=v; orcDesenha_(cod); if(v==='versoes'&&!S.versoes) orcCarregarVersoes_(cod); }
+function orcDesenha_(cod){
+  var S=_ORC[cod], el=document.getElementById('sec-orc-'+cod); if(!S||!el) return;
+  var r=S.r, v=r.versao, pc=window.innerWidth>=1000, edita=orcPodeEditar_(S);
+  var nTm=S.tms.filter(function(x){ return x.estado_tm && x.estado_tm!=='integrado'; }).length;
+  var h='<div class="orc-bar"><div class="v">'+(v?'v'+v.numero:'—')+'</div><div><b>'+(v?'Orçamento v'+v.numero+' · corrente':'Sem orçamento no CRM')+'</b><small>'+(v?esc((v.origem||''))+' · '+orcData_(v.data)+' por '+esc(v.autor||''):'Importa o xlsx do ERP para esta obra'+(pc?'':' (em PC)'))+' · '+r.artigos.length+' artigos'+(nTm?' · '+nTm+' trabalho(s) não previsto(s) em curso':'')+'</small></div><div class="sp"></div>'
+    +(edita&&pc?'<button class="orc-b pri" onclick="orcVista_(\''+cod+'\',\'importar\')">Importar '+(v?'adenda (nova versão)':'orçamento')+'</button>':'')+'</div>';
+  h+='<div class="orc-chips">'+[['artigos','Artigos'],['tm','Trabalhos não previstos'+(S.tms.length?' ('+S.tms.length+')':'')],['versoes','Versões']].map(function(x){ return '<span class="'+(S.vista===x[0]?'on':'')+'" onclick="orcVista_(\''+cod+'\',\''+x[0]+'\')">'+x[1]+'</span>'; }).join('')+(S.vista==='importar'?'<span class="on">Importar</span>':'')+'</div>';
+  h+= S.vista==='tm'?orcTmHTML_(cod,S) : S.vista==='versoes'?orcVersoesHTML_(cod,S) : S.vista==='importar'?orcImportarHTML_(cod,S) : orcArtigosHTML_(cod,S);
+  if(!pc) h+='<div class="hint" style="margin-top:8px">No telemóvel o orçamento é só consulta; importar adendas e tratar trabalhos não previstos faz-se em PC.</div>';
+  el.innerHTML=h;
+}
+function orcArtigosHTML_(cod,S){
+  var r=S.r, arts=r.artigos, med={}, tot={}, acima=0, totMed={};
+  arts.forEach(function(a){ var u=String(a.unidade||'').toUpperCase(); if(a.origem!=='TM'&&a.qtd_contratada!=null){ tot[u]=(tot[u]||0)+Number(a.qtd_contratada); } totMed[u]=(totMed[u]||0)+Number(a.qtd_medida_obra||0); if(a.origem!=='TM'&&a.qtd_contratada!=null&&Number(a.qtd_medida_obra||0)>Number(a.qtd_contratada)*1.001) acima++; });
+  var fmtU=function(o){ var ks=Object.keys(o).filter(function(k){ return o[k]>0; }); return ks.length?ks.map(function(k){ return orcNum_(o[k],0)+' '+k.toLowerCase(); }).join(' · '):'—'; };
+  var tms=arts.filter(function(a){ return a.origem==='TM'; });
+  var h='<div class="orc-kp"><div><small>Contratado</small><b>'+fmtU(tot)+'</b></div><div><small>Medido no 3D</small><b>'+fmtU(totMed)+'</b></div><div><small>Acima do contratado</small><b class="'+(acima?'bad':'okc')+'">'+acima+' artigo(s)</b></div><div><small>Trabalhos não previstos</small><b>'+tms.length+'</b></div><div><small>Elementos 3D órfãos</small><b class="'+((r.orfaos||[]).length?'bad':'okc')+'">'+(r.orfaos||[]).reduce(function(n,o){ return n+(o.elementos||[]).length; },0)+'</b></div></div>';
+  var F=[['todos','Todos'],['medidos','Só com medição 3D'],['acima','Acima do contratado'],['tm','Trabalhos não previstos']];
+  h+='<div class="orc-chips" style="margin-top:0">'+F.map(function(f){ return '<span class="'+(S.filtro===f[0]?'on':'')+'" onclick="_ORC[\''+cod+'\'].filtro=\''+f[0]+'\';orcDesenha_(\''+cod+'\')">'+f[1]+'</span>'; }).join('')+'</div>';
+  var lista=arts.filter(function(a){ var m=Number(a.qtd_medida_obra||0); if(S.filtro==='medidos') return m>0; if(S.filtro==='acima') return a.origem!=='TM'&&a.qtd_contratada!=null&&m>Number(a.qtd_contratada)*1.001; if(S.filtro==='tm') return a.origem==='TM'; return true; });
+  if(!lista.length) return h+'<div class="hint">Nada a mostrar'+(arts.length?' com este filtro':'')+'.</div>';
+  h+='<div class="orc-wrap"><table class="orct"><thead><tr><th>Item</th><th>Descrição</th><th>Un</th><th class="num">Contratado</th><th class="num">Medido 3D</th><th class="num">Dif.</th><th>Estado</th></tr></thead><tbody>';
+  var cap=null;
+  lista.filter(function(a){ return a.origem!=='TM'; }).forEach(function(a){
+    var c=a.capitulo||''; if(c!==cap){ cap=c; h+='<tr class="cap"><td colspan="7">'+esc(c||'Sem capítulo')+'</td></tr>'; }
+    var m=Number(a.qtd_medida_obra||0), q=a.qtd_contratada==null?null:Number(a.qtd_contratada), d=q==null?null:m-q;
+    var est= q!=null&&m>q*1.001?'<span class="orc-pill err">medido acima do contratado</span>' : m===0?'<span class="orc-pill mut">sem medição</span>':'<span class="orc-pill ok">ok</span>';
+    h+='<tr'+(a.item_tm?' class="new"':'')+'><td class="mono">'+esc(a.item)+(a.item_tm?' <span class="orc-pill pur">era '+esc(a.item_tm)+'</span>':'')+'</td><td>'+esc(a.descricao)+'</td><td>'+esc(String(a.unidade||'').toLowerCase())+'</td><td class="num">'+orcNum_(q)+'</td><td class="num">'+(m>0?'<b>'+orcNum_(m)+'</b>':orcNum_(0))+'</td><td class="num" style="'+(d!=null&&d>0.001?'color:var(--red);font-weight:700':'color:var(--muted)')+'">'+(d==null?'—':(d>0?'+':'')+orcNum_(d,0))+'</td><td>'+est+'</td></tr>';
+  });
+  var tmL=lista.filter(function(a){ return a.origem==='TM'; });
+  if(tmL.length){ h+='<tr class="cap"><td colspan="7">TM · Trabalhos não previstos (fora do orçamento)</td></tr>';
+    tmL.forEach(function(a){ var L=ORC_TM_LBL[a.estado_tm]||[a.estado_tm||'',''];
+      h+='<tr class="tm"><td class="mono">'+esc(a.item)+'</td><td>'+esc(a.descricao)+'</td><td>'+esc(String(a.unidade||'').toLowerCase())+'</td><td class="num">—</td><td class="num"><b>'+orcNum_(a.qtd_medida_obra)+'</b></td><td class="num" style="color:var(--muted)">—</td><td><span class="orc-pill '+L[1]+'">'+esc(L[0])+'</span></td></tr>'; }); }
+  h+='</tbody></table></div>';
+  if((r.orfaos||[]).length) h+='<div class="orc-box e"><h4>Elementos 3D órfãos</h4>'+r.orfaos.map(function(o){ return '<div style="font-size:12.5px"><b>'+esc(o.item)+'</b> '+esc(o.descricao)+' — retirado na v'+o.retirado_na_versao+' · '+(o.elementos||[]).length+' elemento(s) ligado(s) no 3D: dissociar no plugin ou criar trabalho não previsto.</div>'; }).join('')+'</div>';
+  h+='<div class="hint">«Medido 3D» soma as publicações ativas de todos os modelos da obra. Os preços de venda e custo ficam na versão e só saem na consola de autos (DO da obra, Controller, Admin).</div>';
+  return h;
+}
+function orcFicha_(f){ if(!f||typeof f!=='object') return ''; var p=[]; if(f.tipologia) p.push(f.tipologia); if(f.montante) p.push(f.montante); if(f.espacamento_mm) p.push(f.espacamento_mm+' mm');
+  var pl=f.placas||{}; ['A','B'].forEach(function(l){ if(Array.isArray(pl[l])&&pl[l].length) p.push(l+': '+pl[l].map(function(x){ return x.tipo||''; }).join('+')); }); if(f.isolamento&&f.isolamento.tipo) p.push(f.isolamento.tipo+(f.isolamento.esp_mm||'')); return p.join(' · '); }
+function orcTmHTML_(cod,S){
+  var edita=orcPodeEditar_(S)&&window.innerWidth>=1000;
+  var h='<div class="orc-box" style="margin-top:0;font-size:11.5px;color:var(--muted)">1 proposto → 2 quantificado → 3 orçamentado → 4 aprovado / recusado → 5 integrado · sem destino. O plugin cria e quantifica; o preço nasce no ERP; o estado vive aqui.</div>';
+  if(!S.tms.length) return h+'<div class="hint">Ainda não há trabalhos não previstos nesta obra (o plugin cria-os na preparação).</div>';
+  h+='<div class="orc-wrap"><table class="orct"><thead><tr><th>Código</th><th>Descrição · ficha técnica</th><th>Un</th><th class="num">Estimado</th><th class="num">Aferido 3D</th><th>Estado</th><th>Proposta ERP</th><th>Cliente</th>'+(edita?'<th></th>':'')+'</tr></thead><tbody>';
+  S.tms.forEach(function(t){ var L=ORC_TM_LBL[t.estado_tm]||[t.estado_tm||'','']; var fin=['integrado','sem_destino'].indexOf(t.estado_tm)>=0;
+    h+='<tr><td class="mono">'+esc(t.item_tm||t.item)+(t.item_tm?'<br><span class="orc-pill pur">→ '+esc(t.item)+'</span>':'')+'</td><td>'+esc(t.descricao)+'<br><small style="color:var(--muted)">'+esc(orcFicha_(t.ficha))+(t.n_elementos?' · '+t.n_elementos+' elementos':'')+'</small></td><td>'+esc(String(t.unidade||'').toLowerCase())+'</td><td class="num">'+orcNum_(t.qtd_estimada,0)+'</td><td class="num"><b>'+orcNum_(t.qtd_medida)+'</b></td><td><span class="orc-pill '+L[1]+'">'+esc(L[0])+'</span></td><td class="mono">'+(t.proposta_ref?esc(t.proposta_ref)+(t.item_erp?' · '+esc(t.item_erp):'')+'<br><small>'+orcData_(t.proposta_em)+'</small>':'<span style="color:var(--muted)">—</span>')+'</td><td>'+(t.cliente_em?'<small>'+orcData_(t.cliente_em)+'</small>'+(t.cliente_motivo?'<br><small style="color:var(--muted)">'+esc(t.cliente_motivo)+'</small>':''):'<span style="color:var(--muted)">—</span>')+'</td>';
+    if(edita) h+='<td style="white-space:nowrap">'+(fin?'':'<button class="orc-b" onclick="orcTmForm_(\''+cod+'\',\''+t.artigo_id+'\')">Proposta…</button> '+(t.estado_tm==='orcamentado'?'<button class="orc-b" onclick="orcTmDecidir_(\''+cod+'\',\''+t.artigo_id+'\',\'aprovado\')">Aprovado</button> <button class="orc-b" onclick="orcTmDecidir_(\''+cod+'\',\''+t.artigo_id+'\',\'recusado\')">Recusado</button> ':'')+'<button class="orc-b danger" onclick="orcTmDecidir_(\''+cod+'\',\''+t.artigo_id+'\',\'sem_destino\')">Sem destino</button>')+'</td>';
+    h+='</tr>';
+    if(S.tmForm===t.artigo_id) h+='<tr><td colspan="9"><div class="orc-box" style="margin:4px 0"><h4>Registar proposta do ERP · '+esc(t.item_tm||t.item)+'</h4><div class="orc-form"><label>Referência da proposta<input id="orcPr-ref"></label><label>Enviada ao cliente em<input id="orcPr-em" type="date" value="'+new Date().toISOString().slice(0,10)+'"></label><label>Item proposto no ERP (opcional)<input id="orcPr-item" placeholder="001.04.03"></label></div><div class="hint">O preço fica no ERP; entra no CRM quando a adenda for importada como nova versão.</div><div style="margin-top:8px;display:flex;gap:6px"><button class="orc-b pri" onclick="orcTmProposta_(\''+cod+'\',\''+t.artigo_id+'\')">Guardar</button><button class="orc-b" onclick="_ORC[\''+cod+'\'].tmForm=null;orcDesenha_(\''+cod+'\')">Cancelar</button></div></div></td></tr>';
+  });
+  h+='</tbody></table></div><div class="orc-box w" style="font-size:12px">Regra dos autos: o auto ao subempreiteiro <b>não espera pelo cliente</b> — segue com a marca «trabalho não previsto sem aprovação do cliente»; o Admin vê-a ao aprovar.</div>';
+  return h;
+}
+function orcTmForm_(cod,id){ var S=_ORC[cod]; S.tmForm=id; orcDesenha_(cod); var i=document.getElementById('orcPr-ref'); if(i) i.focus(); }
+function orcTmProposta_(cod,id){ var ref=(document.getElementById('orcPr-ref')||{}).value, em=(document.getElementById('orcPr-em')||{}).value, it=(document.getElementById('orcPr-item')||{}).value;
+  if(!String(ref||'').trim()){ alert('Indica a referência da proposta do ERP.'); return; }
+  callSec('orcTmProposta',cod,id,{ref:ref,em:em,item_erp:it}).then(function(r){ if(!r||!r.ok){ alert((r&&r.erro)||'Erro'); return; } _ORC[cod].tmForm=null; carregarOrcObra_(cod,'tm'); }); }
+function orcTmDecidir_(cod,id,dec){ var motivo='';
+  if(dec==='recusado'){ motivo=prompt('Motivo da recusa pelo cliente:'); if(!motivo) return; }
+  else if(dec==='sem_destino'){ if(!confirm('Marcar como «sem destino»? Os elementos do 3D ficam sinalizados a vermelho e o trabalho deixa de ser orçamentável.')) return; motivo=prompt('Motivo (opcional):')||''; }
+  else if(!confirm('Registar que o cliente aprovou esta proposta?')) return;
+  callSec('orcTmDecisao',cod,id,{decisao:dec,motivo:motivo}).then(function(r){ if(!r||!r.ok){ alert((r&&r.erro)||'Erro'); return; } carregarOrcObra_(cod,'tm'); }); }
+function orcCarregarVersoes_(cod){ callSec('orcVersoes',cod).then(function(r){ var S=_ORC[cod]; if(!S) return; S.versoes=(r&&r.ok)?r.versoes:[]; if(S.vista==='versoes') orcDesenha_(cod); }); }
+function orcVersoesHTML_(cod,S){
+  if(!S.versoes) return '<div class="loading">A carregar…</div>';
+  var vs=S.versoes.filter(function(v){ return v.estado!=='anulada'; });
+  if(!vs.length) return '<div class="hint">Ainda não há versões do orçamento nesta obra.</div>';
+  var h='<div class="orc-wrap"><table class="orct"><thead><tr><th>Versão</th><th>Origem</th><th>Importada</th><th>Por</th><th class="num">Artigos</th><th class="num">Novos</th><th class="num">Alterados</th><th class="num">Removidos</th><th>Integrados / órfãos</th><th>Estado</th></tr></thead><tbody>';
+  vs.forEach(function(v){ var d=v.diff||{}, orf=Array.isArray(v.orfaos)?v.orfaos:[];
+    h+='<tr><td class="mono">v'+v.numero+'</td><td>'+esc([v.origem,v.ficheiro].filter(Boolean).join(' · '))+'</td><td>'+orcData_(v.ativado_em||v.importado_em)+'</td><td>'+esc(v.ativado_por||v.importado_por||'')+'</td><td class="num">'+(v.n_artigos==null?'—':v.n_artigos)+'</td><td class="num">'+(v.n_novos==null?'—':v.n_novos)+'</td><td class="num">'+(v.n_alterados==null?'—':v.n_alterados)+'</td><td class="num">'+(v.n_removidos==null?'—':v.n_removidos)+'</td><td>'+(d.integrados?d.integrados+' TM integrado(s)':'')+(orf.length?(d.integrados?' · ':'')+'<span class="orc-pill err">'+orf.length+' órfão(s) aceite(s)</span>':'')+'</td><td><span class="orc-pill '+(v.estado==='ativa'?'ok':v.estado==='rascunho'?'warn':'mut')+'">'+esc(v.estado==='substituida'?'substituída':v.estado)+'</span></td></tr>'; });
+  h+='</tbody></table></div>';
+  var ativas=vs.filter(function(v){ return v.estado==='ativa'||v.estado==='substituida'; }).map(function(v){ return v.numero; });
+  if(ativas.length>=2){ var a=S.cmpA||ativas[1], b=S.cmpB||ativas[0];
+    h+='<div style="display:flex;gap:8px;align-items:center;margin:10px 0 6px;font-size:12.5px"><b>Comparar</b><select class="orc-sel" id="orcCmpA">'+ativas.map(function(n){ return '<option value="'+n+'"'+(n===a?' selected':'')+'>v'+n+'</option>'; }).join('')+'</select> ↔ <select class="orc-sel" id="orcCmpB">'+ativas.map(function(n){ return '<option value="'+n+'"'+(n===b?' selected':'')+'>v'+n+'</option>'; }).join('')+'</select><button class="orc-b" onclick="orcComparar_(\''+cod+'\')">Ver lado a lado</button></div>';
+    if(S.cmp){ h+='<div class="orc-wrap"><table class="orct"><thead><tr><th>Item</th><th>Descrição</th><th class="num">v'+S.cmp.a+'</th><th class="num">v'+S.cmp.b+'</th><th>Diferença</th></tr></thead><tbody>';
+      S.cmp.linhas.forEach(function(l){ var x=l.b||l.a; var cls=l.diferenca==='novo'?' class="new"':l.diferenca==='removido'?' class="rem"':''; var pill=l.diferenca==='igual'?'<span style="color:var(--muted)">igual</span>':'<span class="orc-pill '+(l.diferenca==='removido'?'err':l.diferenca==='novo'?'ok':'warn')+'">'+esc(l.diferenca)+'</span>';
+        h+='<tr'+cls+'><td class="mono">'+esc(x.item)+'</td><td>'+esc(x.descricao||'')+'</td><td class="num">'+(l.a?orcNum_(l.a.qtd):'—')+'</td><td class="num">'+(l.b?'<b>'+orcNum_(l.b.qtd)+'</b>':'—')+'</td><td>'+pill+'</td></tr>'; });
+      h+='</tbody></table></div>'; } }
+  h+='<div class="hint">Cada importação é uma versão nova, numerada pelo servidor e imutável depois de ativa; para corrigir importa-se outra. A consola de autos e o plugin SketchUp leem sempre a versão corrente.</div>';
+  return h;
+}
+function orcComparar_(cod){ var S=_ORC[cod]; S.cmpA=Number(document.getElementById('orcCmpA').value); S.cmpB=Number(document.getElementById('orcCmpB').value);
+  callSec('orcComparar',cod,S.cmpA,S.cmpB).then(function(r){ if(!r||!r.ok){ alert((r&&r.erro)||'Erro'); return; } S.cmp=r; orcDesenha_(cod); }); }
+// ---------- importar: leitor do xlsx do ERP (o mesmo da Consola de Autos) ----------
+var ORC_COLS_ERP=['Item','Descricao','Artigo','QtdContratada','UnMedida','PUVenda','PUCustoSubMont','PUCustoSubEmass','PUCustoSubPav','PUCustoSubOut'];
+function orcTitulo_(d){ return String(d==null?'':d).split(/\r?\n/)[0].trim().toUpperCase(); }
+function orcLerERP_(file){
+  return (window.ExcelJS?Promise.resolve():carregarScript_('./exceljs.min.js?v='+AUTOS_VER).catch(function(){ return carregarExcelJS_(); })).then(function(){ return file.arrayBuffer(); }).then(function(buf){ var wb=new ExcelJS.Workbook(); return wb.xlsx.load(buf).then(function(){ return wb; }); }).then(function(wb){
+    var ws=null,hdr=0,idx={};
+    wb.worksheets.some(function(sh){ for(var r=1;r<=Math.min(sh.rowCount,30);r++){ var vals={}; sh.getRow(r).eachCell(function(c,n){ var v=String((c.text!=null?c.text:c.value)||'').trim(); if(v) vals[v]=n; }); if(ORC_COLS_ERP.every(function(k){ return vals[k]; })){ ws=sh; hdr=r; idx=vals; return true; } } return false; });
+    if(!ws) throw new Error('Não encontrei a folha com as colunas '+ORC_COLS_ERP.join(', '));
+    var cellv=function(row,k){ var v=row.getCell(idx[k]).value; if(v&&typeof v==='object'){ if('result' in v) return v.result; if('richText' in v) return v.richText.map(function(t){ return t.text; }).join(''); } return v; };
+    var num=function(v){ var n=parseFloat(String(v==null?'':v).replace(',','.')); return isNaN(n)?0:n; };
+    var artigos=[],capitulos=[],tm=null,cap=null;
+    for(var r=hdr+1;r<=ws.rowCount;r++){ var row=ws.getRow(r); var item=String(cellv(row,'Item')==null?'':cellv(row,'Item')).trim(); if(!item) continue;
+      var un=String(cellv(row,'UnMedida')==null?'':cellv(row,'UnMedida')).trim(); var desc=String(cellv(row,'Descricao')==null?'':cellv(row,'Descricao'));
+      if(!un){ if(item.indexOf('.')<0){ var p=desc.toUpperCase().indexOf('TM-'); tm=p>=0?desc.substr(p,5).trim():null; } cap=item; capitulos.push({item:item,descricao:orcTitulo_(desc),tm:tm}); continue; }
+      var ref=String(cellv(row,'Artigo')==null?'':cellv(row,'Artigo')).trim();
+      artigos.push({item:item,ref_cliente:ref==='0'?'':ref,capitulo:cap,descricao:orcTitulo_(desc),descricao_completa:desc.trim(),uni:un.toUpperCase(),qtd:num(cellv(row,'QtdContratada')),pu_venda:num(cellv(row,'PUVenda')),
+        custo_sub:{MONTAGEM:num(cellv(row,'PUCustoSubMont')),MASSAS:num(cellv(row,'PUCustoSubEmass')),PAVIMENTOS:num(cellv(row,'PUCustoSubPav')),OUTROS:num(cellv(row,'PUCustoSubOut'))},tm:tm});
+    }
+    return {artigos:artigos,capitulos:capitulos,folha:ws.name};
+  });
+}
+function orcImportarHTML_(cod,S){
+  var imp=S.imp, passo=imp?2:1, v=S.r.versao;
+  var h='<div class="orc-steps"><span class="'+(passo>1?'done':'on')+'">1 · Ficheiro do ERP</span><span class="'+(passo===2?'on':'')+'">2 · Ligar artigos novos aos TM · órfãos</span><span>3 · Ativar</span></div>';
+  if(!imp){
+    h+='<div class="orc-box"><h4>'+(v?'Nova versão v'+(v.numero+1)+' · adenda':'Orçamento inicial · v1')+'</h4><div class="orc-form"><label>Origem<input id="orcImpOrigem" value="'+(v?'Adenda '+v.numero:'Orçamento inicial ERP')+'"></label><label>Ficheiro xlsx do ERP<input id="orcImpFile" type="file" accept=".xlsx"></label></div><div class="hint">Mesmo formato que a consola de autos aceita: colunas Item, Descricao, Artigo, QtdContratada, UnMedida, PUVenda, PUCustoSub…. A coluna Item tem de vir como texto (001.01.03), nunca como número.</div><div style="margin-top:8px;display:flex;gap:6px"><button class="orc-b pri" onclick="orcImportarLer_(\''+cod+'\')">Ler e comparar</button><button class="orc-b" onclick="orcVista_(\''+cod+'\',\'artigos\')">Cancelar</button></div><div id="orcImpMsg" class="hint"></div></div>';
+    return h;
+  }
+  h+='<div class="orc-bar"><div class="v">v'+imp.numero+'</div><div><b>Nova versão v'+imp.numero+'</b><small>'+esc(imp.ficheiro)+' · '+imp.n_artigos+' artigos lidos · '+imp.novos.length+' novo(s) · '+imp.alterados.length+' alterado(s) · '+imp.removidos.length+' removido(s)'+(imp.substitui?' · vai substituir a v'+imp.substitui+' (fica consultável)':'')+'</small></div><div class="sp"></div><span class="orc-pill mut">ainda não ativa</span></div>';
+  if(imp.novos.length){ h+='<div class="orc-box"><h4>Artigos novos no ERP — ligar ao trabalho não previsto correspondente <span class="orc-pill err">obrigatório</span></h4><div class="orc-wrap"><table class="orct"><thead><tr><th>Item ERP (novo)</th><th>Descrição</th><th>Un</th><th class="num">Qtd contratada</th><th>Corresponde a</th><th>Sugestão</th></tr></thead><tbody>';
+    imp.novos.forEach(function(n,i){ var sug=n.sugestoes&&n.sugestoes[0];
+      h+='<tr class="new"><td class="mono">'+esc(n.item)+'</td><td>'+esc(n.descricao)+'</td><td>'+esc(String(n.unidade||'').toLowerCase())+'</td><td class="num">'+orcNum_(n.qtd)+'</td><td><select class="orc-sel" data-item="'+esc(n.item)+'" id="orcLig'+i+'"><option value="">— artigo novo, sem TM —</option>'+(n.sugestoes||[]).map(function(s){ return '<option value="'+s.artigo_id+'"'+(sug&&sug.artigo_id===s.artigo_id&&sug.pontos>=4?' selected':'')+'>'+esc(s.item+' · '+s.descricao+(s.qtd_medida!=null?' ('+orcNum_(s.qtd_medida)+')':''))+'</option>'; }).join('')+'</select></td><td>'+(sug?'<span class="orc-pill '+(sug.pontos>=4?'ok':'warn')+'">'+esc(sug.item+' · '+(sug.razoes||[]).join(' · '))+'</span>':'<span style="color:var(--muted)">sem sugestão</span>')+'</td></tr>'; });
+    h+='</tbody></table></div><div class="hint">Um TM ligado mantém o id do artigo: os elementos do 3D passam a mostrar o item do ERP na próxima sincronização do plugin.</div></div>'; }
+  if(imp.alterados.length){ h+='<div class="orc-box"><h4>Alterados (mantêm o id)</h4><div class="orc-wrap"><table class="orct"><thead><tr><th>Item</th><th>Descrição</th><th class="num">Antes</th><th class="num">Agora</th><th>Medido 3D</th></tr></thead><tbody>'+imp.alterados.map(function(a){ return '<tr><td class="mono">'+esc(a.item)+'</td><td>'+esc(a.descricao)+(a.descricao_anterior&&a.descricao_anterior!==a.descricao?'<br><small style="color:var(--muted)">antes: '+esc(a.descricao_anterior)+'</small>':'')+'</td><td class="num">'+(a.reativado?'<span class="orc-pill pur">reativado</span>':orcNum_(a.qtd_anterior))+'</td><td class="num"><b>'+orcNum_(a.qtd)+'</b></td><td class="num">'+orcNum_(a.medido)+'</td></tr>'; }).join('')+'</tbody></table></div></div>'; }
+  var comEls=imp.removidos.filter(function(r){ return (r.elementos||[]).length; });
+  if(imp.removidos.length){ h+='<div class="orc-box'+(comEls.length?' e':'')+'"><h4>Removidos na adenda'+(comEls.length?' — com elementos ligados no 3D <span class="orc-pill err">atenção</span>':'')+'</h4><div class="orc-wrap"><table class="orct"><thead><tr><th>Item</th><th>Descrição</th><th class="num">Qtd</th><th>Elementos 3D</th><th>O que acontece</th></tr></thead><tbody>'+imp.removidos.map(function(r){ var n=(r.elementos||[]).length; return '<tr class="rem"><td class="mono">'+esc(r.item)+'</td><td>'+esc(r.descricao)+'</td><td class="num">'+orcNum_(r.qtd)+'</td><td style="text-decoration:none">'+(n?'<b>'+n+'</b> '+esc(r.elementos.slice(0,3).map(function(e){ return e.nome||e.uid; }).join(', '))+(n>3?'…':''):'—')+'</td><td style="text-decoration:none">'+(n?'ficam <b>órfãos</b>: a vermelho no plugin e no 3D; o DO dissocia ou cria TM':'sai do orçamento')+'</td></tr>'; }).join('')+'</tbody></table></div>'+(comEls.length?'<label style="display:flex;gap:6px;align-items:center;margin-top:8px;font-size:12.5px;color:var(--red)"><input type="checkbox" id="orcAceitaOrf"> Ativar na mesma com '+comEls.length+' artigo(s) órfão(s) — fica registado quem confirmou.</label>':'')+'</div>'; }
+  h+='<div style="display:flex;gap:8px;align-items:center;margin-top:10px"><span class="hint" style="margin:0">v'+imp.numero+' fica imutável depois de ativa: para corrigir, importa-se outra.</span><span style="flex:1"></span><button class="orc-b" onclick="orcImpCancelar_(\''+cod+'\')">Anular</button><button class="orc-b pri" onclick="orcAtivar_(\''+cod+'\')">Ativar v'+imp.numero+' como corrente</button></div><div id="orcImpMsg" class="hint"></div>';
+  return h;
+}
+function orcImportarLer_(cod){
+  var f=(document.getElementById('orcImpFile')||{}).files; var msg=document.getElementById('orcImpMsg'); if(!f||!f[0]){ msg.textContent='Escolhe o ficheiro xlsx do ERP.'; return; }
+  var origem=(document.getElementById('orcImpOrigem')||{}).value; msg.textContent='A ler o ficheiro…';
+  orcLerERP_(f[0]).then(function(lido){ msg.textContent='A comparar com a versão corrente…';
+    return callSec('orcImportar',cod,{origem:origem,ficheiro:f[0].name,folha:lido.folha,artigos:lido.artigos,capitulos:lido.capitulos});
+  }).then(function(r){ if(!r||!r.ok){ msg.textContent=(r&&r.erro)||'Erro ao importar.'; return; } var S=_ORC[cod]; S.imp=Object.assign({ficheiro:f[0].name},r); orcDesenha_(cod); })
+  .catch(function(e){ msg.textContent='Erro: '+(e&&e.message||e); });
+}
+function orcImpCancelar_(cod){ var S=_ORC[cod]; if(!S.imp) return; callSec('orcAnularRascunho',cod,S.imp.versao_id).then(function(){ S.imp=null; orcVista_(cod,'artigos'); }); }
+function orcAtivar_(cod){
+  var S=_ORC[cod], imp=S.imp, msg=document.getElementById('orcImpMsg'); if(!imp) return;
+  var lig=[]; imp.novos.forEach(function(n,i){ var sel=document.getElementById('orcLig'+i); lig.push({item:n.item,artigo_id:sel?sel.value:''}); });
+  var chk=document.getElementById('orcAceitaOrf'); var aceitar=!!(chk&&chk.checked);
+  if(chk&&!aceitar){ msg.textContent='A adenda retira artigos com elementos ligados no 3D — confirma a caixa para ativar na mesma.'; return; }
+  if(!confirm('Ativar a v'+imp.numero+' como orçamento corrente da obra '+cod+'? Fica imutável.')) return;
+  msg.textContent='A ativar…';
+  callSec('orcAtivar',cod,imp.versao_id,{ligacoes:lig,aceitarOrfaos:aceitar}).then(function(r){
+    if(!r||!r.ok){ msg.textContent=(r&&r.erro)||'Erro ao ativar.'+(r&&r.itens?' Itens: '+r.itens.join(', '):''); return; }
+    S.imp=null; carregarOrcObra_(cod,'versoes');
+  }).catch(function(){ msg.textContent='Erro de ligação.'; });
 }
 var _exceljsP=null;
 function carregarExcelJS_(){
