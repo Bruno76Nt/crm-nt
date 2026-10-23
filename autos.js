@@ -1,4 +1,4 @@
-// CRM_NT · módulo AUTOS · autos.js · build 2026-10-22
+// CRM_NT · módulo AUTOS · autos.js · build 2026-10-23
 // A Consola de Autos v0.30 levantada para dentro do CRM_NT: o código da consola está aqui tal e qual
 // (gerado por build_autos.py a partir de consola_v0.30.html, com os patches assinalados P1–P13);
 // o CRM entra só onde a consola não podia: login (nome/papel), obras do CRM, tabela de subempreiteiros,
@@ -277,7 +277,7 @@ async function abrirObra(nomePasta){
   const h=await S.root.getDirectoryHandle(nomePasta);
   let o=await FS.readJson(h,'obra.json');
   if(!o){const m=nomePasta.match(/^(\d+)[_ -]+(.*)$/);o=novaObra(m?m[1]:'',m?m[2].replace(/_/g,' '):nomePasta,25);await FS.writeJson(h,'obra.json',o);toast('obra.json criado a partir do nome da pasta','warn');}
-  S.obraDir=h;S.obra=o;S.orc=await FS.readJson(h,'orcamento.json');
+  S.obraDir=h;S.obra=o;S.orc=await FS.readJson(h,'orcamento.json');verificarVersaoOrc_();
   S.papel=papelAtual();if(!S.ent)S.ent=await FS.readJson(S.root,'entidades.json');
   if(S.ent&&await ligarEntidades(o))await guardarObra();
   go(S.papel==='CONTROLLER'?'cautos':'orcamento');
@@ -362,9 +362,10 @@ async function verVersaoOrc(hist){
 }
 function viewOrc(){
   const m=$('#main');const o=S.orc;
-  let h=`<h2>Orçamento</h2><div class="card"><div class="row">
-    <button id="bImp">${o?'Reimportar orçamento…':'Importar orçamento do ERP…'}</button>
-    <span class="hint">Ficheiro Excel exportado do ERP (NT Vista) com as colunas ${COLS_ERP.slice(0,6).join(', ')}…</span></div>
+  let h=`<h2>Orçamento</h2><div class="card"><div class="row" style="align-items:center;gap:10px;flex-wrap:wrap">
+    ${S.papel==='DO'?`<button id="bCRM">${o?'Atualizar do CRM_NT…':'Carregar orçamento do CRM_NT…'}</button><span class="hint">A versão corrente do orçamento da obra vive no CRM_NT (separador «Orçamento» do cartão da obra); aqui fica uma cópia local.</span>`:''}
+    <button id="bImp" class="sec sm" style="${S.papel==='DO'?'display:none':''}">${o?'Reimportar orçamento…':'Importar orçamento do ERP…'}</button>${S.papel==='DO'?`<a href="#" id="bSemCRM" class="hint" style="margin-left:auto">sem CRM (xlsx)…</a>`:''}</div>
+    ${o&&o.versao_crm!=null?`<div class="kv" style="margin-top:8px"><span>CRM_NT</span><span><span class="tag ok">v${o.versao_crm}</span> ${o.versao_crm_em?dtl(o.versao_crm_em):''}</span></div>`:(o&&S.papel==='DO'?`<div class="msg warn" style="margin-top:8px">Este orçamento foi importado por xlsx — carrega a versão do CRM_NT para ficar alinhado com o gabinete e com o plugin.</div>`:'')}
     ${o?`<div class="kv" style="margin-top:10px"><span>Em vigor</span><span><b>${esc(o.ficheiro)}</b> · ${new Date(o.importado_em).toLocaleString('pt-PT')} · ${o.artigos.filter(a=>a.estado==='ATIVO').length} artigos ativos</span></div>
     <h3>Versões importadas</h3><table><thead><tr><th>Data</th><th>Ficheiro</th><th class="num">Novos</th><th class="num">Alterados</th><th class="num">Removidos</th><th></th></tr></thead><tbody>
     ${[...o.historico].reverse().map((x,i)=>`<tr><td>${new Date(x.importado_em).toLocaleString('pt-PT')}${i===0?' <span class="tag ok">em vigor</span>':''}</td><td>${esc(x.ficheiro)}</td><td class="num">${x.novos}</td><td class="num">${x.alterados}</td><td class="num">${x.removidos}</td><td>${x.snapshot?`<button class="sec sm" data-ver="${x.snapshot}">ver</button>`:'<span class="hint">sem cópia</span>'}</td></tr>`).join('')}</tbody></table>`:''}
@@ -386,6 +387,8 @@ function viewOrc(){
     draw();$('#fil').oninput=e=>draw(e.target.value);
   }
   $('#bImp').onclick=()=>{$('#fileOrc').value='';$('#fileOrc').click();};
+  if($('#bCRM'))$('#bCRM').onclick=carregarOrcCRM_;
+  if($('#bSemCRM'))$('#bSemCRM').onclick=ev=>{ev.preventDefault();$('#bImp').style.display='';$('#bSemCRM').remove();};
   m.querySelectorAll('[data-ver]').forEach(b=>b.onclick=()=>verVersaoOrc(S.orc.historico.find(x=>x.snapshot===b.dataset.ver)));
   $('#fileOrc').onchange=async e=>{
     const file=e.target.files[0];if(!file)return;
@@ -1252,7 +1255,39 @@ function crmAdapter_(callSec){const c=(fn,...a)=>Promise.resolve().then(()=>call
   subEmail:(cod,em)=>c('autosSubEmail',cod,em),subCriar:(o)=>c('autosSubCriar',o),subsImportar:(l)=>c('autosSubsImportar',l),subLigarERP:(cod,erp)=>c('autosSubLigarERP',cod,erp),
   enviar:(env,x)=>c('autosEnviar',env,x),envios:()=>c('autosEnviosRecebidos'),descarregar:(id,x)=>c('autosDescarregarEnvio',id,!!x),marcarImportado:(id,r)=>c('autosMarcarImportado',id,r),
   aprovar:(cod,id,ok,m)=>c('autosAprovar',cod,id,ok,m),registarERP:(cod,id,doc)=>c('autosRegistarERP',cod,id,doc),registarEnvioSub:(cod,id)=>c('autosRegistarEnvioSub',cod,id),
-  estadoObra:(cod)=>c('autosEstadoObra',cod),fluxo:()=>c('autosFluxo')};}
+  estadoObra:(cod)=>c('autosEstadoObra',cod),fluxo:()=>c('autosFluxo'),
+  orcConsola:(cod)=>c('orcConsola',cod)};}
+// ---- orçamento do CRM_NT (fonte única): carregar a versão corrente para a pasta da obra (cache local = orcamento.json) ----
+async function carregarOrcCRM_(){
+  const msg=$('#impMsg');if(msg)msg.innerHTML='<div class="msg">a pedir o orçamento ao CRM_NT…</div>';
+  const r=await CRM.orcConsola(S.obra.obra.numero);
+  if(!r||r.erro){if(msg)msg.innerHTML=`<div class="msg err">${esc(r?r.erro:'sem resposta')}</div>`;return;}
+  if(!r.orcamento){if(msg)msg.innerHTML='<div class="msg warn">Esta obra ainda não tem orçamento no CRM_NT. Importa o xlsx do ERP no separador «Orçamento» do cartão da obra (Admin, Administrativo ou DO da obra) e volta aqui.</div>';return;}
+  const v=r.versao;const novo={artigos:r.orcamento.artigos.map(a=>({...a,estado:'ATIVO'})),capitulos:r.orcamento.capitulos||[],folha:r.orcamento.folha||'CRM_NT'};
+  const d=diffOrcamento(novo);const fileLike={name:`CRM_NT v${v.numero}`};
+  if(S.orc&&S.orc.versao_crm===v.numero&&!d.novos.length&&!d.alterados.length&&!d.removidos.length){if(msg)msg.innerHTML='';toast(`Já tens a versão v${v.numero} do CRM_NT (${dtl(v.data)}) — nada mudou`,'ok');return;}
+  const li=(arr,f)=>arr.slice(0,15).map(f).join('')+(arr.length>15?`<li>… mais ${arr.length-15}</li>`:'');
+  const dlg=$('#dlg');dlg.innerHTML=`<h3 style="margin-top:0">Carregar orçamento do CRM_NT — v${v.numero}</h3>
+    <div class="kv"><span>Versão</span><span><b>v${v.numero}</b> · ativada ${dtl(v.data)} por ${esc(v.autor||'')}</span><span>Artigos</span><span>${novo.artigos.length} (${novo.capitulos.length} capítulos)${novo.artigos.filter(a=>a.origem==='TM').length?` · ${novo.artigos.filter(a=>a.origem==='TM').length} trabalho(s) não previsto(s)`:''}</span>
+    <span>Novos</span><span><b>${d.novos.length}</b><ul>${li(d.novos,a=>`<li>${esc(a.item)} ${esc(a.descricao)}</li>`)}</ul></span>
+    <span>Alterados</span><span><b>${d.alterados.length}</b><ul>${li(d.alterados,x=>`<li>${esc(x.a.item)}: ${x.ch.join(', ')}</li>`)}</ul></span>
+    <span>Removidos</span><span><b>${d.removidos.length}</b><ul>${li(d.removidos,a=>`<li>${esc(a.item)} ${esc(a.descricao)}</li>`)}</ul></span>
+    ${d.reativados.length?`<span>Reativados</span><span>${d.reativados.length}</span>`:''}<span>Iguais</span><span>${d.iguais.length}</span></div>
+    <p class="hint">Fica guardado nesta pasta como cópia local (orcamento.json). Os preços já definidos nos subempreiteiros não são alterados; artigos novos têm de ser atribuídos aos subempreiteiros.</p>
+    <div class="right"><button class="sec" id="dCancel">Cancelar</button><button id="dOk">Carregar v${v.numero}</button></div>`;
+  dlg.showModal();$('#dCancel').onclick=()=>dlg.close();
+  $('#dOk').onclick=async()=>{const conv=await aplicarImportacao(novo,fileLike,d);S.orc.versao_crm=v.numero;S.orc.versao_crm_em=v.data;S.orc.origem='CRM_NT';await FS.writeJson(S.obraDir,'orcamento.json',S.orc);dlg.close();
+    toast(`Orçamento v${v.numero} do CRM_NT carregado: +${d.novos.length} ~${d.alterados.length} −${d.removidos.length}${conv?` · ${conv} artigo(s) fora do orçamento passaram a contratuais`:''}`,'ok');viewOrc();renderNav();};
+}
+// ao abrir a obra: avisa se o CRM_NT já tem uma versão mais recente do que a cache local (não bloqueia)
+async function verificarVersaoOrc_(){
+  try{if(S.papel!=='DO'||!S.obra)return;const r=await CRM.orcConsola(S.obra.obra.numero);if(!r||!r.ok)return;
+    if(!r.orcamento){if(!S.orc)toast('Esta obra ainda não tem orçamento no CRM_NT — importa-o no cartão da obra antes de adjudicar','warn');return;}
+    if(!S.orc)toast(`O CRM_NT tem o orçamento v${r.versao.numero} desta obra — carrega-o no ecrã Orçamento`,'warn');
+    else if(S.orc.versao_crm==null)toast(`Esta pasta tem um orçamento importado por xlsx; o CRM_NT tem a v${r.versao.numero} — carrega-a no ecrã Orçamento para ficarem alinhados`,'warn');
+    else if(r.versao.numero>S.orc.versao_crm)toast(`Há uma versão mais recente do orçamento no CRM_NT (v${r.versao.numero}; tens a v${S.orc.versao_crm}) — carrega-a no ecrã Orçamento`,'warn');
+  }catch(e){}
+}
 function papelPasta_(){return S.papel==='CONTROLLER'?'CONTROLLER':'DO';}
 async function sincCfg_(dir){const cfg=(await FS.readJson(dir,'consola.json'))||{};cfg.papel=papelPasta_();cfg.nome=CTX.nome;cfg.crm={email:CTX.email,em:hoje()};try{await FS.writeJson(dir,'consola.json',cfg);}catch(e){}S.cfg=cfg;if(S.ent){try{await FS.writeJson(dir,'entidades.json',S.ent);}catch(e){}}}
 async function sincEnt_(){const r=await CRM.subs();if(r&&r.ok){S.ent={importado_em:hoje(),ficheiro:'CRM_NT',entidades:r.subs.map(s=>({codigo:s.codigo,nome:s.nome,nif:s.nif,email:s.email||'',telefone:''}))};if(S.root){try{await FS.writeJson(S.root,'entidades.json',S.ent);}catch(e){}}}return r;}

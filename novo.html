@@ -52,13 +52,38 @@ body{display:flex;flex-direction:column}
 <!-- CORTE SUPABASE 20/10/2026: a moldura passou a apontar ao app.html (front novo, mesma origem).
      ROLLBACK: repor o src antigo do GAS →
      https://script.google.com/macros/s/AKfycbwRVEcxm4FAFO4-7yS3op3eGE1Z_X5ynnVaBPYEwtYKaAwsVa5fDecv0gjF7YUZu_2O/exec -->
-<iframe id="app" allow="geolocation *" src="./app.html"></iframe>
+<!-- v2026-10-23-W: o src é posto pelo script com um carimbo de 10 em 10 min (app.html?v=…) para a app instalada (PWA) nunca ficar presa à cache;
+     e uma sonda HEAD de 10 em 10 min mostra «Nova versão — atualizar» quando o app.html mudou no servidor. -->
+<iframe id="app" allow="geolocation *"></iframe>
+<div id="novaV" onclick="atualizarApp()" style="display:none;position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%);background:#1b3a5b;color:#fff;font:600 13px/1 sans-serif;padding:10px 16px;border-radius:999px;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;z-index:50;white-space:nowrap">↻ Nova versão do CRM — tocar para atualizar</div>
 <div id="safeBot"></div>
 <div id="sairOv"><div class="cx"><b>Sair da aplicação?</b><p>Queres mesmo fechar o CRM_NT?<small>ou carrega outra vez em ‹ para sair</small></p>
 <div class="bt"><button class="fica" onclick="ficar()">Cancelar</button><button class="sai" onclick="sairMesmo()">Sair</button></div></div></div>
 <div id="fimOv"><div class="logoNT"></div><b>Aplicação encerrada</b><div>Podes fechar esta janela — ou carrega em ‹.</div><button onclick="location.reload()">Voltar a entrar</button></div>
 <script>
 var app=document.getElementById('app');
+/* ===== versão do app.html: carimbo de 10 em 10 minutos + sonda de nova versão =====
+ * O GitHub Pages deixa o browser guardar o app.html 10 min; a app instalada no Edge/Android
+ * reutilizava esse ficheiro enquanto a janela estivesse aberta. Agora cada abertura pede
+ * app.html?v=<bloco de 10 min> (uma cópia nunca com mais de 10 min) e, de 10 em 10 min,
+ * um HEAD compara o ETag do servidor com o carregado: se mudou, aparece a pílula «Nova versão». */
+function vApp_(){ return Math.floor(Date.now()/600000); }
+function urlApp_(v){ return './app.html?v='+v; }
+var etagApp=null;
+function sondaApp_(primeira){
+  try{
+    fetch(urlApp_(vApp_()+(primeira?0:1)), {method:'HEAD', cache:'no-store'}).then(function(r){
+      var e=(r.headers.get('etag')||'')+'|'+(r.headers.get('last-modified')||'');
+      if(primeira){ etagApp=e; return; }
+      if(etagApp && e && e!==etagApp){ document.getElementById('novaV').style.display='block'; }
+    }).catch(function(){});
+  }catch(e){}
+}
+function atualizarApp(){
+  document.getElementById('novaV').style.display='none';
+  etagApp=null; app.src=urlApp_(Date.now());           // a sessão fica (token no localStorage): não volta a pedir login
+  setTimeout(function(){ sondaApp_(true); }, 4000);
+}
 
 /* A app carrega por trás do splash. Quando o iframe acaba de carregar
  * (ou ao fim de 5s, por segurança), aparece o botão "Entrar ›". */
@@ -68,7 +93,10 @@ function mostrarEntrar(){
   document.getElementById('btnEntrar').style.display='block';
 }
 app.addEventListener('load', mostrarEntrar);
+app.src=urlApp_(vApp_());
 setTimeout(mostrarEntrar, 5000);
+setTimeout(function(){ sondaApp_(true); }, 3000);
+setInterval(function(){ sondaApp_(false); }, 600000);
 
 /* ===== guarda do botão "voltar" nativo =====
  * Os estados do histórico são criados DENTRO do toque no botão "Entrar" — um
