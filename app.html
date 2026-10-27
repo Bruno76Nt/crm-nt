@@ -1,4 +1,4 @@
-<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-23-OR-3 (Orçamento: coluna Artigo, descrição abreviada/completa, sugestão TM por item proposto e descrição igual; base OR-2) · anterior: v2026-10-23-OR-2 (autos.js: consola carrega o orçamento do CRM_NT; base OR-1) · anterior: v2026-10-23-OR-1 (separador «Orçamento» no cartão da obra: versão corrente, trabalhos não previstos, versões, importar adenda — fonte única no Supabase; base AU-4) · anterior: v2026-10-22-AU-4 (autos.js: «Abrir no Excel» pelo ms-excel:ofe|u|file:///, sem instalador nem PowerShell; base AU-3) · anterior: v2026-10-22-AU-3 (autos.js com mensagens do «Abrir no Excel» apontadas a Configurações; base FC-1) · anterior: v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
+<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-27-3D-1b (autos.js: a consola HERDA o orçamento do CRM_NT ao abrir a obra — sem importação de xlsx nos autos; base 3D-1) · anterior: v2026-10-27-3D-1 (separador «3D» no cartão da obra: modelos publicados, visor 3D a ecrã inteiro com cache por sha256, publicar a pasta PUBLICACAO_ em PC; base OR-3) · anterior: v2026-10-23-OR-3 (Orçamento: coluna Artigo, descrição abreviada/completa, sugestão TM por item proposto e descrição igual; base OR-2) · anterior: v2026-10-23-OR-2 (autos.js: consola carrega o orçamento do CRM_NT; base OR-1) · anterior: v2026-10-23-OR-1 (separador «Orçamento» no cartão da obra: versão corrente, trabalhos não previstos, versões, importar adenda — fonte única no Supabase; base AU-4) · anterior: v2026-10-22-AU-4 (autos.js: «Abrir no Excel» pelo ms-excel:ofe|u|file:///, sem instalador nem PowerShell; base AU-3) · anterior: v2026-10-22-AU-3 (autos.js com mensagens do «Abrir no Excel» apontadas a Configurações; base FC-1) · anterior: v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -271,6 +271,13 @@ body[data-tab=agenda] .sec-body .alert{margin:0}
 body[data-tab=obras] #obrasLista{grid-template-columns:repeat(3,1fr)}
 .cardgrid{grid-template-columns:repeat(3,1fr)}
 }
+/* ===== 3D-1 · modelos 3D da obra ===== */
+.m3d-item{display:flex;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);margin-bottom:8px;flex-wrap:wrap}
+.m3d-item .ic{width:40px;height:40px;border-radius:9px;background:var(--accent-bg);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:0 0 auto}
+.m3d-item b{font-size:13.5px}.m3d-item small{display:block;color:var(--muted);font-size:11.5px;margin-top:2px}
+.m3d-item .sp{flex:1;min-width:120px}
+.m3d-prog{font-size:12px;color:var(--muted);margin-top:6px}
+#v3dHost{position:fixed;inset:0;z-index:9000}
 /* ===== OR-1 · Orçamento da obra ===== */
 .orc-bar{display:flex;gap:10px;align-items:center;padding:9px 11px;border:1px solid var(--line);background:var(--accent-bg);border-radius:8px;font-size:12.5px;flex-wrap:wrap}
 .orc-bar .v{width:30px;height:30px;border-radius:7px;background:var(--panel);color:var(--navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:0 0 auto}
@@ -3187,6 +3194,7 @@ function drawObrasLista(){
       +(vAnalise?'<button id="tab-analise-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'analise\')"><svg class=li><use href=#li-chart /></svg> Análise de produção</button>':'')
       +(vAnalise?'<button id="tab-autos-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autos\')"><svg class=li><use href=#li-euro /></svg> Autos subemp.</button>':'')
       +(vOrc?'<button id="tab-orc-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'orc\')"><svg class=li><use href=#li-doc /></svg> Orçamento</button>':'')
+      +(vOrc?'<button id="tab-3d-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'3d\')"><svg class=li><use href=#li-obra /></svg> 3D</button>':'')
       +'<button id="tab-gestao-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'gestao\')"><svg class=li><use href=#li-gear /></svg> Gestão</button>'
       +'</div>';
 
@@ -3256,6 +3264,8 @@ function drawObrasLista(){
     if(vAnalise) h+='<div id="sec-autos-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
     // ---- separador ORÇAMENTO (OR-1: fonte única no Supabase; DO da obra, Admin, Administrativo) ----
     if(vOrc) h+='<div id="sec-orc-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
+    // ---- separador 3D (3D-1: modelos publicados pelo plugin / pela pasta PUBLICACAO_; visor a ecrã inteiro) ----
+    if(vOrc) h+='<div id="sec-3d-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
 
     // ---- separador GESTÃO ----
     h+='<div id="sec-gestao-'+esc(o.codigo)+'" style="display:none;margin-top:8px">'
@@ -3771,7 +3781,8 @@ function toggleObraSec(cod, sec){
   if(sec==='analise'){ var ela=document.getElementById('sec-analise-'+cod); if(ela && ela.style.display==='none') carregarAnalise(cod); }
   if(sec==='autos'){ var elu=document.getElementById('sec-autos-'+cod); if(elu && elu.style.display==='none') carregarAutosObra_(cod); }
   if(sec==='orc'){ var elo=document.getElementById('sec-orc-'+cod); if(elo && elo.style.display==='none') carregarOrcObra_(cod); }
-  ['registo','ponto','contactos','diario','analise','autos','orc','gestao'].forEach(function(s){
+  if(sec==='3d'){ var el3=document.getElementById('sec-3d-'+cod); if(el3 && el3.style.display==='none') carregar3dObra_(cod); }
+  ['registo','ponto','contactos','diario','analise','autos','orc','3d','gestao'].forEach(function(s){
     var el=document.getElementById('sec-'+s+'-'+cod);
     var btn=document.getElementById('tab-'+s+'-'+cod);
     if(!el) return;
@@ -4891,7 +4902,7 @@ function relExportar(todos){
 // ===== MÓDULO AUTOS (F1b) · consola de autos de subempreiteiros =====
 // autos.js (a consola v0.30 levantada para o CRM) e exceljs.min.js (a mesma biblioteca que a consola embute)
 // vivem no repositório ao lado do app.html e só são carregados quando se abre o separador Autos em PC.
-var AUTOS_VER='2026-10-23-4';
+var AUTOS_VER='2026-10-27-2';
 var _autosP=null;
 function carregarScript_(src){ return new Promise(function(res,rej){ var sc=document.createElement('script'); sc.src=src; sc.onload=function(){res();}; sc.onerror=function(){rej(new Error('Não consegui carregar '+src));}; document.head.appendChild(sc); }); }
 function carregarAutosJS_(){
@@ -4964,6 +4975,96 @@ function autosConsultaObra_(cod,card){
   });
 }
 
+
+// ===================== 3D-1 · MODELOS 3D DA OBRA =====================
+// Lista as publicações (m3dModelos: URLs assinadas 6 h), abre o visor (visor3d.js + three_nt.min.js lazy; GLB/JSON em
+// cache no browser por sha256 — a 2.ª abertura não volta a descarregar) e publica a pasta PUBLICACAO_ em PC.
+var V3D_VER='2026-10-27-1', _M3D={}, _v3dP=null, _v3dApi=null;
+function m3dMB_(b){ b=Number(b||0); return b>1048576?(b/1048576).toFixed(1)+' MB':Math.round(b/1024)+' KB'; }
+function carregar3dObra_(cod){
+  var el=document.getElementById('sec-3d-'+cod); if(!el) return;
+  el.innerHTML='<div class="loading">A carregar…</div>';
+  callSec('m3dModelos',cod).then(function(r){
+    if(!r||!r.ok){ el.innerHTML='<div class="hint">'+esc((r&&r.erro)||'Sem acesso.')+'</div>'; return; }
+    var S=_M3D[cod]||{}; S.r=r; _M3D[cod]=S; m3dDesenha_(cod);
+  }).catch(function(){ el.innerHTML='<div class="hint">Erro de ligação.</div>'; });
+}
+function m3dDesenha_(cod){
+  var S=_M3D[cod], el=document.getElementById('sec-3d-'+cod); if(!S||!el) return;
+  var pc=window.innerWidth>=1000, ms=S.r.modelos||[], h='';
+  if(!ms.length) h+='<div class="hint" style="margin-top:0">Ainda não há modelos 3D publicados nesta obra'+(pc?' — publica a pasta PUBLICACAO_ exportada pelo plugin, ou publica diretamente do SketchUp.':'. Publicam-se em PC (ou do SketchUp).')+'</div>';
+  ms.forEach(function(m,i){ var p=m.publicacao;
+    h+='<div class="m3d-item"><div class="ic">3D</div><div class="sp"><b>'+esc(m.nome_ficheiro||m.modelo_id)+'</b><small>'+(p?orcData_(p.em)+' · '+(p.n_elementos||0)+' elementos'+(p.versao_orcamento?' · medido contra o orçamento v'+p.versao_orcamento:'')+' · '+(p.ficheiros||[]).map(function(f){ return f.nome.replace('publicacao.json','JSON').replace('modelo.glb','GLB')+' '+m3dMB_(f.bytes); }).join(' · '):'sem publicação ativa')+(p&&(p.avisos||[]).length?'<br><span style="color:var(--amber)">'+(p.avisos||[]).map(esc).join(' · ')+'</span>':'')+'</small></div>'
+      +(p?'<button class="orc-b pri" onclick="abrir3d_(\''+cod+'\','+i+')">Abrir 3D</button>':'')+'</div>';
+  });
+  if(pc){
+    if(S.pub){ h+='<div class="orc-box"><h4>Publicar modelo da pasta PUBLICACAO_</h4><div class="orc-form"><label>Modelo<select id="m3dSel">'+ms.map(function(m){ return '<option value="'+m.modelo_id+'">'+esc(m.nome_ficheiro||m.modelo_id)+' (substitui a publicação ativa)</option>'; }).join('')+'<option value="" '+(ms.length?'':'selected')+'>— modelo novo (outro ficheiro .skp) —</option></select></label><label>Nome do ficheiro .skp (modelo novo)<input id="m3dNome" placeholder="PREPARAÇÃO PAREDES.skp"></label><label>Ficheiros (modelo.glb + publicacao.json)<input id="m3dFiles" type="file" multiple></label></div><div class="hint">O GLB e o JSON sobem diretamente para o armazenamento do CRM (URL assinada); o CRM confirma tamanhos e sha256 antes de ativar. Limite por ficheiro: 50 MB.</div><div style="margin-top:8px;display:flex;gap:6px"><button class="orc-b pri" id="m3dGo" onclick="publicar3d_(\''+cod+'\')">Publicar</button><button class="orc-b" onclick="_M3D[\''+cod+'\'].pub=false;m3dDesenha_(\''+cod+'\')">Cancelar</button></div><div id="m3dMsg" class="m3d-prog"></div></div>'; }
+    else h+='<button class="orc-b" style="margin-top:4px" onclick="_M3D[\''+cod+'\'].pub=true;m3dDesenha_(\''+cod+'\')">Publicar modelo da pasta PUBLICACAO_…</button>';
+  }
+  h+='<div class="hint">Toca em «Abrir 3D»: o modelo descarrega-se uma vez e fica guardado neste aparelho; as aberturas seguintes são imediatas. Em modelos pesados o visor liga o «modo obra» (estrutura só no elemento tocado).</div>';
+  el.innerHTML=h;
+}
+function sha256Hex_(buf){ return crypto.subtle.digest('SHA-256',buf).then(function(h){ return Array.prototype.map.call(new Uint8Array(h),function(b){ return ('0'+b.toString(16)).slice(-2); }).join(''); }); }
+function publicar3d_(cod){
+  var S=_M3D[cod], msg=document.getElementById('m3dMsg'), btn=document.getElementById('m3dGo');
+  var fs=Array.prototype.slice.call((document.getElementById('m3dFiles')||{}).files||[]);
+  var glb=fs.filter(function(f){ return /\.glb$/i.test(f.name); })[0], js=fs.filter(function(f){ return /\.json$/i.test(f.name); })[0];
+  if(!glb||!js){ msg.textContent='Escolhe os dois ficheiros: modelo.glb e publicacao.json.'; return; }
+  var modeloId=(document.getElementById('m3dSel')||{}).value||'', nome=(document.getElementById('m3dNome')||{}).value||'';
+  if(!modeloId && !nome.trim()){ msg.textContent='Indica o nome do ficheiro .skp para o modelo novo.'; return; }
+  btn.disabled=true; msg.textContent='A calcular sha256…';
+  var bufG, bufJ, shaG, shaJ, pubId, pub;
+  Promise.all([glb.arrayBuffer(), js.arrayBuffer()]).then(function(bs){ bufG=bs[0]; bufJ=bs[1];
+    try{ pub=JSON.parse(new TextDecoder().decode(bufJ)); }catch(e){ throw new Error('publicacao.json não é JSON válido.'); }
+    if(pub&&pub.obra&&String(pub.obra.numero)!==String(cod)) throw new Error('O publicacao.json é da obra '+pub.obra.numero+', não da '+cod+'.');
+    return Promise.all([sha256Hex_(bufG), sha256Hex_(bufJ)]);
+  }).then(function(sh){ shaG=sh[0]; shaJ=sh[1];
+    msg.textContent='A registar o modelo…';
+    return modeloId?{ok:true,modelo_id:modeloId}:callSec('m3dRegistarModelo',cod,{nome_ficheiro:nome.trim()});
+  }).then(function(r){ if(!r||!r.ok) throw new Error((r&&r.erro)||'Não consegui registar o modelo.'); modeloId=r.modelo_id;
+    msg.textContent='A pedir URLs de upload…';
+    return callSec('m3dPedirUpload',cod,{modelo_id:modeloId,tipo:'publicacao',ficheiros:[{nome:'modelo.glb',bytes:bufG.byteLength,sha256:shaG},{nome:'publicacao.json',bytes:bufJ.byteLength,sha256:shaJ}]});
+  }).then(function(r){ if(!r||!r.ok) throw new Error((r&&r.erro)||'Upload recusado.'); pubId=r.publicacao_id;
+    var ups=r.uploads||[]; var seq=Promise.resolve();
+    ups.forEach(function(u){ seq=seq.then(function(){ msg.textContent='A enviar '+u.nome+' ('+m3dMB_(u.nome==='modelo.glb'?bufG.byteLength:bufJ.byteLength)+')…';
+      return fetch(u.url,{method:u.metodo||'PUT',headers:u.headers||{},body:u.nome==='modelo.glb'?bufG:bufJ}).then(function(res){ if(!res.ok) return res.text().then(function(t){ throw new Error('O armazenamento recusou '+u.nome+' ('+res.status+'): '+t.slice(0,160)); }); }); }); });
+    return seq;
+  }).then(function(){ msg.textContent='A registar a publicação…'; return callSec('m3dRegistarPublicacao',pubId,{}); })
+  .then(function(r){ if(!r||!r.ok) throw new Error((r&&r.erro)||'Registo recusado.');
+    msg.textContent='Publicado: '+r.n_elementos+' elementos'+(r.versao_medida?' · orçamento v'+r.versao_medida.numero:'')+((r.avisos||[]).length?' · avisos: '+r.avisos.join(' · '):'');
+    S.pub=false; setTimeout(function(){ carregar3dObra_(cod); if(typeof carregarOrcObra_==='function'&&document.getElementById('sec-orc-'+cod)&&document.getElementById('sec-orc-'+cod).style.display!=='none') carregarOrcObra_(cod); },1500);
+  }).catch(function(e){ msg.textContent='Erro: '+(e&&e.message||e); btn.disabled=false; });
+}
+// ---- abrir o visor ----
+function carregarVisorJS_(){
+  if(window.Visor3D) return Promise.resolve();
+  if(_v3dP) return _v3dP;
+  _v3dP=(window.THREE?Promise.resolve():carregarScript_('./three_nt.min.js?v='+V3D_VER)).then(function(){ return carregarScript_('./visor3d.js?v='+V3D_VER); }).catch(function(e){ _v3dP=null; throw e; });
+  return _v3dP;
+}
+function m3dCache_(sha, url, tipo){
+  var chave='https://crmnt.cache/m3d/'+sha;
+  var viaRede=function(){ return fetch(url).then(function(res){ if(!res.ok) throw new Error('Não consegui descarregar o ficheiro ('+res.status+').'); return res; }); };
+  if(!window.caches) return viaRede().then(function(res){ return tipo==='json'?res.json():res.arrayBuffer(); });
+  return caches.open('crmnt-3d').then(function(c){ return c.match(chave).then(function(hit){ if(hit) return hit; return viaRede().then(function(res){ var cl=res.clone(); return c.put(chave,cl).catch(function(){}).then(function(){ return res; }); }); }); })
+    .then(function(res){ return tipo==='json'?res.json():res.arrayBuffer(); });
+}
+function abrir3d_(cod,i){
+  var S=_M3D[cod]; var m=S&&S.r.modelos[i]; if(!m||!m.publicacao) return;
+  var fG=(m.publicacao.ficheiros||[]).filter(function(f){ return f.nome==='modelo.glb'; })[0], fJ=(m.publicacao.ficheiros||[]).filter(function(f){ return f.nome==='publicacao.json'; })[0];
+  if(!fG||!fG.url){ alert('Esta publicação não tem o GLB disponível.'); return; }
+  var host=document.getElementById('v3dHost'); if(host) host.remove();
+  host=document.createElement('div'); host.id='v3dHost'; host.innerHTML='<div style="position:fixed;inset:0;background:#e9edf2;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:10px;font:14px system-ui;color:#1f2937"><b style="font-size:16px">'+esc(S.r.obra.codigo+' · '+(m.nome_ficheiro||''))+'</b><div id="v3dProg">A preparar o visor…</div><button class="orc-b" onclick="fechar3d_()">Cancelar</button></div>';
+  document.body.appendChild(host);
+  var prog=function(t){ var p=document.getElementById('v3dProg'); if(p) p.textContent=t; };
+  var glb, pub;
+  carregarVisorJS_().then(function(){ prog('A obter o modelo ('+m3dMB_(fG.bytes)+')… na primeira vez demora; depois fica guardado neste aparelho'); return m3dCache_(fG.sha256,fG.url,'bin'); })
+  .then(function(b){ glb=b; if(fJ&&fJ.url){ prog('A obter a publicação…'); return m3dCache_(fJ.sha256,fJ.url,'json').catch(function(){ return null; }); } return null; })
+  .then(function(p){ pub=p; if(!document.getElementById('v3dHost')) return; host.innerHTML='';
+    _v3dApi=window.Visor3D.montar(host,{glbBuffer:glb,nome:'modelo.glb',bytes:fG.bytes,pub:pub,titulo:S.r.obra.codigo+' · '+(m.nome_ficheiro||'3D'),onFechar:fechar3d_});
+  }).catch(function(e){ prog('Erro: '+(e&&e.message||e)); });
+}
+function fechar3d_(){ try{ if(_v3dApi) _v3dApi.desmontar(); }catch(e){} _v3dApi=null; var host=document.getElementById('v3dHost'); if(host) host.remove(); }
 // ===================== OR-1 · ORÇAMENTO DA OBRA (fonte única no Supabase) =====================
 // Lê orcDaObra (sem preços) + orcTmLista; importa versões com orcImportar/orcAtivar (xlsx lido aqui com ExcelJS,
 // o mesmo leitor da Consola de Autos); trabalhos não previstos com orcTmProposta/orcTmDecisao. Mock validado 23/10.
