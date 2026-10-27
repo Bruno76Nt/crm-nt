@@ -1,4 +1,4 @@
-<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-27-AU-5 (menu «Autos» do topo retirado: a consola vive no separador Autos do cartão da obra; Controller ganha o separador Obras; cartões de fila Controller/Admin na Área de trabalho; descrição abreviada ⇄ completa partilhada com a consola; TM «Editar» também na lista de artigos; base 3D-1d) · anterior: v2026-10-27-3D-1d (TM: «Editar» descrição/unidade enquanto proposto/quantificado — orcTrabalhoEditar; base 3D-1c) · anterior: v2026-10-27-3D-1c (Orçamento: capítulos com descrição — cadeia de níveis; base 3D-1b) · anterior: v2026-10-27-3D-1b (autos.js: a consola HERDA o orçamento do CRM_NT ao abrir a obra — sem importação de xlsx nos autos; base 3D-1) · anterior: v2026-10-27-3D-1 (separador «3D» no cartão da obra: modelos publicados, visor 3D a ecrã inteiro com cache por sha256, publicar a pasta PUBLICACAO_ em PC; base OR-3) · anterior: v2026-10-23-OR-3 (Orçamento: coluna Artigo, descrição abreviada/completa, sugestão TM por item proposto e descrição igual; base OR-2) · anterior: v2026-10-23-OR-2 (autos.js: consola carrega o orçamento do CRM_NT; base OR-1) · anterior: v2026-10-23-OR-1 (separador «Orçamento» no cartão da obra: versão corrente, trabalhos não previstos, versões, importar adenda — fonte única no Supabase; base AU-4) · anterior: v2026-10-22-AU-4 (autos.js: «Abrir no Excel» pelo ms-excel:ofe|u|file:///, sem instalador nem PowerShell; base AU-3) · anterior: v2026-10-22-AU-3 (autos.js com mensagens do «Abrir no Excel» apontadas a Configurações; base FC-1) · anterior: v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
+<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-27-AU-6 (menu «Autos» de volta só para Admin e Controller — fila/fluxo de todas as obras; cartão «Pasta de autos» na Área de trabalho do DO e do Controller; permissão da pasta pedida ao clique, sem botão «Reabrir»; base AU-5) · anterior: v2026-10-27-AU-5 (menu «Autos» do topo retirado: a consola vive no separador Autos do cartão da obra; Controller ganha o separador Obras; cartões de fila Controller/Admin na Área de trabalho; descrição abreviada ⇄ completa partilhada com a consola; TM «Editar» também na lista de artigos; base 3D-1d) · anterior: v2026-10-27-3D-1d (TM: «Editar» descrição/unidade enquanto proposto/quantificado — orcTrabalhoEditar; base 3D-1c) · anterior: v2026-10-27-3D-1c (Orçamento: capítulos com descrição — cadeia de níveis; base 3D-1b) · anterior: v2026-10-27-3D-1b (autos.js: a consola HERDA o orçamento do CRM_NT ao abrir a obra — sem importação de xlsx nos autos; base 3D-1) · anterior: v2026-10-27-3D-1 (separador «3D» no cartão da obra: modelos publicados, visor 3D a ecrã inteiro com cache por sha256, publicar a pasta PUBLICACAO_ em PC; base OR-3) · anterior: v2026-10-23-OR-3 (Orçamento: coluna Artigo, descrição abreviada/completa, sugestão TM por item proposto e descrição igual; base OR-2) · anterior: v2026-10-23-OR-2 (autos.js: consola carrega o orçamento do CRM_NT; base OR-1) · anterior: v2026-10-23-OR-1 (separador «Orçamento» no cartão da obra: versão corrente, trabalhos não previstos, versões, importar adenda — fonte única no Supabase; base AU-4) · anterior: v2026-10-22-AU-4 (autos.js: «Abrir no Excel» pelo ms-excel:ofe|u|file:///, sem instalador nem PowerShell; base AU-3) · anterior: v2026-10-22-AU-3 (autos.js com mensagens do «Abrir no Excel» apontadas a Configurações; base FC-1) · anterior: v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -241,7 +241,7 @@ body[data-tab=autos] .wrap{max-width:1500px}
 .vgrid>.vcard{margin-top:0}
 nav button .nb{background:#ffc107;color:#000;font-size:11px;padding:1px 7px;border-radius:999px;font-weight:700;margin-left:6px}
 body[data-perfil=ctrl] nav{display:flex!important}
-body[data-perfil=ctrl] nav button:not(#t-obras):not(#t-ferias){display:none}
+body[data-perfil=ctrl] nav button:not(#t-autos):not(#t-obras):not(#t-ferias){display:none}
 .homegrid{grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
 .cardgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
 body[data-tab=obras] #obrasLista{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
@@ -452,6 +452,7 @@ window.addEventListener('load', function(){
   <button id="t-disp" onclick="tab('disp')"><svg class=li><use href=#li-ucheck /></svg>Disponib.</button>
   <button id="t-obras" onclick="tab('obras')"><svg class=li><use href=#li-obra /></svg>Obras</button>
   <button id="t-notas" onclick="tab('notas')"><svg class=li><use href=#li-note /></svg>Notas</button>
+  <button id="t-autos" onclick="tab('autos')" style="display:none"><svg class=li><use href=#li-euro /></svg>Autos<span class="nb" id="nbAutos" style="display:none"></span></button>
   <button id="t-ferias" onclick="tab('ferias')" style="display:none"><svg class=li><use href=#li-ferias /></svg>Férias</button>
 </div></nav>
 
@@ -620,12 +621,14 @@ function entrar(email,nome,papel){
     document.body.setAttribute('data-perfil','ctrl');
     var navC=document.querySelector('nav'); if(navC) navC.style.display='none';
     var tf=document.getElementById('t-ferias'); if(tf) tf.style.display='';
+    var ta=document.getElementById('t-autos'); if(ta) ta.style.display='';
     buildFilters(); tab('home');
   } else {
     // DO / Admin: entra na Área de trabalho (cartões); no telemóvel a barra inferior
     // não existe; na vista PC (≥1000px) o CSS volta a mostrá-la como barra de topo
     document.body.setAttribute('data-perfil','colab');
     var nav0=document.querySelector('nav'); if(nav0) nav0.style.display='none';
+    var ta0=document.getElementById('t-autos'); if(ta0) ta0.style.display=(_pl.indexOf('admin')>=0&&_pl.indexOf('administrativo')<0)?'':'none';   // AU-6: menu Autos só Admin (e Controller)
     buildFilters(); tab('home');
   }
 }
@@ -1603,7 +1606,7 @@ function tab(t){
       if(t==='list'||t==='disp'){ qEl.value=QTABS[t]||''; toggleQx(); }
     }
   }
-  ['agenda','list','disp','obras','notas','ferias'].forEach(x=>{var el=document.getElementById('t-'+x); if(el) el.classList.toggle('on',x===t);});
+  ['agenda','list','disp','obras','notas','autos','ferias'].forEach(x=>{var el=document.getElementById('t-'+x); if(el) el.classList.toggle('on',x===t);});
   var comFiltros=(t==='list'||t==='disp');   // cabeçalho partilhado, mas com estado próprio por aba
   if(comFiltros) buildFilters();             // repõe zona/tipo desta aba nos seletores
   document.getElementById('searchBar').style.display=comFiltros?'block':'none';
@@ -1611,7 +1614,7 @@ function tab(t){
   document.getElementById('filtersZ').style.display=comFiltros?'block':'none';
   document.getElementById('filtersT').style.display='none';
   var primeiroNome=(MENOME||'').split(' ')[0];
-  const T={home:['Área de trabalho',(primeiroNome?'Olá, '+primeiroNome+' · ':'')+'escolhe uma área'],agenda:['Tarefas pendentes','o que tens de fazer hoje'],list:['Subempreiteiros','toca para ligar ou registar'],disp:['Disponibilidade','equipas por zona'],obras:['Obras em curso','negociado vs real'],notas:['Notas','o que combinaste, recente primeiro'],ferias:['Férias','as tuas e da equipa'],funcs:['Funcionários','toca para ligar'],gobras:['Gestão de obras','criar, atribuir e localizar']};
+  const T={home:['Área de trabalho',(primeiroNome?'Olá, '+primeiroNome+' · ':'')+'escolhe uma área'],agenda:['Tarefas pendentes','o que tens de fazer hoje'],autos:['Autos a subempreiteiros','todas as obras · modo PC'],list:['Subempreiteiros','toca para ligar ou registar'],disp:['Disponibilidade','equipas por zona'],obras:['Obras em curso','negociado vs real'],notas:['Notas','o que combinaste, recente primeiro'],ferias:['Férias','as tuas e da equipa'],funcs:['Funcionários','toca para ligar'],gobras:['Gestão de obras','criar, atribuir e localizar']};
   if(t==='obras'&&String(MEPAPEL||'').toLowerCase().indexOf('controller')>=0) T.obras=['Obras','autos a subempreiteiros · modo PC'];
   document.getElementById('hTitle').textContent=T[t][0];document.getElementById('hSub').textContent=T[t][1];
   mostraHome_(t!=='home');
@@ -1646,6 +1649,7 @@ function render(){
     return;
   }
   if(curTab==='home'){ stc.textContent=''; return renderHome(v); }                          // Início: Área de trabalho em cartões
+  if(curTab==='autos'){ stc.textContent=''; return renderAutos(v); }                        // Autos (Admin/Controller): fila e fluxo de todas as obras
   if(curTab==='ferias'){ stc.textContent=''; return renderFerias(v); }                       // Férias: área própria
   if(curTab==='funcs'){ stc.textContent=''; return renderFuncsDir(v); }                      // Funcionários: diretório interno
   if(curTab==='agenda'){ stc.textContent=''; return renderAgenda(v); }                       // Agenda: sem contador
@@ -1799,11 +1803,13 @@ function renderHome(v){
   var ctrl=String(MEPAPEL||'').toLowerCase().indexOf('controller')>=0;
   if(ctrl){
     v.innerHTML='<div class="hperfil"><svg class=li><use href=#li-user /></svg> '+esc(MENOME)+' · Controller</div><div class="homegrid">'
-      +'<div class="hcard" onclick="tab(\'obras\')"><span class="hbadge" id="hb-autos" style="display:none"></span><div class="ic"><svg class=li><use href=#li-euro /></svg></div><div class="desc" id="hd-autos">Obras com envios por importar — cada linha abre o separador Autos dessa obra (modo PC)</div><div class="tit">Envios recebidos</div></div>'
+      +'<div class="hcard" onclick="tab(\'autos\')"><span class="hbadge" id="hb-autos" style="display:none"></span><div class="ic"><svg class=li><use href=#li-euro /></svg></div><div class="desc" id="hd-autos">Fila de envios de todas as obras: importar, autos recebidos, DR, ERP e envio ao subempreiteiro (modo PC)</div><div class="tit">Autos a subempreiteiros</div></div>'
+      +'<div class="hcard" onclick="abrirAutosPasta_()"><div class="ic"><svg class=li><use href=#li-gear /></svg></div><div class="desc" id="hd-pasta">A pasta CONTROLO_AUTOS deste computador e o caminho para «Abrir no Excel» — uma vez por PC, serve para todas as obras</div><div class="tit">Pasta de autos</div></div>'
       +'<div class="hcard" onclick="tab(\'obras\')"><div class="ic"><svg class=li><use href=#li-obra /></svg></div><div class="desc">Todas as obras com autos: resumo, autos recebidos, DR, alertas, ERP e envio ao subempreiteiro</div><div class="tit">Obras</div></div>'
       +'<div class="hcard" onclick="tab(\'ferias\')"><div class="ic"><svg class=li><use href=#li-ferias /></svg></div><div class="desc">As tuas férias</div><div class="tit">Férias</div></div></div>';
     callSec('autosEnviosRecebidos').then(function(r){ var pend=((r&&r.envios)||[]).filter(function(e){return e.estado==='pendente';}); var b=document.getElementById('hb-autos'); if(b&&pend.length){ b.style.display='flex'; b.textContent=pend.length; }
-      var d=document.getElementById('hd-autos'); if(d&&pend.length) d.innerHTML=filaPorObraHTML_(pend.map(function(e){ return {cod:e.obra,nome:e.obra_nome,quem:e.enviado_por}; }),'envio'); }).catch(function(){});
+      var d=document.getElementById('hd-autos'); if(d&&pend.length) d.innerHTML='Por importar:'+filaPorObraHTML_(pend.map(function(e){ return {cod:e.obra,nome:e.obra_nome,quem:e.enviado_por}; }),'envio'); }).catch(function(){});
+    estadoPastaHome_();
     return;
   }
   var nTar=LEMBRETES.filter(function(l){ if(!admin && l.quem!==MENOME) return false; var n=daysTo(l.data); return n!==null && n<=0; }).length;
@@ -1821,8 +1827,8 @@ function renderHome(v){
     +hc("tab('disp')",'disp','<svg class=li><use href=#li-ucheck /></svg>','Disponibilidade','Quem está livre ou fica livre esta semana, por zona e especialidade',nLivre,true)
     +hc("tab('obras')",'obras','<svg class=li><use href=#li-obra /></svg>','Obras','Equipas em obra, registo diário e gestão',0,false)
     +hc("tab('notas')",'notas','<svg class=li><use href=#li-note /></svg>','Bloco de notas','Notas de fichas, chamadas e obras — pesquisáveis',0,false)
-    +(admin?hc("tab('obras')",'autos','<svg class=li><use href=#li-euro /></svg>','Autos a aprovar','<span id="hd-autos">Autos importados pelo Controller à espera da tua aprovação, por obra — cada linha abre o separador Autos dessa obra</span>',0,false):'')
-    +(admin?hc("abrirAutosConfig_()",'autoscfg','<svg class=li><use href=#li-gear /></svg>','Configurações de autos','Dia de fecho global, tabela de subempreiteiros do ERP e ligações ao ERP (modo PC)',0,false):'')
+    +(admin?hc("tab('autos')",'autos','<svg class=li><use href=#li-euro /></svg>','Autos a subempreiteiros','<span id="hd-autos">Fluxo de autos de todas as obras: aprovar ou recusar, autos por obra, configurações (modo PC)</span>',0,false):'')
+    +(!admin?hc("abrirAutosPasta_()",'autospasta','<svg class=li><use href=#li-gear /></svg>','Pasta de autos','<span id="hd-pasta">A pasta OBRAS deste computador e o caminho para «Abrir no Excel» — uma vez por PC, serve para todas as obras</span>',0,false):'')
     +hc("tab('funcs')",'funcs','<svg class=li><use href=#li-func /></svg>','Funcionários','A lista da empresa: nome, função e ligar num toque',0,false)
     +hc("tab('ferias')",'ferias','<svg class=li><use href=#li-ferias /></svg>','Férias','As tuas férias'+(admin?', os pedidos por decidir e o mapa da empresa':' e as férias da equipa'),0,false)
     +(admin?hc('openMetricas()','metricas','<svg class=li><use href=#li-chart /></svg>','Utilização','Quem usa a app e como: chamadas, ponto e prospeção por DO',0,false):'')
@@ -1839,7 +1845,8 @@ function renderHome(v){
   }).catch(function(){});
   callSec('contarLembretesDO').then(function(r){ somaTar((r&&r.n)||0); }).catch(function(){});
   if(admin) callSec('autosFluxo').then(function(r){ var lst=(r&&r.a_aprovar)||[]; var b=document.getElementById('hb-autos'); if(b&&lst.length){ b.style.display='flex'; b.textContent=lst.length; }
-    var d=document.getElementById('hd-autos'); if(d&&lst.length) d.innerHTML=filaPorObraHTML_(lst.map(function(a){ return {cod:a.obra,nome:a.obra_nome,quem:a.do_nome}; }),'auto'); }).catch(function(){});
+    var d=document.getElementById('hd-autos'); if(d&&lst.length) d.innerHTML='A aprovar:'+filaPorObraHTML_(lst.map(function(a){ return {cod:a.obra,nome:a.obra_nome,quem:a.do_nome}; }),'auto'); }).catch(function(){});
+  if(!admin) estadoPastaHome_();
   if(admin) callSec('pedidosFerias').then(function(r){
     var n=((r&&r.lista)||[]).length; if(!n) return;
     var b=document.getElementById('hb-ferias'); if(b){ b.style.display='flex'; b.textContent=(n>99?'99+':n); }
@@ -4983,16 +4990,63 @@ function montarAutosObra_(cod){
       onBadge:function(n){ var b=document.getElementById('hb-autos'); if(b){ b.style.display=n?'flex':'none'; b.textContent=n; } } });
   }).catch(function(e){ var host=document.getElementById('autosHost-'+cod); if(host) host.innerHTML='<div class="alert">'+esc(e&&e.message||'Erro ao carregar a consola de autos.')+'</div>'; });
 }
-// Admin: Configurações de autos (dia de fecho, tabela de subempreiteiros do ERP) — a vista da consola, numa folha
-function abrirAutosConfig_(){
-  if(window.innerWidth<1000){ alert('As configurações de autos tratam-se em modo PC.'); return; }
-  document.getElementById('sheetEl').innerHTML='<h2><svg class=li><use href=#li-gear /></svg> Configurações de autos</h2><div id="autosCfgHost"><div class="loading">A carregar…</div></div><button class="ghost" onclick="closeOv()">Fechar</button>';
+// se a consola estiver montada numa obra, sai de lá (é um módulo único)
+function largarAutosObra_(){
+  if(window.Autos){ try{ window.Autos.desmontar(); }catch(e){} }
+  if(_autosEmbCod){ var ant=document.getElementById('sec-autos-'+_autosEmbCod); if(ant){ ant.innerHTML='<div class="loading">A carregar…</div>'; ant.style.display='none'; } var tb=document.getElementById('tab-autos-'+_autosEmbCod); if(tb) tb.classList.remove('on'); _autosEmbCod=null; }
+}
+// AU-6 · menu «Autos» (Admin: fluxo de todas as obras; Controller: fila de envios de todas as obras) — a consola completa, como antes da AU-5
+function renderAutos(v){
+  if(window.innerWidth<1000){
+    v.innerHTML='<div class="card" style="margin-top:8px"><div class="hint" style="margin-bottom:8px">A consola de autos (fila, importar, aprovar) só funciona em <b>modo PC</b>, no Edge ou Chrome. No telemóvel ficas com a consulta.</div><div id="autosConsulta">A carregar…</div></div>';
+    renderAutosConsulta_(document.getElementById('autosConsulta'));
+    return;
+  }
+  largarAutosObra_();
+  v.innerHTML='<div id="autosHost" style="margin-top:6px"><div class="loading">A carregar a consola de autos…</div></div>';
+  carregarAutosJS_().then(function(){
+    var host=document.getElementById('autosHost'); if(!host||curTab!=='autos') return;
+    return window.Autos.montar(host,{ email:ME, nome:MENOME, papel:MEPAPEL, callSec:callSec, logo:logoDataUri_(),
+      onBadge:function(n){ ['nbAutos','hb-autos'].forEach(function(id){ var b=document.getElementById(id); if(b){ b.style.display=n?(id==='hb-autos'?'flex':''):'none'; b.textContent=n; } }); } });
+  }).catch(function(e){ var host=document.getElementById('autosHost'); if(host) host.innerHTML='<div class="alert">'+esc(e&&e.message||'Erro ao carregar a consola de autos.')+'</div>'; });
+}
+// Telemóvel (Admin/Controller): só consulta — obras com Σ dos autos e, ao tocar, cada auto com o estado do fluxo
+function renderAutosConsulta_(el){
+  callSec('autosObras').then(function(r){
+    if(!r||!r.ok){ el.innerHTML='<div class="alert">'+esc((r&&r.erro)||'Sem acesso.')+'</div>'; return; }
+    var obras=(r.obras||[]).filter(function(o){ return o.n_autos>0; });
+    if(!obras.length){ el.innerHTML='<div class="hint">Ainda não há autos registados no CRM_NT.</div>'; return; }
+    el.innerHTML=obras.map(function(o){ return '<div class="card" style="cursor:pointer;margin:8px 0" onclick="autosConsultaObra_(\''+esc(o.codigo)+'\',this)"><b>'+esc(o.codigo+' — '+o.nome)+'</b><div class="hint" style="margin-top:3px">'+o.n_autos+' auto(s) · Σ '+Number(o.total||0).toLocaleString('pt-PT',{minimumFractionDigits:2})+' €'+(o.a_aprovar?' · <span style="color:var(--warn);font-weight:700">'+o.a_aprovar+' aguarda(m) Admin</span>':'')+'</div><div class="autosObraDet"></div></div>'; }).join('');
+  }).catch(function(){ el.innerHTML='<div class="alert">Erro de ligação.</div>'; });
+}
+function autosConsultaObra_(cod,card){
+  var det=card.querySelector('.autosObraDet'); if(!det) return; if(det.innerHTML){ det.innerHTML=''; return; }
+  det.innerHTML='<div class="hint">a carregar…</div>';
+  callSec('autosEstadoObra',cod).then(function(r){
+    if(!r||!r.ok){ det.innerHTML='<div class="hint">'+esc((r&&r.erro)||'sem acesso')+'</div>'; return; }
+    var P={2:'enviado ao Controller',3:'importado · aguarda Admin',4:'aprovação',5:'lançado no ERP',6:'enviado ao sub'};
+    det.innerHTML='<div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:6px;font-size:12.5px">'+(r.autos||[]).map(function(a){
+      var est=a.substituido?'substituído':(a.passo===4?(a.aprovacao==='recusado'?'recusado':'aprovado'):(P[a.passo]||''))+(a.sem_autorizacao?' · SEM AUTORIZAÇÃO':'');
+      return '<div style="display:flex;justify-content:space-between;gap:8px;'+(a.substituido?'color:var(--muted);text-decoration:line-through':'')+'"><span>'+esc(a.sub_nome.split(' ')[0]+' · '+a.especialidade+' '+String(a.numero).padStart(3,'0')+(a.substitutivo?'S':'')+' · '+a.periodo)+'</span><b>'+Number(a.valor_mes||0).toLocaleString('pt-PT',{minimumFractionDigits:2})+' €</b></div><div class="hint" style="margin:-2px 0 5px">'+esc(est)+'</div>'; }).join('')
+      +'<div style="display:flex;justify-content:space-between;border-top:1px solid var(--line);padding-top:5px;font-weight:700"><span>Σ obra</span><span>'+Number(r.total||0).toLocaleString('pt-PT',{minimumFractionDigits:2})+' €</span></div></div>';
+  });
+}
+// AU-6 · «Pasta de autos» (DO e Controller): a pasta pessoal deste PC + caminho Windows, numa folha — a vista Configurações da consola
+function abrirAutosPasta_(){
+  if(window.innerWidth<1000){ alert('A pasta de autos define-se em modo PC (Edge ou Chrome), no computador onde estão as pastas.'); return; }
+  document.getElementById('sheetEl').innerHTML='<h2><svg class=li><use href=#li-gear /></svg> Pasta de autos</h2><div class="sub">uma vez por computador — serve para todas as obras</div><div id="autosCfgHost"><div class="loading">A carregar…</div></div><button class="ghost" onclick="closeOv();if(curTab===\'home\') estadoPastaHome_();">Fechar</button>';
   open_();
-  carregarAutosJS_().then(function(){ var host=document.getElementById('autosCfgHost'); if(!host) return;
-    if(window.Autos){ try{ window.Autos.desmontar(); }catch(e){} }
-    if(_autosEmbCod){ var ant=document.getElementById('sec-autos-'+_autosEmbCod); if(ant){ ant.innerHTML='<div class="loading">A carregar…</div>'; ant.style.display='none'; } var tb=document.getElementById('tab-autos-'+_autosEmbCod); if(tb) tb.classList.remove('on'); _autosEmbCod=null; }
-    return window.Autos.montar(host,{ email:ME, nome:MENOME, papel:MEPAPEL, callSec:callSec, logo:logoDataUri_(), vista:'aconfig' });
+  carregarAutosJS_().then(function(){ var host=document.getElementById('autosCfgHost'); if(!host) return; largarAutosObra_();
+    return window.Autos.montar(host,{ email:ME, nome:MENOME, papel:MEPAPEL, callSec:callSec, logo:logoDataUri_(), vista:'config' });
   }).catch(function(e){ var host=document.getElementById('autosCfgHost'); if(host) host.innerHTML='<div class="alert">'+esc(e&&e.message||'Erro ao carregar.')+'</div>'; });
+}
+// estado da pasta no cartão da Área de trabalho (lido da memória do browser, sem abrir a consola)
+function estadoPastaHome_(){
+  if(window.innerWidth<1000) return;
+  carregarAutosJS_().then(function(){ return window.Autos.pastaEstado(ME,MEPAPEL); }).then(function(e){
+    var d=document.getElementById('hd-pasta'); if(!d||!e) return;
+    d.innerHTML=e.nome?('<b>'+esc(e.nome)+'</b>'+(e.caminho?' · '+esc(e.caminho):'')+' · '+(e.permissao==='granted'?'<span style="color:var(--green);font-weight:700">ligada</span>':'memorizada — o browser pede confirmação ao abrir a 1.ª obra')+'<br>'+(e.papel==='CONTROLLER'?'Toca para mudar a pasta ou o caminho.':'Toca para mudar a pasta ou o caminho para «Abrir no Excel».')):'<span style="color:var(--red);font-weight:700">Ainda não definida neste computador.</span> Toca para escolher a pasta '+(e.papel==='CONTROLLER'?'CONTROLO_AUTOS':'OBRAS')+'.';
+  }).catch(function(){});
 }
 // Secção «Autos» do cartão da obra: em PC a consola embutida (montarAutosObra_); no telemóvel a consulta — valor de cada auto, estado do fluxo e Σ
 function carregarAutosObra_(cod){

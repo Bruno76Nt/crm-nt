@@ -81,7 +81,7 @@ function renderNav(){
   const pap=$('#papel');pap.className='chip '+(S.papel==='CONTROLLER'?'ctrl':'do');pap.textContent=S.papel==='CONTROLLER'?'Controller':S.papel==='ADMIN'?'Admin · sem pasta':'Diretor de Obra';pap.style.display='';
   const nm=S.cfg?.nome||'';$('#avatar').textContent=nm?nm.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase():'?';$('#avatar').title=nm;
 }
-function go(v){if(S.emb&&v==='entrada')v='embEntrada';S.view=v;renderNav();({embEntrada:viewEntradaEmb_,entrada:viewEntrada,orcamento:viewOrc,tabela:viewTabela,subs:viewSubs,subempreitadas:viewSubempreitadas,envios:viewEnvios,cautos:viewCtrlAutos,dr:viewDR,alertas:viewAlertas,config:viewConfig,fila:viewFila,fluxo:viewFluxo,cobras:viewObrasCRM,aconfig:viewAdminConfig,obraautos:viewObraAutos}[v])();}
+function go(v){if(S.emb&&v==='entrada')v='embEntrada';if(S.soVista&&v==='entrada')v=S.soVista;S.view=v;renderNav();({embEntrada:viewEntradaEmb_,entrada:viewEntrada,orcamento:viewOrc,tabela:viewTabela,subs:viewSubs,subempreitadas:viewSubempreitadas,envios:viewEnvios,cautos:viewCtrlAutos,dr:viewDR,alertas:viewAlertas,config:viewConfig,fila:viewFila,fluxo:viewFluxo,cobras:viewObrasCRM,aconfig:viewAdminConfig,obraautos:viewObraAutos}[v])();}
 
 /* ---------- pasta OBRAS ---------- */
 async function escolherPasta(){
@@ -1521,7 +1521,11 @@ async function montar(el,ctx){
   if(S.papel!=='ADMIN'){
     if(typeof window.showDirectoryPicker!=='function'){renderNav();$('#main').innerHTML=`<div class="msg err">Este browser não suporta acesso a pastas. Abre o CRM_NT no <b>Microsoft Edge</b> ou <b>Google Chrome</b>, em modo PC.</div>`;return;}
     await sincEnt_();
-    const r=await reabrirPasta();if(r===true)await sincCfg_(S.root);
+    let r=await reabrirPasta();
+    if(r&&r!==true&&r.dir){ // pasta memorizada sem permissão nesta sessão: pede-a já (Chrome/Edge: «Permitir sempre» / app instalada = nunca mais pergunta)
+      try{const p=await r.dir.requestPermission({mode:'readwrite'});if(p==='granted'){S.root=r.dir;r=true;}}catch(e){console.warn('[autos] requestPermission ao arranque',e&&e.message);}
+    }
+    if(r===true)await sincCfg_(S.root);
   }
   await atualizarBadge_();
   renderNav();go(S.soVista||(S.emb?'entrada':(S.papel==='ADMIN'?'fluxo':'entrada')));
@@ -1568,7 +1572,15 @@ function renderNavEmb_(){
   const nm=S.cfg?.nome||CTX.nome||'';$('#avatar').textContent=nm?nm.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase():'?';$('#avatar').title=nm;
 }
 function desmontar(){if(ROOT){ROOT.innerHTML='';ROOT.removeAttribute('id');ROOT.classList.remove('emb');}ROOT=null;S.root=null;S.obra=null;S.obraDir=null;S.orc=null;S.autos=[];S.memAutos=null;S.emb=null;S.soVista=null;S.badgeEmb=0;}
-return {montar,desmontar,VERSAO,get estado(){return S;}};
+async function pastaEstado(email,papel){
+  const pap=String(papel||'').toLowerCase().indexOf('controller')>=0?'CONTROLLER':'DO';
+  try{const dir=await DB.get('root:'+String(email||'').toLowerCase());if(!dir)return {nome:'',permissao:'',caminho:'',papel:pap};
+    const perm=await dir.queryPermission({mode:'readwrite'});let caminho='';
+    if(perm==='granted'){try{const cfg=await FS.readJson(dir,'consola.json');caminho=(cfg&&cfg.caminho)||'';}catch(e){}}
+    return {nome:dir.name,permissao:perm,caminho,papel:pap};}
+  catch(e){return {nome:'',permissao:'',caminho:'',papel:pap};}
+}
+return {montar,desmontar,pastaEstado,VERSAO,get estado(){return S;}};
 
 
 })();
