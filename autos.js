@@ -62,6 +62,7 @@ const VIEWS=[
   {id:'dr',t:'DR',sec:null,need:'obra',papel:'CONTROLLER',ic:'chart'},
   {id:'alertas',t:'Alertas',sec:null,need:'obra',papel:'CONTROLLER',ic:'bell'},
   {id:'obraautos',t:'Autos da obra (CRM)',sec:null,need:'obra',ic:'chart',semAdmin:true},
+  {id:'erpsub',t:'Autos no ERP',sec:null,need:'obra',ic:'chart',semAdmin:true},
   {id:'config',t:'Configurações',sec:' ',ic:'gear',semAdmin:true},
 ];
 function renderNav(){
@@ -586,7 +587,7 @@ function acumInicialUI(i,esp,depois){
     ${itens.map(x=>`<tr><td>${esc(x.item)}</td><td>${esc(x.descricao)}</td><td>${esc(x.uni)}</td><td class="num">${fmt(x.qtd)}</td><td class="num"><input type="number" step="0.01" min="0" class="acI" data-item="${esc(x.item)}" data-q="${x.qtd}" data-p="${x.preco}" value="${cur[x.item]??''}" style="width:110px"></td><td class="num acV" data-item="${esc(x.item)}">${fmt((cur[x.item]||0)*x.preco)}</td></tr>`).join('')}
     </tbody></table></div>
     <div class="row" style="margin-top:8px"><b>Valor ao preço adjudicado: <span id="acTot">—</span></b><span class="sp" style="flex:1"></span><span id="acMsg" class="hint"></span></div>
-    <div class="row"><label><span>Valor realmente faturado nos Autos 1 a ${n-1} (€, sem IVA)</span><input id="acFat" type="number" step="0.01" min="0" style="width:160px" value="${s.acum_inicial_valor?.[esp]??''}"></label><span class="hint">Preenche se os Autos antigos foram pagos a preços diferentes dos adjudicados; a diferença entra na DR do Controller como ajuste. Vazio = igual ao valor ao preço adjudicado.</span></div>
+    <div class="row"><label><span>Valor realmente faturado nos Autos 1 a ${n-1} (€, sem IVA)</span><input id="acFat" type="number" step="0.01" min="0" style="width:160px" value="${s.acum_inicial_valor?.[esp]??(S._sugFat??'')}"></label><span class="hint">Preenche se os Autos antigos foram pagos a preços diferentes dos adjudicados; a diferença entra na DR do Controller como ajuste. Vazio = igual ao valor ao preço adjudicado.</span></div>
     <div class="right" style="margin-top:8px"><button class="sec" id="dCancel">Cancelar</button><button id="dOk">Guardar acumulados</button></div>`;
   const recalc=()=>{let tot=0,exc=0;dlg.querySelectorAll('.acI').forEach(inp=>{const v=+inp.value||0,p=+inp.dataset.p,q=+inp.dataset.q;tot+=v*p;dlg.querySelector(`.acV[data-item="${CSS.escape(inp.dataset.item)}"]`).textContent=fmt(v*p);const ex=v>q+1e-6;if(ex)exc++;inp.style.color=ex?'var(--err)':'';});
     $('#acTot').textContent=fmt(tot)+' €';$('#acMsg').innerHTML=exc?`<span class="tag warn">${exc} artigo(s) acima da quantidade adjudicada</span>`:'';};
@@ -1059,7 +1060,15 @@ async function novoAuto(subId,esp){
   const erp=await erpSubInfo_();const es=erp&&s.codigo_erp?(erp.subs||[]).find(x=>String(x.subCod)===String(s.codigo_erp)):null;
   if(es&&es.nAutos){const ja=es.autos.find(a=>a.numero===n&&a.estado!=='ANLD');
     if(ja||n!==es.sugerido){const txt=`No ERP este subempreiteiro tem ${es.nAutos} auto(s) nesta obra (último: n.º ${es.ultimo.numero} · ${es.ultimo.data} · ${eur(es.ultimo.valor)}). Sugerido: n.º ${es.sugerido}.\n`+(ja?`ATENÇÃO: o n.º ${n} já existe no ERP (${ja.data} · ${eur(ja.valor)} · ${ja.estado}).\n`:'')+`A consola ia criar o n.º ${n}.\n\nOK = usar o n.º sugerido ${es.sugerido} · Cancelar = manter o n.º ${n}`;
-      if(confirm(txt)){n=es.sugerido;s.proximo_auto=s.proximo_auto||{};s.proximo_auto[esp]=n;await guardarObra();}}}
+      if(confirm(txt)){n=es.sugerido;s.proximo_auto=s.proximo_auto||{};s.proximo_auto[esp]=n;if(!ultimoEmitido(subId,esp)){s.primeiro_auto=s.primeiro_auto||{};s.primeiro_auto[esp]=n;}await guardarObra();}}}
+  // série a começar depois do n.º 1 sem autos emitidos aqui (migração do ERP): abre logo a janela dos acumulados anteriores
+  // (quantidades por artigo; valor faturado pré-preenchido com o total do ERP) e volta a criar o auto quando ela fechar
+  if(!ultimoEmitido(subId,esp)&&n>1&&!s.acum_inicial?.[esp]){
+    s.primeiro_auto=s.primeiro_auto||{};if((s.primeiro_auto[esp]||1)!==n){s.primeiro_auto[esp]=n;await guardarObra();}
+    if(es&&es.total>0&&s.acum_inicial_valor?.[esp]==null)S._sugFat=r2(es.total);
+    const i=S.obra.subempreiteiros.indexOf(s);toast(`Série a começar no Auto n.º ${n}: introduz os acumulados dos Autos 1 a ${n-1}`,'warn');
+    return acumInicialUI(i,esp,()=>{delete S._sugFat;novoAuto(subId,esp);});
+  }
   if(!(s.artigos[esp]||[]).length)return toast('Esta especialidade não tem artigos atribuídos','warn');
   const ant=ultimoEmitido(subId,esp);
   if(!ant&&n>1&&!s.acum_inicial?.[esp])return toast(`Série a começar no Auto n.º ${n}: introduz primeiro os acumulados anteriores em Subempreitadas`,'warn');
