@@ -488,7 +488,9 @@
     const b = $('#eAplicar'); b.disabled = true; b.textContent = 'A aplicar…';
     try {
       const r = await C.callSec('obrasImportarERP', { modo: 'aplicar', linhas: S.linhas, anoRef: new Date().getFullYear(), ficheiro: S.fonte, ficheiroEm: S.fich.lastModified ? new Date(S.fich.lastModified).toISOString() : null, escolhas: e, extras: S.extras || {} });
-      if (!r || r.erro){ b.disabled = false; contar(); const f = $('.foot'); if (f) f.insertAdjacentHTML('afterbegin', `<div class="msg err" style="flex-basis:100%">${esc((r && r.erro) || 'Erro no servidor.')}</div>`); return; }
+      if (!r || r.erro || !Array.isArray(r.criadas)){ b.disabled = false; contar(); const f = $('.foot');
+        const txt = (r && r.erro) || (r && (r.message || r.msg)) || (r ? 'Resposta inesperada do servidor: ' + JSON.stringify(r).slice(0, 300) : 'Erro no servidor.');
+        if (f) f.insertAdjacentHTML('afterbegin', `<div class="msg err" style="flex-basis:100%">${esc(txt)}</div>`); return; }
       resultado(r);
       if (typeof C.aoTerminar === 'function') try { C.aoTerminar(r); } catch (err) {}
     } catch (err) { b.disabled = false; contar(); alert('Erro: ' + (err.message || err)); }
