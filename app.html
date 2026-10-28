@@ -1,4 +1,4 @@
-<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-28-ERP-1 (Gestão de obras: «Atualizar do ERP» — lê Control de Produção.xlsm (ANÁLISE TOTAL + obras_meta.json) da pasta BFC com erp_obras.js/xlsx_lite, pré-visualização novas/a atualizar/a encerrar/divergências, aplicar com confirmação; especialidade «Misto»; precisa de alteracoes_005.sql + core/erp.js; ERP_VER 2026-10-28-1; base AU-13) · anterior: v2026-10-28-AU-13 (autos.js: DR a ecrã inteiro com modos Quantidades / Preços e margem — linha por subempreiteiro, preço de MO de contrato × acordado, ganho/perda previsto e real, separador/PDF/xlsx; AUTOS_VER 2026-10-28-13; base AU-12) · anterior: v2026-10-28-AU-12 (autos.js: auto a ecrã inteiro com nº/NIF/e-mail/código ERP + «Abrir em separador» + imprimir; Controller: envios por importar dentro de «Autos recebidos» da obra; AUTOS_VER 2026-10-28-12; base AU-11) · anterior: v2026-10-27-AU-11 (Utilizadores: cancelar convite de conta ligada a obras → fica desativada, com aviso; base AU-10) · anterior: v2026-10-27-AU-10 (Utilizadores: convidar conta existente abre-a em vez de erro; Editar papel/e-mail/nº; copiar mensagem de convite; precisa do backend editarColab; base AU-9) · anterior: v2026-10-27-AU-9 (visor3d.js V7: ferramentas recolhíveis, toque calibrado no telemóvel, tamanho pela caixa real; V3D_VER 2026-10-27-2; base AU-8) · anterior: v2026-10-27-AU-8 (autos.js: tabela de preços com escolha por checkbox dos artigos que entram na tabela/impressão — obra.json tabela_excl; AUTOS_VER 2026-10-27-8; base AU-7) · anterior: v2026-10-27-AU-7 (autos.js: impressão da tabela de preços por iframe isolado — escolhas respeitadas, sem páginas em branco; AUTOS_VER 2026-10-27-7; base AU-6) · anterior: v2026-10-27-AU-6 (menu «Autos» de volta só para Admin e Controller — fila/fluxo de todas as obras; cartão «Pasta de autos» na Área de trabalho do DO e do Controller; permissão da pasta pedida ao clique, sem botão «Reabrir»; base AU-5) · anterior: v2026-10-27-AU-5 (menu «Autos» do topo retirado: a consola vive no separador Autos do cartão da obra; Controller ganha o separador Obras; cartões de fila Controller/Admin na Área de trabalho; descrição abreviada ⇄ completa partilhada com a consola; TM «Editar» também na lista de artigos; base 3D-1d) · anterior: v2026-10-27-3D-1d (TM: «Editar» descrição/unidade enquanto proposto/quantificado — orcTrabalhoEditar; base 3D-1c) · anterior: v2026-10-27-3D-1c (Orçamento: capítulos com descrição — cadeia de níveis; base 3D-1b) · anterior: v2026-10-27-3D-1b (autos.js: a consola HERDA o orçamento do CRM_NT ao abrir a obra — sem importação de xlsx nos autos; base 3D-1) · anterior: v2026-10-27-3D-1 (separador «3D» no cartão da obra: modelos publicados, visor 3D a ecrã inteiro com cache por sha256, publicar a pasta PUBLICACAO_ em PC; base OR-3) · anterior: v2026-10-23-OR-3 (Orçamento: coluna Artigo, descrição abreviada/completa, sugestão TM por item proposto e descrição igual; base OR-2) · anterior: v2026-10-23-OR-2 (autos.js: consola carrega o orçamento do CRM_NT; base OR-1) · anterior: v2026-10-23-OR-1 (separador «Orçamento» no cartão da obra: versão corrente, trabalhos não previstos, versões, importar adenda — fonte única no Supabase; base AU-4) · anterior: v2026-10-22-AU-4 (autos.js: «Abrir no Excel» pelo ms-excel:ofe|u|file:///, sem instalador nem PowerShell; base AU-3) · anterior: v2026-10-22-AU-3 (autos.js com mensagens do «Abrir no Excel» apontadas a Configurações; base FC-1) · anterior: v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
+<!-- CRM_NT — FRONT SUPABASE app.html · v2026-10-28-ERP-2 (Análise de produção alimentada pelo ERP: Estado da obra · Produção com gráfico autos/custos por mês · Custos e margem (Outros Custos); o DO lança só a proposta, o aprovado vem do ERP; separador «Autos de cliente» no cartão (DO/Admin/Controller); «Autos» → «Autos subemp.»; menu Autos com chips «Autos de cliente» e «Autos no ERP» (Admin/Controller); importação lê também Autos Faturados/Proposto/AUTOS SUBEMP/Clientes + Outros Custos direto sql.xlsm; precisa de alteracoes_006.sql + core/erp.js + analise.js; ERP_VER 2026-10-28-2; AUTOS_VER 2026-10-28-14; base ERP-1) · anterior: v2026-10-28-ERP-1 (Gestão de obras: «Atualizar do ERP» — lê Control de Produção.xlsm (ANÁLISE TOTAL + obras_meta.json) da pasta BFC com erp_obras.js/xlsx_lite, pré-visualização novas/a atualizar/a encerrar/divergências, aplicar com confirmação; especialidade «Misto»; precisa de alteracoes_005.sql + core/erp.js; ERP_VER 2026-10-28-1; base AU-13) · anterior: v2026-10-28-AU-13 (autos.js: DR a ecrã inteiro com modos Quantidades / Preços e margem — linha por subempreiteiro, preço de MO de contrato × acordado, ganho/perda previsto e real, separador/PDF/xlsx; AUTOS_VER 2026-10-28-13; base AU-12) · anterior: v2026-10-28-AU-12 (autos.js: auto a ecrã inteiro com nº/NIF/e-mail/código ERP + «Abrir em separador» + imprimir; Controller: envios por importar dentro de «Autos recebidos» da obra; AUTOS_VER 2026-10-28-12; base AU-11) · anterior: v2026-10-27-AU-11 (Utilizadores: cancelar convite de conta ligada a obras → fica desativada, com aviso; base AU-10) · anterior: v2026-10-27-AU-10 (Utilizadores: convidar conta existente abre-a em vez de erro; Editar papel/e-mail/nº; copiar mensagem de convite; precisa do backend editarColab; base AU-9) · anterior: v2026-10-27-AU-9 (visor3d.js V7: ferramentas recolhíveis, toque calibrado no telemóvel, tamanho pela caixa real; V3D_VER 2026-10-27-2; base AU-8) · anterior: v2026-10-27-AU-8 (autos.js: tabela de preços com escolha por checkbox dos artigos que entram na tabela/impressão — obra.json tabela_excl; AUTOS_VER 2026-10-27-8; base AU-7) · anterior: v2026-10-27-AU-7 (autos.js: impressão da tabela de preços por iframe isolado — escolhas respeitadas, sem páginas em branco; AUTOS_VER 2026-10-27-7; base AU-6) · anterior: v2026-10-27-AU-6 (menu «Autos» de volta só para Admin e Controller — fila/fluxo de todas as obras; cartão «Pasta de autos» na Área de trabalho do DO e do Controller; permissão da pasta pedida ao clique, sem botão «Reabrir»; base AU-5) · anterior: v2026-10-27-AU-5 (menu «Autos» do topo retirado: a consola vive no separador Autos do cartão da obra; Controller ganha o separador Obras; cartões de fila Controller/Admin na Área de trabalho; descrição abreviada ⇄ completa partilhada com a consola; TM «Editar» também na lista de artigos; base 3D-1d) · anterior: v2026-10-27-3D-1d (TM: «Editar» descrição/unidade enquanto proposto/quantificado — orcTrabalhoEditar; base 3D-1c) · anterior: v2026-10-27-3D-1c (Orçamento: capítulos com descrição — cadeia de níveis; base 3D-1b) · anterior: v2026-10-27-3D-1b (autos.js: a consola HERDA o orçamento do CRM_NT ao abrir a obra — sem importação de xlsx nos autos; base 3D-1) · anterior: v2026-10-27-3D-1 (separador «3D» no cartão da obra: modelos publicados, visor 3D a ecrã inteiro com cache por sha256, publicar a pasta PUBLICACAO_ em PC; base OR-3) · anterior: v2026-10-23-OR-3 (Orçamento: coluna Artigo, descrição abreviada/completa, sugestão TM por item proposto e descrição igual; base OR-2) · anterior: v2026-10-23-OR-2 (autos.js: consola carrega o orçamento do CRM_NT; base OR-1) · anterior: v2026-10-23-OR-1 (separador «Orçamento» no cartão da obra: versão corrente, trabalhos não previstos, versões, importar adenda — fonte única no Supabase; base AU-4) · anterior: v2026-10-22-AU-4 (autos.js: «Abrir no Excel» pelo ms-excel:ofe|u|file:///, sem instalador nem PowerShell; base AU-3) · anterior: v2026-10-22-AU-3 (autos.js com mensagens do «Abrir no Excel» apontadas a Configurações; base FC-1) · anterior: v2026-10-21-FC-1 (ficha do contacto na pele v4 com separadores + NIF ligado ao ERP; base PV-1) · anterior: v2026-10-21-PV-1 (Ponto da obra na pele v4: cartões de validação, folha larga em PC; base AU-2) · anterior: v2026-10-21-AU-2 (secção «Autos subemp.» no cartão da obra; base AU-1 — módulo Autos F1b: separador Autos em PC, perfil Controller, autos.js carregado só quando é preciso; base SB-K) · anterior: v2026-10-20-SB-K (PDF com logotipo e titulo Historico da Obra; base SB-J + Diário por categorias: Tudo/DO/Enc/Func/Fotografias, ordem alternável, galeria, Exportar PDF, form à esquerda no PC e recolhido no telemóvel) · NÃO COLAR NO APPS SCRIPT -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -3182,8 +3182,12 @@ function drawObrasCtrl_(){
       +'<div style="flex:0 0 auto;width:32px;height:32px;border-radius:7px;background:var(--accent-bg);color:var(--navy);display:flex;align-items:center;justify-content:center"><svg class=li><use href=#li-obra /></svg></div>'
       +'<div style="min-width:0;flex:1"><div class="name" style="font-size:14.5px">'+esc(o.label)+'</div><div class="emp">DO: '+esc(o.doObra||'—')+' · '+o.n_autos+' auto(s) · Σ '+eur(o.total)+(o.a_aprovar?' · <span style="color:var(--warn);font-weight:700">'+o.a_aprovar+' aguarda(m) Admin</span>':'')+(o.ultimo_envio?' · último envio '+esc(fmtD(String(o.ultimo_envio).slice(0,10))):'')+'</div></div>'
       +'<div id="obrachev-'+esc(o.codigo)+'" style="flex:0 0 auto;color:#c9d2dd;font-size:16px;font-weight:800">▾</div></div></div>'
-      +'<div id="corpo-'+esc(o.codigo)+'" style="display:none"><div class="subtabs" style="margin-top:10px"><button id="tab-autos-'+esc(o.codigo)+'" class="subtab on" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autos\')"><svg class=li><use href=#li-euro /></svg> Autos</button></div>'
-      +'<div id="sec-autos-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div></div></div>';
+      +'<div id="corpo-'+esc(o.codigo)+'" style="display:none"><div class="subtabs" style="margin-top:10px;flex-wrap:wrap"><button id="tab-autos-'+esc(o.codigo)+'" class="subtab on" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autos\')"><svg class=li><use href=#li-euro /></svg> Autos subemp.</button>'
+      +'<button id="tab-autoscli-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autoscli\')"><svg class=li><use href=#li-doc /></svg> Autos de cliente</button>'
+      +'<button id="tab-analise-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'analise\')"><svg class=li><use href=#li-chart /></svg> Análise de produção</button></div>'
+      +'<div id="sec-autos-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>'
+      +'<div id="sec-autoscli-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>'
+      +'<div id="sec-analise-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div></div></div>';
   });
   cont.innerHTML=h;
   abrirAutosDeepCtrl_(); abrirAutosDeep_();
@@ -3296,7 +3300,8 @@ function drawObrasLista(){
       +'<button id="tab-diario-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'diario\')"><svg class=li><use href=#li-book /></svg> Diário</button>'
       +'<button class="subtab" style="min-width:31%" onclick="openEvolucao(\''+esc(o.codigo)+'\',\''+esc(lblJS)+'\')"><svg class=li><use href=#li-func /></svg> Mão de obra</button>'
       +(vAnalise?'<button id="tab-analise-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'analise\')"><svg class=li><use href=#li-chart /></svg> Análise de produção</button>':'')
-      +(vAnalise?'<button id="tab-autos-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autos\')"><svg class=li><use href=#li-euro /></svg> Autos</button>':'')
+      +(vAnalise?'<button id="tab-autos-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autos\')"><svg class=li><use href=#li-euro /></svg> Autos subemp.</button>':'')
+      +(vAnalise?'<button id="tab-autoscli-'+esc(o.codigo)+'" class="subtab" style="min-width:31%;white-space:normal;line-height:1.15" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'autoscli\')"><svg class=li><use href=#li-doc /></svg> Autos de cliente</button>':'')
       +(vOrc?'<button id="tab-orc-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'orc\')"><svg class=li><use href=#li-doc /></svg> Orçamento</button>':'')
       +(vOrc?'<button id="tab-3d-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'3d\')"><svg class=li><use href=#li-obra /></svg> 3D</button>':'')
       +'<button id="tab-gestao-'+esc(o.codigo)+'" class="subtab" style="min-width:31%" onclick="toggleObraSec(\''+esc(o.codigo)+'\',\'gestao\')"><svg class=li><use href=#li-gear /></svg> Gestão</button>'
@@ -3366,6 +3371,7 @@ function drawObrasLista(){
     if(vAnalise) h+='<div id="sec-analise-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
     // ---- separador AUTOS A SUBEMPREITEIROS (o que está registado no CRM a partir dos envios; só DO da obra + Admin) ----
     if(vAnalise) h+='<div id="sec-autos-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
+    if(vAnalise) h+='<div id="sec-autoscli-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
     // ---- separador ORÇAMENTO (OR-1: fonte única no Supabase; DO da obra, Admin, Administrativo) ----
     if(vOrc) h+='<div id="sec-orc-'+esc(o.codigo)+'" style="display:none;margin-top:8px"><div class="loading">A carregar…</div></div>';
     // ---- separador 3D (3D-1: modelos publicados pelo plugin / pela pasta PUBLICACAO_; visor a ecrã inteiro) ----
@@ -3741,6 +3747,8 @@ function carregarAnalise(cod){
   });
 }
 function desenhaAnalise(cod, el, r){
+  // ERP-2 (28/10/2026): a análise bebe da fotografia do ERP quando existe (r.temERP): Estado da obra · Produção · Custos e margem.
+  // O DO lança só a PROPOSTA do mês; o aprovado é o auto de cliente do ERP. Sem ERP, fica o painel de sempre (só proposta).
   function barra(lbl, pct, rot, cor, marca){
     var w=Math.max(0,Math.min(100,pct||0));
     return '<div style="margin-top:8px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:800;margin-bottom:3px"><span>'+lbl+'</span><span>'+rot+'</span></div>'
@@ -3750,6 +3758,10 @@ function desenhaAnalise(cod, el, r){
       +'</div></div>';
   }
   function caixa(bg,bd,txt){ return '<div style="background:'+bg+';border:1px solid '+bd+';border-radius:10px;padding:8px 10px;margin-top:8px;font-size:12.5px">'+txt+'</div>'; }
+  function eur2(n){ if(n==null||isNaN(n)) return '—'; var v=Math.abs(Number(n)).toFixed(2).split('.'); return (Number(n)<0?'−':'')+v[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ')+','+v[1]+' €'; }
+  function kpi(lbl,val,sub,cor){ return '<div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 10px;min-width:0"><div style="font-size:9.5px;color:var(--muted);font-weight:700;text-transform:uppercase">'+lbl+'</div><div style="font-size:15px;font-weight:800;color:'+(cor||'var(--navy)')+'">'+val+'</div>'+(sub?'<div class="emp" style="font-size:10px">'+sub+'</div>':'')+'</div>'; }
+  function secT(t,tag){ return '<div style="font-size:11.5px;font-weight:800;color:var(--navy);margin-top:12px;border-top:1px solid var(--line);padding-top:10px;text-transform:uppercase;letter-spacing:.4px">'+t+(tag?' <span style="background:var(--panel2);color:var(--accent);border-radius:999px;padding:1px 7px;font-size:10px;text-transform:none;letter-spacing:0">'+tag+'</span>':'')+'</div>'; }
+  var E=r.temERP?r.erp:null;
   var h='';
   // cabeçalho: contrato, datas, início real (1.º auto) e arranque face ao contrato
   var datas=(r.iniContrato&&r.fimContrato)? fmtD(r.iniContrato)+' → '+fmtD(r.fimContrato) : 'datas de contrato por definir';
@@ -3758,19 +3770,42 @@ function desenhaAnalise(cod, el, r){
     +'<div class="emp" style="text-align:right">contrato <b>'+(r.contrato>0?eurF(r.contrato):'—')+'</b> · '+esc(datas)
     +(r.inicioReal?('<br>início real <b>'+esc(fmtD(r.inicioReal))+'</b> (1.º auto)'+((r.arranqueDias!=null&&r.arranqueDias!==0)?' · <b style="color:'+(r.arranqueDias>0?'#856404':'var(--green)')+'">arranque '+(r.arranqueDias>0?'+':'')+r.arranqueDias+'d</b>':'')):'')
     +'</div></div>';
+  if(E){
+    var emTx=E.em?new Date(E.em).toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+    var dias=E.em?Math.floor((Date.now()-new Date(E.em).getTime())/864e5):null;
+    h+='<div class="emp" style="margin-top:4px'+(dias!=null&&dias>3?';color:#856404;font-weight:700':'')+'">dados do ERP de <b>'+esc(emTx)+'</b>'+(dias!=null&&dias>3?' — há '+dias+' dias; pede ao Admin «Atualizar do ERP»':'')+(E.cliente?' · cliente <b>'+esc(E.cliente)+'</b>':'')+(E.estadoLabel?' · '+esc(E.estadoLabel):'')+'</div>';
+  } else {
+    h+='<div class="emp" style="margin-top:4px">sem dados do ERP para esta obra — executado e faturado vêm só das propostas lançadas aqui</div>';
+  }
   // o que falta para a análise ficar completa
   var falta=[];
   if(!(r.contrato>0)) falta.push('falta o valor de contrato — introduz-se na Ficha da obra (Gestão → Obras)');
   if(!r.iniContrato || !r.fimContrato) falta.push('faltam as datas de contrato (Gestão → Obras)');
-  if(!r.autos.length) falta.push('o controlo arranca com o 1.º auto — lança-o em baixo');
+  if(!r.autos.length) falta.push('o controlo arranca com o 1.º auto — lança a proposta em baixo');
   if(falta.length) h+='<div class="hint" style="margin-top:8px">'+falta.map(esc).join(' · ')+'</div>';
-  // barras: tempo (desde o 1.º auto) / executado / faturado
+  // ===== Estado da obra (ERP) =====
+  if(E){
+    h+=secT('Estado da obra','ERP')
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-top:6px">'
+      +kpi('Contrato c/ trab. a mais',eur2(E.contrato),(E.mais?eur2(E.contratado)+' + TM '+eur2(E.mais):'')+(E.menos?' − '+eur2(E.menos):''))
+      +kpi('Executado (aprovados)',eur2(r.fatVal),(r.contrato>0?_vg(Math.round(r.fatVal/r.contrato*1000)/10)+' % do contrato':'')+(E.contratado>0&&E.mais?' · '+_vg(Math.round(r.fatVal/E.contratado*1000)/10)+' % do contratado':''))
+      +kpi('Faturado',eur2(E.faturado!=null?E.faturado:r.fatVal),E.nAutos+' auto'+(E.nAutos===1?'':'s')+(E.ultimoAuto?' · último '+esc(fmtD(E.ultimoAuto.data)):''))
+      +kpi('Por executar',eur2(r.contrato>0?Math.max(0,r.contrato-r.fatVal):E.porExecutar),(r.contrato>0?_vg(Math.round((1-r.fatVal/r.contrato)*1000)/10)+' %':''))
+      +(r.propostaAberta?kpi('Proposta de auto',eur2(r.propostaAberta.proposto),esc(mesPT(r.propostaAberta.mes))+' · <span style="color:#856404;font-weight:800">por aprovar</span>'):(E.emAprovacao&&E.emAprovacao.length?kpi('Em aprovação no cliente',eur2(E.emAprovacao.reduce(function(s,a){return s+a.valor;},0)),E.emAprovacao.length+' auto(s) EMAPV'):kpi('Proposta de auto','—','lança a do mês em baixo')))
+      +'</div>';
+  }
+  // ===== Produção =====
+  h+=secT('Produção');
   if(r.tempoPct!=null) h+=barra('<svg class=li><use href=#li-clock /></svg> Tempo consumido (desde o 1.º auto)', r.tempoPct, r.tempoPct+'%'+(r.fimAjustado?' · até '+esc(fmtD(r.fimAjustado))+' ajustado':''), '#8fa9c4', null);
   if(r.execPct!=null){
     var corE=(r.tempoPct==null||r.execPct>=r.tempoPct)?'var(--green)':(r.execPct>=r.tempoPct-10?'#b57e00':'var(--red)');
-    h+=barra('<svg class=li><use href=#li-obra /></svg> Executado (autos propostos)', r.execPct, r.execPct+'% · '+eurF(r.execVal), corE, r.tempoPct);
-    h+=barra('<svg class=li><use href=#li-euro /></svg> Faturado (autos aprovados)', r.fatPct, r.fatPct+'% · '+eurF(r.fatVal), '#b57e00', r.execPct);
-    h+='<div class="emp" style="margin-top:2px">a folga entre executado e faturado é dinheiro por receber</div>';
+    h+=barra('<svg class=li><use href=#li-obra /></svg> Executado ('+(E?'aprovados no ERP + proposta':'propostas')+')', r.execPct, r.execPct+'% · '+eurF(r.execVal), corE, r.tempoPct);
+    h+=barra('<svg class=li><use href=#li-euro /></svg> Faturado ('+(E?'autos do ERP':'aprovados')+')', r.fatPct, r.fatPct+'% · '+eurF(r.fatVal), '#b57e00', r.execPct);
+    h+='<div class="emp" style="margin-top:2px">a folga entre executado e faturado é '+(r.aguarda>0?'a proposta por aprovar ('+eurF(r.aguarda)+')':'dinheiro por receber')+'</div>';
+  }
+  // gráfico: autos de cliente por mês (barras) + custo do mês (linha) + acumulado vs contrato
+  if(E && (Object.keys(E.autosPorMes||{}).length || (E.custosMes||[]).length)){
+    h+='<div style="margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px"><div style="font-size:11px;font-weight:800">Autos de cliente e custo por mês</div><div class="emp" style="font-size:10px">barras azuis = auto do mês (ERP) · amarela = proposta por aprovar · barra fina vermelha = custo do mês (Outros Custos) · linha verde = acumulado dos autos face ao contrato</div>'+graficoMesesERP_(r)+'</div>';
   }
   // riscos: produtividade real, precisos vs ritmo
   if(r.prodHD!=null || r.ritmo!=null){
@@ -3786,7 +3821,7 @@ function desenhaAnalise(cod, el, r){
     if(r.faltaExec===0){
       h+=caixa('#d1e7dd','#bfe3cc','✓ Executado ≥ contrato — a obra está medida por inteiro'+(r.aguarda>0?' (falta o cliente aprovar '+eurF(r.aguarda)+')':'')+'.');
     } else if(r.fimAjustado && r.diasUteis===0){
-      h+=caixa('#f8d7da','#f1aeb5','<svg class=li><use href=#li-clock /></svg> O prazo ajustado ('+esc(fmtD(r.fimAjustado))+') já passou e faltam <b>'+eurF(r.faltaExec)+'</b> por executar.');
+      h+=caixa('#f8d7da','#f1aeb5','<svg class=li><use href=#li-clock /></svg> O prazo ajustado ('+esc(fmtD(r.fimAjustado))+') já passou e faltam <b>'+eurF(r.faltaExec)+'</b> por executar. <span class="emp">É conversa de adenda/prazo com o cliente, não de reforço.</span>');
     } else if(r.precisos!=null && r.ritmo!=null){
       if(r.precisos>r.ritmo+0.2){
         var ref=Math.max(1,Math.ceil(r.precisos-r.ritmo));
@@ -3802,15 +3837,48 @@ function desenhaAnalise(cod, el, r){
       var extraC=(r.precisosContrato!=null)?(' Cumprir '+esc(fmtD(r.fimContrato))+' exigiria <b>'+_vg(r.precisosContrato)+' homens/dia</b>.'):'';
       h+='<div style="background:#f8d7da;border:1px solid #f1aeb5;border-radius:10px;padding:8px 10px;margin-top:6px;font-size:12.5px"><svg class=li><use href=#li-cal /></svg> <b>Desvio face ao contrato:</b> arranque <b>+'+r.arranqueDias+'d</b> depois do contratado → fim previsto <b>'+esc(fmtD(r.fimAjustado))+'</b> vs <b>'+esc(fmtD(r.fimContrato))+'</b> em contrato.'+extraC+' <b>Renegociar o prazo em adenda.</b></div>';
     }
+    if(E && E.mais>0) h+='<div style="background:#fff3cd;border:1px solid #ffe69c;border-radius:10px;padding:7px 9px;margin-top:6px;font-size:11.5px"><svg class=li><use href=#li-euro /></svg> <b>Trabalhos a mais aceites no ERP:</b> +'+eur2(E.mais)+(E.menos>0?' · a menos −'+eur2(E.menos):'')+'</div>';
     // faturação: executado não faturado + desvio médio dos autos
     var enf=(r.aguarda||0)+(r.cortes||0), ptsF=[];
-    if(enf>0) ptsF.push('executado não faturado <b>'+eurF(enf)+'</b> ('+eurF(r.aguarda)+' a aguardar + '+eurF(r.cortes)+' cortados)');
+    if(enf>0) ptsF.push('executado não faturado <b>'+eurF(enf)+'</b> ('+eurF(r.aguarda)+' por aprovar + '+eurF(r.cortes)+' cortados)');
     if(r.desvioMedio!=null) ptsF.push('desvio médio dos autos <b>'+_vg(r.desvioMedio)+'%</b>');
     if(ptsF.length) h+='<div style="background:#fff3cd;border:1px solid #ffe69c;border-radius:10px;padding:7px 9px;margin-top:6px;font-size:11.5px"><svg class=li><use href=#li-euro /></svg> <b>Faturação:</b> '+ptsF.join(' · ')+'</div>';
   }
-  // <svg class=li><use href=#li-doc /></svg> autos (v-A 10/09): lista mensal COM os meses em falta intercalados (toque
-  // preenche o formulário) + DOIS botões, cada gravação com a sua data
-  h+='<div style="font-size:12px;font-weight:800;color:var(--navy);margin-top:12px;border-top:1px solid var(--line);padding-top:10px"><svg class=li><use href=#li-doc /></svg> Autos de medição <span class="emp" style="font-weight:600">— 1.º a proposta (a tua medição); quando o cliente responder, o auto a faturar</span></div>';
+  // ===== Custos e margem (ERP · Outros Custos) — DO na sua obra, Admin e Controller em todas =====
+  if(E && E.custos){
+    var C=E.custos;
+    h+=secT('Custos e margem','ERP · Outros Custos')
+      +'<div class="emp" style="font-size:10px;margin-top:2px">custo otimizado = previsto × % execução ('+_vg(C.pctExec)+' %) · desvio = otimizado − atual (negativo = gastou acima do ritmo)</div>'
+      +'<div style="overflow:auto;margin-top:6px;border:1px solid var(--line);border-radius:10px;background:#fff"><table style="width:100%;border-collapse:collapse;font-size:11.5px;min-width:560px">'
+      +'<thead><tr style="background:var(--panel2);color:var(--accent);font-size:10px;text-transform:uppercase"><th style="text-align:left;padding:5px 8px">Categoria</th><th style="text-align:right;padding:5px 8px">Previsto</th><th style="text-align:right;padding:5px 8px">%</th><th style="text-align:right;padding:5px 8px">Atual</th><th style="text-align:right;padding:5px 8px">%</th><th style="text-align:right;padding:5px 8px">Otimizado</th><th style="text-align:right;padding:5px 8px">Desvio</th></tr></thead><tbody>';
+    var maxAbs=1; C.categorias.forEach(function(c){ maxAbs=Math.max(maxAbs,Math.abs(c.desvio)); });
+    C.categorias.forEach(function(c){
+      if(!c.previsto && !c.atual) return;
+      var cor=c.desvio<0?'var(--red)':'var(--green)';
+      h+='<tr style="border-top:1px solid #eef1f5"><td style="padding:5px 8px">'+esc(c.label)+(c.nota?' <span style="background:#fff3cd;color:#856404;border-radius:999px;padding:0 6px;font-size:9.5px;font-weight:800">'+esc(c.nota)+'</span>':'')+'</td>'
+        +'<td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+eur2(c.previsto).replace(' €','')+'</td><td style="text-align:right;padding:5px 8px;color:var(--muted)">'+_vg(c.pctPrevisto)+' %</td>'
+        +'<td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+eur2(c.atual).replace(' €','')+'</td><td style="text-align:right;padding:5px 8px;color:var(--muted)">'+_vg(c.pctAtual)+' %</td>'
+        +'<td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+eur2(c.otimizado).replace(' €','')+'</td>'
+        +'<td style="text-align:right;padding:5px 8px;font-family:var(--mono);font-weight:800;color:'+cor+'"><span style="display:inline-block;width:'+Math.round(Math.abs(c.desvio)/maxAbs*40)+'px;height:7px;background:'+cor+';border-radius:99px;margin-right:5px;vertical-align:middle;opacity:.7"></span>'+(c.desvio>0?'+':'')+eur2(c.desvio).replace(' €','')+'</td></tr>';
+    });
+    h+='<tr style="border-top:2px solid var(--line);font-weight:800;background:#f6f8fb"><td style="padding:5px 8px">Total</td><td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+eur2(C.totalPrevisto).replace(' €','')+'</td><td></td><td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+eur2(C.totalAtual).replace(' €','')+'</td><td></td><td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+eur2(C.totalOtimizado).replace(' €','')+'</td><td style="text-align:right;padding:5px 8px;font-family:var(--mono);color:'+(C.desvio<0?'var(--red)':'var(--green)')+'">'+(C.desvio>0?'+':'')+eur2(C.desvio).replace(' €','')+'</td></tr></tbody></table></div>';
+    h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-top:6px">'
+      +kpi('Margem prevista',eur2(C.margemPrevista),(C.margemPrevistaPct!=null?_vg(C.margemPrevistaPct)+' % · contrato − custo previsto':''),C.margemPrevista<0?'var(--red)':'var(--navy)')
+      +kpi('Margem à data',eur2(C.margemData),'executado − custo atual',C.margemData<0?'var(--red)':'var(--green)')
+      +kpi('Projeção no fim',eur2(C.projecao),(C.projecaoPct!=null?_vg(C.projecaoPct)+' % · contrato − atual − (previsto − otimizado)':''),C.projecao<0?'var(--red)':(C.projecaoPct!=null&&C.projecaoPct<5?'#856404':'var(--green)'))
+      +kpi('Custo por € medido',C.racio!=null?_vg(C.racio)+' %':'—','custo atual ÷ executado',C.racio>100?'var(--red)':'var(--green)')
+      +'</div>';
+    if(C.desvio<-0.005){
+      var piores=C.categorias.filter(function(c){return c.desvio<0;}).sort(function(a,b){return a.desvio-b.desvio;}).slice(0,2);
+      h+=caixa('#f8d7da','#f1aeb5','⚠ A obra está a gastar <b>'+eur2(-C.desvio)+'</b> acima do ritmo de execução — '+piores.map(function(c){return esc(c.label.toLowerCase())+' ('+eur2(c.desvio)+')';}).join(', ')+'.'+(C.margemData<0?' A margem à data é negativa.':''));
+    } else if(C.desvio>0.005){
+      h+=caixa('#d1e7dd','#bfe3cc','✓ Custo atual <b>'+eur2(C.desvio)+'</b> abaixo do ritmo de execução.');
+    }
+  } else if(E){
+    h+=secT('Custos e margem','ERP')+'<div class="hint" style="margin-top:4px">Sem custos do «Outros Custos direto sql.xlsm» para esta obra na última importação.</div>';
+  }
+  // ===== Autos de medição: lista mensal (ERP + propostas) e lançamento da PROPOSTA =====
+  h+=secT('Autos de medição')+'<div class="emp" style="font-size:10.5px">'+(E?'o aprovado é o auto de cliente do ERP; o DO lança só a proposta do mês':'lança a proposta do mês — o aprovado passa a vir do ERP')+'</div>';
   var linhas=[];
   r.autos.forEach(function(a){ linhas.push({ mes:a.mes, a:a }); });
   (r.mesesEmFalta||[]).forEach(function(m){ linhas.push({ mes:m, falta:true }); });
@@ -3819,21 +3887,24 @@ function desenhaAnalise(cod, el, r){
     h+='<div style="display:flex;justify-content:space-between;gap:5px;padding:6px 2px;font-weight:800;color:var(--muted);font-size:10px"><span style="flex:1">MÊS</span><span style="width:66px;text-align:right">PROPOSTO</span><span style="width:66px;text-align:right">APROVADO</span><span style="width:52px;text-align:right">DESVIO</span></div>';
     linhas.forEach(function(l){
       if(l.falta){
-        h+='<div onclick="preencherAuto(\''+esc(cod)+'\',\''+esc(l.mes)+'\',\'\',null)" style="display:flex;justify-content:space-between;gap:5px;padding:6px 8px;margin-top:2px;background:#f8d7da;border-radius:8px;font-size:12px;align-items:center;cursor:pointer">'
+        h+='<div onclick="preencherAuto(\''+esc(cod)+'\',\''+esc(l.mes)+'\',\'\')" style="display:flex;justify-content:space-between;gap:5px;padding:6px 8px;margin-top:2px;background:#f8d7da;border-radius:8px;font-size:12px;align-items:center;cursor:pointer">'
           +'<span style="flex:1;color:var(--red);font-weight:800">'+esc(mesPT(l.mes))+'</span>'
           +'<span style="color:var(--red);font-size:11px;font-weight:800"><svg class=li><use href=#li-doc /></svg> proposta por lançar</span></div>';
         return;
       }
       var a=l.a;
       var dv=(a.aprovado!=null&&a.proposto>0)? Math.round((a.aprovado/a.proposto-1)*1000)/10 : null;
-      var dvTx=(a.aprovado==null)?'<span style="color:#856404;font-weight:800">aguarda</span>'
+      var dvTx=(a.aprovado==null)?'<span style="color:#856404;font-weight:800">por aprovar</span>'
+        :(a.proposto==null?'<span class="emp">sem proposta</span>'
         :(dv===0?'<span style="color:var(--green);font-weight:800">0%</span>'
-        :'<span style="color:'+(dv<0?'var(--red)':'var(--green)')+';font-weight:800">'+(dv>0?'+':'')+_vg(dv)+'%</span>');
+        :'<span style="color:'+(dv<0?'var(--red)':'var(--green)')+';font-weight:800">'+(dv>0?'+':'')+_vg(dv)+'%</span>'));
       function dcurta(t){ var s=String(t||'').slice(0,10); return s?s.slice(8,10)+'/'+s.slice(5,7):''; }
-      var dts=[]; if(a.em) dts.push('prop. '+dcurta(a.em)); if(a.aprovadoEm) dts.push('aprov. '+dcurta(a.aprovadoEm));
-      h+='<div onclick="preencherAuto(\''+esc(cod)+'\',\''+esc(a.mes)+'\','+a.proposto+','+(a.aprovado==null?'null':a.aprovado)+')" style="display:flex;justify-content:space-between;gap:5px;padding:6px 2px;border-top:1px solid var(--line);font-size:12px;align-items:center;cursor:pointer">'
+      var dts=[]; if(a.em) dts.push('prop. '+dcurta(a.em));
+      if(a.autosErp&&a.autosErp.length) dts.push('ERP: auto '+a.autosErp.map(function(x){return 'nº '+x.numero+' '+dcurta(x.data);}).join(' + '));
+      else if(a.aprovadoEm) dts.push('aprov. '+dcurta(a.aprovadoEm));
+      h+='<div onclick="preencherAuto(\''+esc(cod)+'\',\''+esc(a.mes)+'\','+(a.proposto==null?'\'\'':a.proposto)+')" style="display:flex;justify-content:space-between;gap:5px;padding:6px 2px;border-top:1px solid var(--line);font-size:12px;align-items:center;cursor:pointer">'
         +'<span style="flex:1">'+esc(mesPT(a.mes))+(dts.length?'<div class="emp" style="font-size:9.5px">'+esc(dts.join(' · '))+'</div>':'')+'</span>'
-        +'<span style="width:66px;text-align:right;font-weight:700">'+esc(eurF(a.proposto).replace(' €',''))+'</span>'
+        +'<span style="width:66px;text-align:right;font-weight:700'+(a.proposto==null?';color:var(--muted)':'')+'">'+(a.proposto==null?'—':esc(eurF(a.proposto).replace(' €','')))+'</span>'
         +'<span style="width:66px;text-align:right;font-weight:700'+(a.aprovado==null?';color:var(--muted)':'')+'">'+(a.aprovado==null?'—':esc(eurF(a.aprovado).replace(' €','')))+'</span>'
         +'<span style="width:52px;text-align:right">'+dvTx+'</span></div>';
     });
@@ -3843,18 +3914,40 @@ function desenhaAnalise(cod, el, r){
     +'<div style="display:flex;gap:6px;margin-top:6px;align-items:flex-end">'
     +'<div style="flex:1;min-width:0"><label style="font-size:10.5px;font-weight:700;color:var(--muted)">Proposta (€)</label><input id="aProp-'+esc(cod)+'" inputmode="decimal" placeholder="a tua medição"></div>'
     +'<button class="save" style="flex:0 0 auto;width:auto;margin:0;padding:11px 12px;font-size:12.5px" onclick="gravarProposta(\''+esc(cod)+'\',this)">Gravar proposta de auto</button></div>'
-    +'<div style="display:flex;gap:6px;margin-top:6px;align-items:flex-end">'
-    +'<div style="flex:1;min-width:0"><label style="font-size:10.5px;font-weight:700;color:var(--muted)">Aprovado (€)</label><input id="aAprov-'+esc(cod)+'" inputmode="decimal" placeholder="o que o cliente aprovou"></div>'
-    +'<button class="save" style="flex:0 0 auto;width:auto;margin:0;padding:11px 12px;font-size:12.5px;background:var(--green)" onclick="gravarAprovado(\''+esc(cod)+'\',this)">Guardar auto de medição</button></div>'
     +'<div id="amsg-'+esc(cod)+'" class="emp" style="color:var(--red);min-height:15px"></div>'
-    +'<div class="emp" style="font-size:10.5px">Cada gravação regista a data e quem lançou — a proposta e o auto a faturar têm datas separadas. Alterações a valores antigos ficam no rasto.</div>';
-  // (v-D 09/09) o valor de contrato edita-se na FICHA DA OBRA (Gestão, Dina+Admin);
-  // aqui a análise só o mostra, no cabeçalho.
+    +'<div class="emp" style="font-size:10.5px">A aprovação chega pelo ERP (Autos Faturados) na próxima «Atualizar do ERP» — não há botão «aprovado». Alterações a propostas antigas ficam no rasto.</div>';
   el.innerHTML=h;
 }
-function preencherAuto(cod, mes, prop, aprov){
-  var m=document.getElementById('aMes-'+cod), p=document.getElementById('aProp-'+cod), a=document.getElementById('aAprov-'+cod);
-  if(m) m.value=mes; if(p) p.value=prop; if(a) a.value=(aprov==null?'':aprov);
+// gráfico SVG (sem dependências): autos de cliente por mês + custo do mês + acumulado face ao contrato
+function graficoMesesERP_(r){
+  var E=r.erp; var apm=E.autosPorMes||{}; var cm={}; (E.custosMes||[]).forEach(function(m){ cm[m.mes]=m.total; });
+  var meses=Object.keys(apm).concat(Object.keys(cm)); if(r.propostaAberta) meses.push(r.propostaAberta.mes);
+  meses=meses.filter(function(m,i,a){return m&&a.indexOf(m)===i;}).sort();
+  if(!meses.length) return '';
+  // meses contínuos do primeiro ao último
+  var seq=[]; var p=meses[0].split('-').map(Number), fim=meses[meses.length-1];
+  for(var g=0;g<120;g++){ var k=p[0]+'-'+(p[1]<10?'0':'')+p[1]; seq.push(k); if(k>=fim) break; p[1]++; if(p[1]>12){p[1]=1;p[0]++;} }
+  var W=640,H=190,L=44,R=12,T=16,B=26,pw=W-L-R,ph=H-T-B; var bw=pw/seq.length;
+  var maxB=1; seq.forEach(function(m){ maxB=Math.max(maxB,apm[m]||0,cm[m]||0); }); if(r.propostaAberta) maxB=Math.max(maxB,r.propostaAberta.proposto||0);
+  maxB=maxB*1.1; var contrato=r.contrato>0?r.contrato:null;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-height:210px;display:block"><style>text{font:9.5px system-ui,sans-serif;fill:#6c757d}</style>';
+  var passo=Math.pow(10,Math.floor(Math.log10(maxB)))/2; while(maxB/passo>5) passo*=2;
+  for(var v=0;v<=maxB;v+=passo){ var y=T+ph-ph*v/maxB; s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="#eef1f5"/><text x="'+(L-4)+'" y="'+(y+3)+'" text-anchor="end">'+(v>=1000?Math.round(v/1000)+'k':v)+'</text>'; }
+  var acc=0, pts=[];
+  seq.forEach(function(m,i){
+    var x0=L+i*bw; var va=apm[m]||0; var vc=cm[m]||0;
+    if(va){ var hh=ph*va/maxB; s+='<rect x="'+(x0+bw*0.15)+'" y="'+(T+ph-hh)+'" width="'+(bw*0.5)+'" height="'+hh+'" fill="#1e4c84" rx="2"><title>'+esc(mesPT(m))+' · auto '+eurF(va)+'</title></rect>'; }
+    if(r.propostaAberta&&r.propostaAberta.mes===m&&!va){ var hp=ph*(r.propostaAberta.proposto||0)/maxB; s+='<rect x="'+(x0+bw*0.15)+'" y="'+(T+ph-hp)+'" width="'+(bw*0.5)+'" height="'+hp+'" fill="#ffd45c" rx="2"><title>proposta por aprovar '+eurF(r.propostaAberta.proposto)+'</title></rect>'; }
+    if(vc){ var hc=ph*vc/maxB; s+='<rect x="'+(x0+bw*0.68)+'" y="'+(T+ph-hc)+'" width="'+(bw*0.18)+'" height="'+hc+'" fill="#b02a37" rx="1" opacity=".85"><title>'+esc(mesPT(m))+' · custo '+eurF(vc)+'</title></rect>'; }
+    acc+=va; if(contrato) pts.push([x0+bw/2, T+ph-ph*Math.min(1,acc/contrato)]);
+    if(seq.length<=14 || i%2===0) s+='<text x="'+(x0+bw/2)+'" y="'+(H-8)+'" text-anchor="middle">'+m.slice(5)+'/'+m.slice(2,4)+'</text>';
+  });
+  if(contrato&&pts.length){ s+='<polyline fill="none" stroke="#198754" stroke-width="2" points="'+pts.map(function(q){return q.join(',');}).join(' ')+'"/>'; var last=pts[pts.length-1]; s+='<text x="'+Math.max(L+60,last[0]-6)+'" y="'+Math.max(T+9,last[1]-6)+'" text-anchor="end" fill="#198754" font-weight="700">acumulado '+_vg(Math.round(acc/contrato*1000)/10)+' % do contrato</text>'; s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+T+'" y2="'+T+'" stroke="#198754" stroke-dasharray="3 3" opacity=".5"/>'; }
+  return s+'</svg>';
+}
+function preencherAuto(cod, mes, prop){
+  var m=document.getElementById('aMes-'+cod), p=document.getElementById('aProp-'+cod);
+  if(m) m.value=mes; if(p) p.value=(prop==null?'':prop);
 }
 function gravarProposta(cod, btn){
   // ler os campos ANTES de mexer no ecrã
@@ -3885,9 +3978,10 @@ function toggleObraSec(cod, sec){
   if(sec==='diario'){ var eld=document.getElementById('sec-diario-'+cod); if(eld && eld.style.display==='none') carregarDiarioObra(cod, 'sec-diario-'+cod); }
   if(sec==='analise'){ var ela=document.getElementById('sec-analise-'+cod); if(ela && ela.style.display==='none') carregarAnalise(cod); }
   if(sec==='autos'){ var elu=document.getElementById('sec-autos-'+cod); if(elu && elu.style.display==='none') carregarAutosObra_(cod); }
+  if(sec==='autoscli'){ var elq=document.getElementById('sec-autoscli-'+cod); if(elq && elq.style.display==='none') carregarAutosCliObra_(cod); }
   if(sec==='orc'){ var elo=document.getElementById('sec-orc-'+cod); if(elo && elo.style.display==='none') carregarOrcObra_(cod); }
   if(sec==='3d'){ var el3=document.getElementById('sec-3d-'+cod); if(el3 && el3.style.display==='none') carregar3dObra_(cod); }
-  ['registo','ponto','contactos','diario','analise','autos','orc','3d','gestao'].forEach(function(s){
+  ['registo','ponto','contactos','diario','analise','autos','autoscli','orc','3d','gestao'].forEach(function(s){
     var el=document.getElementById('sec-'+s+'-'+cod);
     var btn=document.getElementById('tab-'+s+'-'+cod);
     if(!el) return;
@@ -5009,9 +5103,9 @@ function relExportar(todos){
 // ===== MÓDULO AUTOS (F1b) · consola de autos de subempreiteiros =====
 // autos.js (a consola v0.30 levantada para o CRM) e exceljs.min.js (a mesma biblioteca que a consola embute)
 // vivem no repositório ao lado do app.html e só são carregados quando se abre o separador Autos em PC.
-var AUTOS_VER='2026-10-28-13';
+var AUTOS_VER='2026-10-28-14';
 // ERP-1: obras a partir do ERP (Admin) — erp_obras.js = xlsx_lite.js + ecrã; carregado só ao clicar em «Atualizar do ERP»
-var ERP_VER='2026-10-28-1', _erpP=null, _erpUltima=null;
+var ERP_VER='2026-10-28-2', _erpP=null, _erpUltima=null;
 function carregarErpJS_(){
   if(window.ErpObras) return Promise.resolve();
   if(_erpP) return _erpP;
@@ -5058,6 +5152,87 @@ function largarAutosObra_(){
   if(_autosEmbCod){ var ant=document.getElementById('sec-autos-'+_autosEmbCod); if(ant){ ant.innerHTML='<div class="loading">A carregar…</div>'; ant.style.display='none'; } var tb=document.getElementById('tab-autos-'+_autosEmbCod); if(tb) tb.classList.remove('on'); _autosEmbCod=null; }
 }
 // AU-6 · menu «Autos» (Admin: fluxo de todas as obras; Controller: fila de envios de todas as obras) — a consola completa, como antes da AU-5
+// ===== ERP-2 · Autos de cliente (ERP) e reconciliação «Autos no ERP» =====
+var _autosVista='consola';
+function eurC_(n){ if(n==null||isNaN(n)) return '—'; var v=Math.abs(Number(n)).toFixed(2).split('.'); return (Number(n)<0?'−':'')+v[0].replace(/\B(?=(\d{3})+(?!\d))/g,' ')+','+v[1]+' €'; }
+function erpQuando_(em){ if(!em) return ''; var d=new Date(em); var dias=Math.floor((Date.now()-d.getTime())/864e5); return '<span class="emp"'+(dias>3?' style="color:#856404;font-weight:700"':'')+'>dados do ERP de '+esc(d.toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}))+(dias>3?' — há '+dias+' dias':'')+'</span>'; }
+var ESTADO_AUTO_PT_={APROV:'aprovado',EMAPV:'em aprovação',FTR:'faturado',PROP:'proposto',ANLD:'anulado',ENVD:'enviado',EMEXE:'em execução'};
+function tagAuto_(e){ var t=ESTADO_AUTO_PT_[e]||e||'—'; var cor=(e==='APROV'||e==='FTR')?'background:#d1e7dd;color:#0f5132':(e==='EMAPV'||e==='PROP')?'background:#fff3cd;color:#856404':(e==='ANLD')?'background:#f8d7da;color:#b02a37':'background:var(--panel2);color:var(--accent)'; return '<span style="'+cor+';border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800;white-space:nowrap">'+esc(t)+'</span>'; }
+// separador «Autos de cliente» do cartão da obra (DO da obra, Admin, Controller)
+function carregarAutosCliObra_(cod){
+  var el=document.getElementById('sec-autoscli-'+cod); if(!el) return;
+  if(el.getAttribute('data-ok')==='1') return;
+  el.innerHTML='<div class="loading">A carregar os autos de cliente…</div>';
+  callSec('erpAutosObra', cod).then(function(r){
+    if(!r||r.erro){ el.innerHTML='<div class="hint">'+esc((r&&r.erro)||'Erro.')+'</div>'; return; }
+    el.setAttribute('data-ok','1');
+    var h='<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><b style="font-size:13px"><svg class=li><use href=#li-doc /></svg> Autos de cliente <span style="background:var(--panel2);color:var(--accent);border-radius:999px;padding:1px 7px;font-size:10px">ERP</span></b>'+(r.temERP?erpQuando_(r.em):'')+'</div>';
+    if(!r.temERP){
+      h+='<div class="hint" style="margin-top:6px">Esta obra ainda não tem fotografia do ERP — o Admin faz «Atualizar do ERP» na Gestão de obras.</div>';
+      if(r.propostas&&r.propostas.length) h+='<div class="emp" style="margin-top:6px">Propostas lançadas no CRM: '+r.propostas.map(function(p){return esc(mesPT(p.mes))+' '+eurC_(p.valor);}).join(' · ')+'</div>';
+      el.innerHTML=h; return;
+    }
+    var kpi=function(l,v,s){ return '<div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 10px"><div style="font-size:9.5px;color:var(--muted);font-weight:700;text-transform:uppercase">'+l+'</div><div style="font-size:15px;font-weight:800;color:var(--navy)">'+v+'</div>'+(s?'<div class="emp" style="font-size:10px">'+s+'</div>':'')+'</div>'; };
+    var pend=(r.propostas||[]).filter(function(p){return p.porAprovar;});
+    h+='<div class="emp" style="margin-top:2px">'+(r.cliente?'cliente <b>'+esc(r.cliente)+'</b> · ':'')+(r.estadoLabel?esc(r.estadoLabel)+' · ':'')+'contrato <b>'+eurC_(r.contrato)+'</b></div>'
+      +'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px;margin-top:8px">'
+      +kpi('Autos aprovados',r.nAprovados,'')+kpi('Total aprovado',eurC_(r.totalAprovado),(r.contrato>0?_vg(Math.round(r.totalAprovado/r.contrato*1000)/10)+' % do contrato':''))
+      +kpi('Em aprovação no cliente',r.emAprovacao.length,r.emAprovacao.length?eurC_(r.emAprovacao.reduce(function(s,a){return s+a.valor;},0)):'estado EMAPV no ERP')
+      +kpi('Proposta (CRM)',pend.length?eurC_(pend[0].valor):'—',pend.length?esc(mesPT(pend[0].mes))+' · <span style="color:#856404;font-weight:800">por aprovar</span>':'nenhuma por aprovar')
+      +(r.nAprovados?kpi('Média / auto',eurC_(r.totalAprovado/r.nAprovados),''):'')+'</div>';
+    h+='<div style="overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px;background:#fff"><table style="width:100%;border-collapse:collapse;font-size:11.5px;min-width:520px"><thead><tr style="background:var(--panel2);color:var(--accent);font-size:10px;text-transform:uppercase"><th style="text-align:left;padding:5px 8px">Nº</th><th style="text-align:left;padding:5px 8px">Data</th><th style="text-align:right;padding:5px 8px">Valor</th><th style="text-align:right;padding:5px 8px">Acumulado</th><th style="text-align:right;padding:5px 8px">% contrato</th><th style="text-align:left;padding:5px 8px">Estado</th><th style="text-align:left;padding:5px 8px">DO (ERP)</th></tr></thead><tbody>';
+    pend.forEach(function(p){ h+='<tr style="border-top:1px solid #eef1f5;background:#fffbea"><td style="padding:5px 8px">—</td><td style="padding:5px 8px">'+esc(mesPT(p.mes))+'</td><td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+eurC_(p.valor)+'</td><td></td><td></td><td style="padding:5px 8px"><span style="background:#fff3cd;color:#856404;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800">proposta CRM</span></td><td style="padding:5px 8px">'+esc(p.por)+'</td></tr>'; });
+    (r.autos||[]).forEach(function(a){ h+='<tr style="border-top:1px solid #eef1f5"><td style="padding:5px 8px;font-weight:800">'+(a.numero!=null?a.numero:'—')+'</td><td style="padding:5px 8px">'+esc(fmtD(a.data))+'</td><td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+eurC_(a.valor)+'</td><td style="text-align:right;padding:5px 8px;font-family:var(--mono)">'+(a.estado==='PROP'||a.estado==='EMAPV'?'—':eurC_(a.acumulado))+'</td><td style="text-align:right;padding:5px 8px">'+(a.pct!=null&&a.estado!=='PROP'&&a.estado!=='EMAPV'?_vg(a.pct)+' %':'—')+'</td><td style="padding:5px 8px">'+tagAuto_(a.estado)+'</td><td style="padding:5px 8px">'+esc(a.doErp||'')+'</td></tr>'; });
+    if(!(r.autos||[]).length) h+='<tr><td colspan="7" class="hint" style="padding:8px">Sem autos de cliente no ERP para esta obra.</td></tr>';
+    h+='</tbody></table></div><div class="emp" style="margin-top:6px;font-size:10.5px">Só leitura — os autos nascem na Gestão de Produção/ERP. A proposta do CRM lança-se na Análise de produção.</div>';
+    el.innerHTML=h;
+  }).catch(function(){ el.innerHTML='<div class="hint">Erro ao carregar os autos de cliente.</div>'; });
+}
+// chip «Autos de cliente» (Admin/Controller): todas as obras abertas
+function renderAutosCliTodas_(el){
+  el.innerHTML='<div class="loading">A carregar…</div>';
+  callSec('erpAutosClienteTodas').then(function(r){
+    if(!r||!r.ok){ el.innerHTML='<div class="alert">'+esc((r&&r.erro)||'Sem acesso.')+'</div>'; return; }
+    var obras=(r.obras||[]);
+    var h='<div class="card" style="margin-top:4px"><div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center"><b><svg class=li><use href=#li-doc /></svg> Autos de cliente — todas as obras em curso</b>'+erpQuando_(r.em)+'</div>'
+      +'<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><input id="acliQ" placeholder="filtrar obra ou DO" oninput="filtrarAutosCli_()" style="flex:1;min-width:180px;padding:8px;border:1px solid var(--line);border-radius:8px"><label class="emp" style="display:flex;align-items:center;gap:4px"><input type="checkbox" id="acliSo" onchange="filtrarAutosCli_()"> só com algo pendente (em aprovação, proposta ou meses sem auto)</label></div>'
+      +'<div style="overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px;background:#fff"><table id="acliT" style="width:100%;border-collapse:collapse;font-size:12px;min-width:860px"><thead><tr style="background:var(--panel2);color:var(--accent);font-size:10px;text-transform:uppercase"><th style="text-align:left;padding:6px 8px">Obra</th><th style="text-align:left;padding:6px 8px">DO</th><th style="text-align:right;padding:6px 8px">Contrato</th><th style="text-align:right;padding:6px 8px">Aprovado</th><th style="text-align:right;padding:6px 8px">%</th><th style="text-align:left;padding:6px 8px">Último auto</th><th style="text-align:left;padding:6px 8px">Em aprovação</th><th style="text-align:left;padding:6px 8px">Proposta CRM</th><th style="text-align:left;padding:6px 8px">Alerta</th></tr></thead><tbody>';
+    obras.forEach(function(o){
+      var pend=(o.emAprovacao.length||o.proposta||(o.mesesSemAuto!=null&&o.mesesSemAuto>=1))?1:0;
+      var alerta=!o.temERP?'<span class="emp">sem fotografia do ERP</span>':(o.mesesSemAuto!=null&&o.mesesSemAuto>=1?'<span style="background:#f8d7da;color:#b02a37;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800">'+o.mesesSemAuto+' mês'+(o.mesesSemAuto>1?'es':'')+' sem auto</span>':(o.nAutos?'':'<span style="background:#fff3cd;color:#856404;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800">ainda sem autos</span>'));
+      h+='<tr data-q="'+esc((o.cod+' '+o.desc+' '+o.doNome).toLowerCase())+'" data-p="'+pend+'" style="border-top:1px solid #eef1f5;cursor:pointer" onclick="tab(\'obras\');setTimeout(function(){abrirObraCard(\''+esc(o.cod)+'\');},600)">'
+        +'<td style="padding:6px 8px"><b>'+esc(o.cod)+'</b> '+esc(o.desc)+'</td><td style="padding:6px 8px">'+esc(o.doNome||'—')+'</td>'
+        +'<td style="text-align:right;padding:6px 8px;font-family:var(--mono)">'+eurC_(o.contrato)+'</td><td style="text-align:right;padding:6px 8px;font-family:var(--mono)">'+eurC_(o.aprovado)+'</td><td style="text-align:right;padding:6px 8px">'+(o.pct!=null?o.pct+' %':'—')+'</td>'
+        +'<td style="padding:6px 8px">'+(o.ultimo?'nº '+o.ultimo.numero+' · '+esc(fmtD(o.ultimo.data)):'—')+'</td>'
+        +'<td style="padding:6px 8px">'+(o.emAprovacao.length?o.emAprovacao.map(function(a){return '<span style="background:#fff3cd;color:#856404;border-radius:999px;padding:1px 7px;font-size:10px;font-weight:800">nº '+a.numero+' · '+eurC_(a.valor)+'</span>';}).join(' '):'—')+'</td>'
+        +'<td style="padding:6px 8px">'+(o.proposta?esc(mesPT(o.proposta.mes))+' · '+eurC_(o.proposta.valor):'—')+'</td><td style="padding:6px 8px">'+alerta+'</td></tr>';
+    });
+    h+='</tbody></table></div><div class="emp" style="margin-top:6px;font-size:10.5px">Toca numa linha para abrir a obra. «Meses sem auto» conta meses completos desde o último auto aprovado.</div></div>';
+    el.innerHTML=h;
+  }).catch(function(){ el.innerHTML='<div class="alert">Erro de ligação.</div>'; });
+}
+function filtrarAutosCli_(){
+  var q=(document.getElementById('acliQ')||{}).value||''; q=q.toLowerCase().trim(); var so=!!((document.getElementById('acliSo')||{}).checked);
+  document.querySelectorAll('#acliT tbody tr').forEach(function(tr){ var ok=(!q||tr.getAttribute('data-q').indexOf(q)>=0)&&(!so||tr.getAttribute('data-p')==='1'); tr.style.display=ok?'':'none'; });
+}
+// chip «Autos no ERP» (Admin/Controller): reconciliação consola ↔ ERP de todas as obras abertas
+function renderAutosErpTodas_(el){
+  el.innerHTML='<div class="loading">A carregar…</div>';
+  callSec('erpAutosSubTodas').then(function(r){
+    if(!r||!r.ok){ el.innerHTML='<div class="alert">'+esc((r&&r.erro)||'Sem acesso.')+'</div>'; return; }
+    var h='<div class="card" style="margin-top:4px"><b><svg class=li><use href=#li-chart /></svg> Autos de subempreiteiro no ERP — reconciliação com a consola</b>';
+    if(r.alertas.length){
+      h+='<div style="background:#f8d7da;border:1px solid #f1aeb5;border-radius:10px;padding:8px 10px;margin-top:8px"><b style="color:var(--red)">'+r.alertas.length+' auto(s) aprovado(s) na consola que ainda não estão no ERP</b> (mais de 5 dias úteis):'
+        +r.alertas.map(function(a){ return '<div style="font-size:12px;margin-top:3px"><b>'+esc(a.cod)+'</b> '+esc(a.desc)+' · '+esc(a.subNome)+' · auto nº '+a.numero+' · '+eurC_(a.valor)+' · '+esc(a.alerta)+'</div>'; }).join('')+'</div>';
+    } else h+='<div style="background:#d1e7dd;border:1px solid #bfe3cc;border-radius:10px;padding:8px 10px;margin-top:8px">✓ Nenhum auto aprovado na consola por lançar no ERP há mais de 5 dias úteis.</div>';
+    h+='<div style="overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:10px;background:#fff"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:700px"><thead><tr style="background:var(--panel2);color:var(--accent);font-size:10px;text-transform:uppercase"><th style="text-align:left;padding:6px 8px">Obra</th><th style="text-align:right;padding:6px 8px">Subs</th><th style="text-align:right;padding:6px 8px">Autos no ERP</th><th style="text-align:right;padding:6px 8px">Total ERP</th><th style="text-align:right;padding:6px 8px">Por faturar</th><th style="text-align:right;padding:6px 8px">Na consola</th><th style="text-align:right;padding:6px 8px">Aprovados fora do ERP</th></tr></thead><tbody>';
+    (r.obras||[]).forEach(function(o){ h+='<tr style="border-top:1px solid #eef1f5;cursor:pointer" onclick="tab(\'obras\');setTimeout(function(){abrirObraCard(\''+esc(o.cod)+'\');},600)"><td style="padding:6px 8px"><b>'+esc(o.cod)+'</b> '+esc(o.desc)+'</td><td style="text-align:right;padding:6px 8px">'+o.nSubs+'</td><td style="text-align:right;padding:6px 8px">'+o.nAutosERP+'</td><td style="text-align:right;padding:6px 8px;font-family:var(--mono)">'+eurC_(o.totalERP)+'</td><td style="text-align:right;padding:6px 8px">'+(o.naoFaturados||'—')+'</td><td style="text-align:right;padding:6px 8px">'+o.consola+'</td><td style="text-align:right;padding:6px 8px;font-weight:800;color:'+(o.semERP?'var(--red)':'var(--green)')+'">'+o.semERP+'</td></tr>'; });
+    if(!(r.obras||[]).length) h+='<tr><td colspan="7" class="hint" style="padding:8px">Sem autos de subempreiteiro no ERP nem na consola.</td></tr>';
+    h+='</tbody></table></div><div class="emp" style="margin-top:6px;font-size:10.5px">Quando um auto aprovado na consola aparece no ERP com o mesmo subempreiteiro e número, o fluxo fecha sozinho (lançado → faturado) na próxima «Atualizar do ERP».</div></div>';
+    el.innerHTML=h;
+  }).catch(function(){ el.innerHTML='<div class="alert">Erro de ligação.</div>'; });
+}
+
 function renderAutos(v){
   if(window.innerWidth<1000){
     v.innerHTML='<div class="card" style="margin-top:8px"><div class="hint" style="margin-bottom:8px">A consola de autos (fila, importar, aprovar) só funciona em <b>modo PC</b>, no Edge ou Chrome. No telemóvel ficas com a consulta.</div><div id="autosConsulta">A carregar…</div></div>';
@@ -5065,7 +5240,10 @@ function renderAutos(v){
     return;
   }
   largarAutosObra_();
-  v.innerHTML='<div id="autosHost" style="margin-top:6px"><div class="loading">A carregar a consola de autos…</div></div>';
+  v.innerHTML='<div class="subtabs" id="autosChips" style="margin-top:6px"><button class="subtab'+(_autosVista==='consola'?' on':'')+'" onclick="_autosVista=\'consola\';renderAutos(document.getElementById(\'view\'))"><svg class=li><use href=#li-euro /></svg> Consola de autos</button><button class="subtab'+(_autosVista==='cli'?' on':'')+'" onclick="_autosVista=\'cli\';renderAutos(document.getElementById(\'view\'))"><svg class=li><use href=#li-doc /></svg> Autos de cliente</button><button class="subtab'+(_autosVista==='erp'?' on':'')+'" onclick="_autosVista=\'erp\';renderAutos(document.getElementById(\'view\'))"><svg class=li><use href=#li-chart /></svg> Autos no ERP</button></div>'
+    +'<div id="autosHost" style="margin-top:6px"><div class="loading">A carregar…</div></div>';
+  if(_autosVista==='cli'){ renderAutosCliTodas_(document.getElementById('autosHost')); return; }
+  if(_autosVista==='erp'){ renderAutosErpTodas_(document.getElementById('autosHost')); return; }
   carregarAutosJS_().then(function(){
     var host=document.getElementById('autosHost'); if(!host||curTab!=='autos') return;
     return window.Autos.montar(host,{ email:ME, nome:MENOME, papel:MEPAPEL, callSec:callSec, logo:logoDataUri_(),

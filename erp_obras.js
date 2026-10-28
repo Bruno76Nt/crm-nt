@@ -172,9 +172,9 @@
    API: window.ErpObras.abrir(ctx) · ctx={callSec, esc, ME, aoTerminar(res), abrirFicha(cod)} */
 (function (W) {
   'use strict';
-  const VERSAO = '1.0';
+  const VERSAO = '2.0';
   const ctxDef = () => ({ callSec: W.callSec, esc: W.esc, ME: W.ME, aoTerminar: null, abrirFicha: W.abrirFichaObra });
-  let C = null, S = { dir: null, fich: null, meta: null, linhas: null, plano: null, fonte: '' };
+  let C = null, S = { dir: null, fich: null, fich2: null, meta: null, linhas: null, extras: null, plano: null, fonte: '' };
 
   // ---------- IndexedDB (handle da pasta) ----------
   const KV = {
@@ -235,7 +235,7 @@
   // ---------- ecrã 1: pasta / ficheiro ----------
   async function abrir(ctx){
     C = Object.assign(ctxDef(), ctx || {});
-    S = { dir: null, fich: null, meta: null, linhas: null, plano: null, fonte: '' };
+    S = { dir: null, fich: null, fich2: null, meta: null, linhas: null, extras: null, plano: null, fonte: '' };
     const el = montar();
     el.innerHTML = topo('Atualizar obras do ERP', 'Control de Produção.xlsm · ANÁLISE TOTAL') + `<div class="eBody"><div class="card"><div class="loading">A carregar…</div></div></div>`;
     $('#eX').onclick = fechar;
@@ -259,6 +259,7 @@
           ${estadoPasta === 'ok' ? `<button class="btn p" id="eLer">Ler e pré-visualizar</button>` : ''}
           <label class="btn" style="display:inline-block">📄 Escolher ficheiro…<input type="file" id="eFich" accept=".xlsm,.xlsx" style="display:none"></label>
           <label class="btn" style="display:inline-block" title="opcional">＋ obras_meta.json<input type="file" id="eMeta" accept=".json" style="display:none"></label>
+          <label class="btn" style="display:inline-block" title="custos por categoria e por mês (opcional)">＋ Outros Custos…<input type="file" id="eFich2" accept=".xlsm,.xlsx" style="display:none"></label>
           <span class="hint" id="eFichNome"></span>
         </div>
         <div id="eMsg"></div>
@@ -272,6 +273,7 @@
     const bQ = $('#ePerm'); if (bQ) bQ.onclick = async () => { try { const p = await pend.requestPermission({ mode: 'read' }); if (p === 'granted'){ S.dir = pend; await lerDaPasta(); } else msg('Permissão recusada.', 'err'); } catch (e) { msg(e.message, 'err'); } };
     const bL = $('#eLer'); if (bL) bL.onclick = lerDaPasta;
     $('#eFich').onchange = (e) => { const f = e.target.files[0]; if (!f) return; S.fich = f; S.dir = null; $('#eFichNome').textContent = f.name + (S.meta ? ' + obras_meta.json' : ''); lerFicheiros(); };
+    $('#eFich2').onchange = (e) => { const f = e.target.files[0]; if (!f) return; S.fich2 = f; msg('«' + f.name + '» pronto — entra na próxima leitura (escolhe o Control de Produção a seguir, ou volta a ler).', 'ok'); if (S.fich) lerFicheiros(); };
     $('#eMeta').onchange = async (e) => { const f = e.target.files[0]; if (!f) return; try { S.meta = JSON.parse(await f.text()); msg('obras_meta.json lido (' + Object.keys((S.meta && S.meta.obras) || S.meta || {}).length + ' obras).', 'ok'); } catch (err) { msg('obras_meta.json inválido: ' + err.message, 'err'); } };
   }
   function msg(t, tipo){ const m = $('#eMsg'); if (m) m.innerHTML = t ? `<div class="msg ${tipo || ''}">${esc(t)}</div>` : ''; }
@@ -287,16 +289,18 @@
     if (!S.dir) return;
     msg('A procurar o ficheiro na pasta ' + S.dir.name + '…');
     try {
-      let xl = null, meta = null, candidatos = [];
+      let xl = null, xl2 = null, meta = null, candidatos = [];
       for await (const [nome, h] of S.dir.entries()){
         if (h.kind !== 'file') continue;
         if (/^control.*produ.*\.xlsm?$/i.test(nome) || /^control.*produ.*\.xlsx$/i.test(nome)) xl = h;
+        else if (/^outros\s*custos.*\.(xlsm|xlsx)$/i.test(nome)) xl2 = h;
         else if (/\.(xlsm|xlsx)$/i.test(nome) && !/^~\$/.test(nome)) candidatos.push(h);
         if (/^obras_meta\.json$/i.test(nome)) meta = h;
       }
       if (!xl && candidatos.length === 1) xl = candidatos[0];
       if (!xl) return msg('Não encontrei «Control de Produção.xlsm» na pasta ' + S.dir.name + '. Escolhe outra pasta ou o ficheiro à mão.', 'err');
       S.fich = await xl.getFile();
+      S.fich2 = xl2 ? await xl2.getFile() : null;
       S.meta = meta ? JSON.parse(await (await meta.getFile()).text()) : null;
       await lerFicheiros();
     } catch (e) { msg('Erro a ler a pasta: ' + e.message, 'err'); }
@@ -305,8 +309,7 @@
   // ---------- leitura do xlsm → linhas ----------
   const COLS = { cod: 'Projecto', desc: 'Descrição', tipo: 'TIPO', do: 'D. Obra', estado: 'Estado', exercicio: 'Exercício', contratado: 'Contratado', mais: 'Trab. a mais', menos: 'Trab. a menos',
                  executado: 'Executado', porExecutar: 'Por Executar', faturado: 'Faturado', custoPrevisto: 'Custo Total Previsto', custoReal: 'Cust. Total Actual Real' };
-  async function lerLinhas(file, meta){
-    const wb = await W.XlsxLite.abrir(await file.arrayBuffer());
+  async function lerLinhas(wb, meta){
     const nomeFolha = wb.folhas.find(f => /an[áa]lise total/i.test(f));
     if (!nomeFolha) throw new Error('O ficheiro não tem a folha «ANÁLISE TOTAL» (tem: ' + wb.folhas.join(', ') + ').');
     const L = await wb.linhas(nomeFolha);
@@ -328,16 +331,73 @@
     }
     return out;
   }
+  // ---------- extras: autos de cliente, autos de sub, clientes (Control de Produção) + custos (Outros Custos) ----------
+  async function folhaTab(wb, re, chave){   // lê uma folha e devolve {hdr, linhas} a partir da linha de cabeçalho que contém `chave`
+    const nome = wb.folhas.find(f => re.test(f)); if (!nome) return null;
+    const L = await wb.linhas(nome);
+    let hi = -1; for (let i = 0; i < Math.min(L.length, 30); i++){ if ((L[i] || []).some(v => norm(v) === chave)){ hi = i; break; } }
+    if (hi < 0) return null;
+    const hdr = L[hi].map(v => norm(v)); const ix = (k) => hdr.indexOf(k);
+    return { ix, linhas: L.slice(hi + 1) };
+  }
+  const dISO = (v) => { if (v == null || v === '') return null; if (typeof v === 'number'){ const d = W.XlsxLite.dataExcel(v); return d ? d.toISOString().slice(0, 10) : null; } const t = norm(v).slice(0, 10); return /^\d{4}-\d\d-\d\d$/.test(t) ? t : null; };
+  async function lerExtras(wb, file2){
+    const ex = { autosCliente: [], autosSub: [], clientes: {}, custos: [], custosMes: [], nObrasCustos: 0, ficheiro2: file2 ? file2.name : '', ficheiro2Em: file2 && file2.lastModified ? new Date(file2.lastModified).toISOString() : null };
+    const af = await folhaTab(wb, /^autos faturados$/i, 'strCodProjecto');
+    if (af){ const g = (r, k) => { const i = af.ix(k); return i >= 0 ? r[i] : null; };
+      for (const r of af.linhas){ const cod = norm(g(r, 'strCodProjecto')); if (!cod) continue;
+        ex.autosCliente.push({ cod, numero: g(r, 'CA_N_AUTO'), docEx: norm(g(r, 'strCodExercicio')), docNum: norm(g(r, 'strNumero')), data: dISO(g(r, 'dtmData')), valor: g(r, 'Total Auto') || 0, estado: norm(g(r, 'strCodEstadoDocumento')), nAdj: norm(g(r, 'CA_N_ADJ')), doErp: norm(g(r, 'CA_D_OBRA')) }); } }
+    const ap = await folhaTab(wb, /^auto cliente proposto$/i, 'strCodProjecto');
+    if (ap){ const g = (r, k) => { const i = ap.ix(k); return i >= 0 ? r[i] : null; };
+      for (const r of ap.linhas){ const cod = norm(g(r, 'strCodProjecto')); if (!cod) continue;
+        ex.autosCliente.push({ cod, numero: g(r, 'CA_N_AUTO'), docEx: norm(g(r, 'strCodExercicio')), docNum: '', data: dISO(g(r, 'dtmData')), valor: g(r, 'Total Auto') || 0, estado: 'PROP', nAdj: '', doErp: norm(g(r, 'CA_D_OBRA')), cliente: norm(g(r, 'strNomeCliente')) }); } }
+    const as = await folhaTab(wb, /^autos subemp$/i, 'strCodProjecto');
+    if (as){ const g = (r, k) => { const i = as.ix(k); return i >= 0 ? r[i] : null; };
+      for (const r of as.linhas){ const cod = norm(g(r, 'strCodProjecto')); if (!cod) continue;
+        ex.autosSub.push({ cod, subCod: norm(g(r, 'Cod Subempr.')), subNome: norm(g(r, 'Subempreiteiro')), subempreitada: norm(g(r, 'nº Subempreitada')), numero: g(r, 'CA_N_AUTO'), docEx: norm(g(r, 'strCodExercicio')), docNum: norm(g(r, 'strNumero')),
+                           data: dISO(g(r, 'dtmData')), dataDe: dISO(g(r, 'dtmDataDe')), dataAte: dISO(g(r, 'dtmDataAte')), valor: g(r, 'Total Sub_E') || 0, estado: norm(g(r, 'strCodEstadoDocumento')), esp: norm(g(r, 'EspDescricao')), doErp: norm(g(r, 'CA_D_OBRA')) }); } }
+    const cl = await folhaTab(wb, /^clientes obra$/i, 'strCodProjecto');
+    if (cl){ for (const r of cl.linhas){ const cod = norm(r[cl.ix('strCodProjecto')]); const nome = norm(r[cl.ix('strNomeCliente')]); if (cod && nome && !ex.clientes[cod]) ex.clientes[cod] = nome; } }
+    if (file2){
+      const wb2 = await W.XlsxLite.abrir(await file2.arrayBuffer());
+      const CAT = { materiais: [/^custos? materiais previsto$/i, /^custos? materiais atual$/i], mao_obra: [/^custos? m[ãa]o de obra previsto$/i, /^custos? m[ãa]o de obra atual$/i], equipamento: [/^custos? equipamentos? previsto$/i, /^custos? equipamentos? atual$/i],
+                    servicos: [/^custos? servi[çc]os previsto$/i, /^custos? servi[çc]os atual$/i], subempreitadas: [/^custos? subempreiteiros? previsto$/i, /^custos? subempreiteiros? atual$/i], indiretos: [/^custos? indiretos? previsto$/i, /^custos? indiretos? atual$/i] };
+      const porObra = {};
+      for (const cat of Object.keys(CAT)){
+        for (let k = 0; k < 2; k++){
+          const nome = wb2.folhas.find(f => CAT[cat][k].test(f.trim())); if (!nome) continue;
+          const L = await wb2.linhas(nome);
+          for (let i = 1; i < L.length; i++){ const r = L[i] || []; const cod = norm(r[0]); if (!cod || !/^\d+$/.test(cod)) continue; const v = r[1]; if (v == null || v === '') continue;
+            const o = porObra[cod] = porObra[cod] || {}; const c = o[cat] = o[cat] || { cod, categoria: cat, previsto: null, atual: null }; c[k === 0 ? 'previsto' : 'atual'] = Number(v) || 0; }
+        }
+      }
+      for (const cod of Object.keys(porObra)) for (const cat of Object.keys(porObra[cod])) ex.custos.push(porObra[cod][cat]);
+      ex.nObrasCustos = Object.keys(porObra).length;
+      const TIPO = { 0: 'materiais', 1: 'servicos', 2: 'mao_obra', 4: 'equipamento', 5: 'indiretos', 6: 'subempreitadas' };
+      const cm = await folhaTab(wb2, /^custos mensais$/i, 'strProjectCode');
+      if (cm){ const g = (r, k) => { const i = cm.ix(k); return i >= 0 ? r[i] : null; };
+        for (const r of cm.linhas){ const cod = norm(g(r, 'strProjectCode')); const t = TIPO[Number(g(r, 'intResourceType'))]; const mes = norm(g(r, 'Mes')); if (!cod || !t || !/^\d{4}-\d\d$/.test(mes)) continue;
+          ex.custosMes.push({ cod, mes, categoria: t, custo: Number(g(r, 'Custo')) || 0 }); } }
+    }
+    return ex;
+  }
   async function lerFicheiros(){
     if (!S.fich) return;
     msg('A ler ' + S.fich.name + '…');
     try {
-      S.linhas = await lerLinhas(S.fich, S.meta);
+      const wb = await W.XlsxLite.abrir(await S.fich.arrayBuffer());
+      S.linhas = await lerLinhas(wb, S.meta);
       S.fonte = S.fich.name;
       if (!S.linhas.length) return msg('A folha ANÁLISE TOTAL está vazia.', 'err');
-      msg('Lidas ' + S.linhas.length + ' obras' + (S.meta ? ' (+ obras_meta.json)' : '') + '. A comparar com o CRM…');
+      msg('Lidas ' + S.linhas.length + ' obras' + (S.meta ? ' (+ obras_meta.json)' : '') + '. A ler autos e custos…');
+      S.extras = await lerExtras(wb, S.fich2);
+      msg('Lidas ' + S.linhas.length + ' obras · ' + S.extras.autosCliente.length + ' autos de cliente · ' + S.extras.autosSub.length + ' autos de sub' + (S.fich2 ? ' · custos de ' + S.extras.nObrasCustos + ' obras' : ' · sem Outros Custos') + '. A comparar com o CRM…');
       const r = await C.callSec('obrasImportarERP', { modo: 'prever', linhas: S.linhas, anoRef: new Date().getFullYear() });
       if (!r || r.erro) return msg((r && r.erro) || 'Erro no servidor.', 'err');
+      // só as obras que existem (ou vão existir) no CRM seguem para o servidor
+      const so = new Set(r.codigosCRM || []);
+      S.extras.autosCliente = S.extras.autosCliente.filter(a => so.has(a.cod)); S.extras.autosSub = S.extras.autosSub.filter(a => so.has(a.cod));
+      S.extras.custos = S.extras.custos.filter(c => so.has(c.cod)); S.extras.custosMes = S.extras.custosMes.filter(c => so.has(c.cod));
       S.plano = r; prever();
     } catch (e) { msg(e.message || String(e), 'err'); }
   }
@@ -360,7 +420,7 @@
     el.innerHTML = topo('Atualizar obras do ERP — pré-visualização', `${esc(S.fonte)} · dados do ERP de ${esc(dt(S.fich.lastModified))} · ${p.nLidas} obras no ficheiro · ${p.nAmbito} no âmbito (${ex.length > 1 ? ex[0] + '–' + ex[ex.length - 1] : ex[0] || '—'})`, `<button class="btn" id="eVoltar">‹ Voltar</button>`)
       + `<div class="eBody">
       <div class="kp"><div><small>Novas no CRM</small><b>${p.novas.length}</b></div><div><small>A atualizar</small><b>${p.atualizar.length}</b></div><div><small>Sem alteração</small><b>${p.iguais.length}</b></div><div><small>A encerrar</small><b>${p.encerrar.length}</b></div><div><small>Divergências</small><b>${p.divergencias.length}</b></div><div><small>Sem DO reconhecido</small><b>${semDO}</b></div></div>
-      ${secNovas(p)}${secAtualizar(p)}${secEncerrar(p)}${secDivergencias(p)}${secIguais(p)}${secIgnoradas(p)}
+      ${secNovas(p)}${secAtualizar(p)}${secEncerrar(p)}${secDivergencias(p)}${secIguais(p)}${secIgnoradas(p)}${secFotografias()}
       <div class="foot"><span class="hint" style="flex:1">Nada é gravado antes de confirmares. Fica registado quem, quando e o que foi feito.</span><span id="eCont" class="hint"></span><button class="btn p" id="eAplicar">Aplicar</button></div>
       </div>`;
     $('#eX').onclick = fechar; $('#eVoltar').onclick = () => abrir(C);
@@ -377,7 +437,7 @@
   function contar(){
     const e = escolhas(); const n = e.criar.length + e.atualizar.length + e.encerrar.length;
     const c = $('#eCont'); if (c) c.textContent = `${e.criar.length} a criar · ${e.atualizar.length} a atualizar · ${e.encerrar.length} a encerrar`;
-    const b = $('#eAplicar'); if (b){ b.disabled = !n; b.textContent = n ? `Aplicar ${n} ${n === 1 ? 'alteração' : 'alterações'}` : 'Nada marcado'; }
+    const b = $('#eAplicar'); if (b){ b.disabled = false; b.textContent = n ? `Aplicar ${n} ${n === 1 ? 'alteração' : 'alterações'} + fotografias` : 'Só atualizar fotografias (autos, custos)'; }
   }
   function secNovas(p){
     if (!p.novas.length) return `<div class="grp"><h3>Novas</h3><span class="tag">0</span><span class="hint">todas as obras do âmbito já existem no CRM</span></div>`;
@@ -410,6 +470,12 @@
     if (!p.iguais.length) return '';
     return `<details class="card"><summary>Sem alteração · ${p.iguais.length}</summary><div class="hint" style="margin-top:6px">${p.iguais.map(i => `<b>${esc(i.cod)}</b> ${esc(i.descCRM)}`).join(' · ')}</div></details>`;
   }
+  function secFotografias(){
+    const x = S.extras || {}; const nOb = (arr) => new Set((arr || []).map(a => a.cod)).size;
+    return `<div class="grp"><h3>Fotografias do ERP</h3><span class="tag">sempre</span><span class="hint">gravadas para as obras do CRM ao aplicar, com ou sem alterações marcadas — alimentam a Análise de produção, «Autos de cliente» e a consola</span></div>
+      <div class="kp"><div><small>Autos de cliente</small><b>${(x.autosCliente || []).length}</b><div class="hint">${nOb(x.autosCliente)} obras</div></div><div><small>Autos de subempreiteiro</small><b>${(x.autosSub || []).length}</b><div class="hint">${nOb(x.autosSub)} obras</div></div>
+      <div><small>Custos por categoria</small><b>${x.ficheiro2 ? nOb(x.custos) : '—'}</b><div class="hint">${x.ficheiro2 ? esc(x.ficheiro2) : '<span style="color:#b02a37">Outros Custos direto sql.xlsm não encontrado</span>'}</div></div><div><small>Custos mensais</small><b>${x.ficheiro2 ? (x.custosMes || []).length : '—'}</b><div class="hint">${x.ficheiro2 ? nOb(x.custosMes) + ' obras' : ''}</div></div></div>`;
+  }
   function secIgnoradas(p){
     const ig = p.ignoradas || {}; const est = Object.keys(ig.estadoForaAmbito || {}).map(k => `${esc(k)} ${ig.estadoForaAmbito[k]}`).join(' · ');
     const n = Object.values(ig.estadoForaAmbito || {}).reduce((a, b) => a + b, 0) + (ig.interna || []).length + (ig.exercicioAntigo || []).length + (ig.duplicadas || []).length;
@@ -418,10 +484,10 @@
 
   // ---------- aplicar ----------
   async function aplicar(){
-    const e = escolhas(); const n = e.criar.length + e.atualizar.length + e.encerrar.length; if (!n) return;
+    const e = escolhas();
     const b = $('#eAplicar'); b.disabled = true; b.textContent = 'A aplicar…';
     try {
-      const r = await C.callSec('obrasImportarERP', { modo: 'aplicar', linhas: S.linhas, anoRef: new Date().getFullYear(), ficheiro: S.fonte, ficheiroEm: S.fich.lastModified ? new Date(S.fich.lastModified).toISOString() : null, escolhas: e });
+      const r = await C.callSec('obrasImportarERP', { modo: 'aplicar', linhas: S.linhas, anoRef: new Date().getFullYear(), ficheiro: S.fonte, ficheiroEm: S.fich.lastModified ? new Date(S.fich.lastModified).toISOString() : null, escolhas: e, extras: S.extras || {} });
       if (!r || r.erro){ b.disabled = false; contar(); const f = $('.foot'); if (f) f.insertAdjacentHTML('afterbegin', `<div class="msg err" style="flex-basis:100%">${esc((r && r.erro) || 'Erro no servidor.')}</div>`); return; }
       resultado(r);
       if (typeof C.aoTerminar === 'function') try { C.aoTerminar(r); } catch (err) {}
@@ -431,7 +497,7 @@
     const el = $('#erpFull'); if (!el) return;
     const p = S.plano; const nome = (cod) => { const x = (p.novas.concat(p.atualizar, p.encerrar)).find(o => o.cod === cod); return x ? (x.desc || x.descCRM || '') : ''; };
     el.innerHTML = topo('Obras atualizadas do ERP', esc(dt(new Date()))) + `<div class="eBody">
-      <div class="msg ok">✔ <b>${r.criadas.length} criadas · ${r.atualizadas.length} atualizadas · ${r.encerradas.length} encerradas</b>${r.semDO.length ? ` · <b>${r.semDO.length} por atribuir DO</b>` : ''}${r.naoEncerradas.length ? ` · ${r.naoEncerradas.length} não encerradas` : ''}</div>
+      <div class="msg ok">✔ <b>${r.criadas.length} criadas · ${r.atualizadas.length} atualizadas · ${r.encerradas.length} encerradas</b>${r.extras ? ` · fotografias: ${r.extras.estado} obras, ${r.extras.autosCliente} autos de cliente, ${r.extras.autosSub} autos de sub, custos de ${r.extras.custos ? Math.round(r.extras.custos / 1) : 0} linhas${r.extras.fechados ? ` · <b>${r.extras.fechados} auto(s) da consola fechado(s) pelo ERP</b>` : ''}` : ''}${r.semDO.length ? ` · <b>${r.semDO.length} por atribuir DO</b>` : ''}${r.naoEncerradas.length ? ` · ${r.naoEncerradas.length} não encerradas` : ''}</div>
       ${r.semDO.length ? `<div class="grp"><h3>Por atribuir DO</h3><span class="tag warn">${r.semDO.length}</span><span class="hint">só tu as vês até lhes dares Diretor de Obra — abre a ficha e escolhe</span></div>
         ${r.semDO.map(o => `<div class="ob"><div><b>${esc(o.cod)} · ${esc(o.desc)}</b> <span class="tag warn">por atribuir DO</span><div class="hint">${esc(o.motivo)}</div></div><span class="sp"></span><button class="btn p" data-ficha="${esc(o.cod)}">Atribuir DO</button></div>`).join('')}` : ''}
       ${r.naoEncerradas.length ? `<div class="grp"><h3>Não encerradas</h3><span class="tag err">${r.naoEncerradas.length}</span><span class="hint">resolve primeiro e volta a correr a importação</span></div>

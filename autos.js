@@ -81,7 +81,7 @@ function renderNav(){
   const pap=$('#papel');pap.className='chip '+(S.papel==='CONTROLLER'?'ctrl':'do');pap.textContent=S.papel==='CONTROLLER'?'Controller':S.papel==='ADMIN'?'Admin · sem pasta':'Diretor de Obra';pap.style.display='';
   const nm=S.cfg?.nome||'';$('#avatar').textContent=nm?nm.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase():'?';$('#avatar').title=nm;
 }
-function go(v){if(v!=='dr')drFechar_(false);S.viewAnt=S.view;if(S.emb&&v==='entrada')v='embEntrada';if(S.soVista&&v==='entrada')v=S.soVista;S.view=v;renderNav();({embEntrada:viewEntradaEmb_,entrada:viewEntrada,orcamento:viewOrc,tabela:viewTabela,subs:viewSubs,subempreitadas:viewSubempreitadas,envios:viewEnvios,cautos:viewCtrlAutos,dr:viewDR,alertas:viewAlertas,config:viewConfig,fila:viewFila,fluxo:viewFluxo,cobras:viewObrasCRM,aconfig:viewAdminConfig,obraautos:viewObraAutos}[v])();}
+function go(v){if(v!=='dr')drFechar_(false);S.viewAnt=S.view;if(S.emb&&v==='entrada')v='embEntrada';if(S.soVista&&v==='entrada')v=S.soVista;S.view=v;renderNav();({embEntrada:viewEntradaEmb_,entrada:viewEntrada,orcamento:viewOrc,tabela:viewTabela,subs:viewSubs,subempreitadas:viewSubempreitadas,envios:viewEnvios,cautos:viewCtrlAutos,dr:viewDR,alertas:viewAlertas,config:viewConfig,fila:viewFila,fluxo:viewFluxo,cobras:viewObrasCRM,aconfig:viewAdminConfig,obraautos:viewObraAutos,erpsub:viewErpSub_}[v])();}
 
 /* ---------- pasta OBRAS ---------- */
 async function escolherPasta(){
@@ -1053,8 +1053,13 @@ function pedirData(titulo,sugestao,minData){
     dlg.showModal();$('#dCancel').onclick=()=>{dlg.close();res(null);};
     $('#dOk').onclick=()=>{const v=$('#dData').value;if(!v)return toast('Indica a data','warn');if(minData&&v<=minData)return toast('A data tem de ser posterior a '+minData,'err');dlg.close();res(v);};});
 }
+async function erpSubInfo_(force){if(!S.obra)return null;const cod=String(S.obra.obra.numero);if(!force&&S.erpSub&&S.erpSub.cod===cod)return S.erpSub.r;try{const r=await CRM.erpAutosSub(cod);S.erpSub={cod,r:(r&&r.ok)?r:null};return S.erpSub.r;}catch(e){return null;}}
 async function novoAuto(subId,esp){
-  const s=S.obra.subempreiteiros.find(x=>x.id===subId);const n=(s.proximo_auto?.[esp])||1;
+  const s=S.obra.subempreiteiros.find(x=>x.id===subId);let n=(s.proximo_auto?.[esp])||1;
+  const erp=await erpSubInfo_();const es=erp&&s.codigo_erp?(erp.subs||[]).find(x=>String(x.subCod)===String(s.codigo_erp)):null;
+  if(es&&es.nAutos){const ja=es.autos.find(a=>a.numero===n&&a.estado!=='ANLD');
+    if(ja||n!==es.sugerido){const txt=`No ERP este subempreiteiro tem ${es.nAutos} auto(s) nesta obra (último: n.º ${es.ultimo.numero} · ${es.ultimo.data} · ${eur(es.ultimo.valor)}). Sugerido: n.º ${es.sugerido}.\n`+(ja?`ATENÇÃO: o n.º ${n} já existe no ERP (${ja.data} · ${eur(ja.valor)} · ${ja.estado}).\n`:'')+`A consola ia criar o n.º ${n}.\n\nOK = usar o n.º sugerido ${es.sugerido} · Cancelar = manter o n.º ${n}`;
+      if(confirm(txt)){n=es.sugerido;s.proximo_auto=s.proximo_auto||{};s.proximo_auto[esp]=n;await guardarObra();}}}
   if(!(s.artigos[esp]||[]).length)return toast('Esta especialidade não tem artigos atribuídos','warn');
   const ant=ultimoEmitido(subId,esp);
   if(!ant&&n>1&&!s.acum_inicial?.[esp])return toast(`Série a começar no Auto n.º ${n}: introduz primeiro os acumulados anteriores em Subempreitadas`,'warn');
@@ -1270,7 +1275,7 @@ function crmAdapter_(callSec){const c=(fn,...a)=>Promise.resolve().then(()=>call
   subEmail:(cod,em)=>c('autosSubEmail',cod,em),subCriar:(o)=>c('autosSubCriar',o),subsImportar:(l)=>c('autosSubsImportar',l),subLigarERP:(cod,erp)=>c('autosSubLigarERP',cod,erp),
   enviar:(env,x)=>c('autosEnviar',env,x),envios:()=>c('autosEnviosRecebidos'),descarregar:(id,x)=>c('autosDescarregarEnvio',id,!!x),marcarImportado:(id,r)=>c('autosMarcarImportado',id,r),
   aprovar:(cod,id,ok,m)=>c('autosAprovar',cod,id,ok,m),registarERP:(cod,id,doc)=>c('autosRegistarERP',cod,id,doc),registarEnvioSub:(cod,id)=>c('autosRegistarEnvioSub',cod,id),
-  estadoObra:(cod)=>c('autosEstadoObra',cod),fluxo:()=>c('autosFluxo'),
+  estadoObra:(cod)=>c('autosEstadoObra',cod),fluxo:()=>c('autosFluxo'),erpAutosSub:(cod)=>c('erpAutosSubObra',cod),
   orcConsola:(cod)=>c('orcConsola',cod)};}
 // ---- orçamento do CRM_NT (fonte única): carregar a versão corrente para a pasta da obra (cache local = orcamento.json) ----
 async function carregarOrcCRM_(silencioso){
@@ -1709,8 +1714,8 @@ async function viewEntradaEmb_(){
 function renderNavEmb_(){
   const E=S.emb;const nav=$('#nav');const temObra=!!S.obra;
   const L=S.papel==='ADMIN'?[['obraautos','Resumo'],['fluxo','Aprovar',S.badgeEmb]]
-    :S.papel==='CONTROLLER'?[['obraautos','Resumo'],['cautos','Autos recebidos',S.badgeEmb]].concat(temObra?[['dr','DR'],['alertas','Alertas']]:[]).concat([['config','Configurações']])
-    :[['obraautos','Resumo']].concat(temObra?[['orcamento','Orçamento · preços'],['tabela','Tabela de preços'],['subs','Subempreiteiros'],['subempreitadas','Subempreitadas'],['envios','Autos e envios'],['dr','DR'],['alertas','Alertas']]:[]).concat([['config','Configurações']]);
+    :S.papel==='CONTROLLER'?[['obraautos','Resumo'],['cautos','Autos recebidos',S.badgeEmb]].concat(temObra?[['erpsub','Autos no ERP'],['dr','DR'],['alertas','Alertas']]:[]).concat([['config','Configurações']])
+    :[['obraautos','Resumo']].concat(temObra?[['orcamento','Orçamento · preços'],['tabela','Tabela de preços'],['subs','Subempreiteiros'],['subempreitadas','Subempreitadas'],['envios','Autos e envios'],['erpsub','Autos no ERP'],['dr','DR'],['alertas','Alertas']]:[]).concat([['config','Configurações']]);
   nav.innerHTML=L.map(([id,t,b])=>`<a class="${S.view===id?'on':''}" data-v="${id}">${t}${b?`<span class="nb">${b}</span>`:''}</a>`).join('');
   nav.querySelectorAll('a').forEach(a=>a.onclick=()=>go(a.dataset.v));
   const pap=$('#papel');pap.className='chip '+(S.papel==='CONTROLLER'?'ctrl':'do');pap.textContent=S.papel==='CONTROLLER'?'Controller':S.papel==='ADMIN'?'Admin · sem pasta':'Diretor de Obra';pap.style.display='';
@@ -1720,6 +1725,34 @@ function renderNavEmb_(){
   const nm=S.cfg?.nome||CTX.nome||'';$('#avatar').textContent=nm?nm.split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase():'?';$('#avatar').title=nm;
 }
 function desmontar(){if(ROOT){ROOT.innerHTML='';ROOT.removeAttribute('id');ROOT.classList.remove('emb');}ROOT=null;S.root=null;S.obra=null;S.obraDir=null;S.orc=null;S.autos=[];S.memAutos=null;S.emb=null;S.soVista=null;S.badgeEmb=0;}
+// ---- ERP-2 · chip «Autos no ERP» (DO e Controller dentro da obra): autos de sub do ERP + reconciliação ----
+async function viewErpSub_(){
+  const m=$('#main');m.innerHTML='<div class="card"><h3 style="margin-top:0">Autos de subempreiteiro no ERP</h3><div class="muted">a pedir ao CRM_NT…</div></div>';
+  const r=await erpSubInfo_(true);
+  if(!r){m.innerHTML='<div class="card"><h3 style="margin-top:0">Autos de subempreiteiro no ERP</h3><div class="msg warn">Sem resposta do CRM_NT ou sem permissão.</div></div>';return;}
+  const quando=r.em?new Date(r.em).toLocaleString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  const dias=r.em?Math.floor((Date.now()-new Date(r.em).getTime())/864e5):null;
+  const ESTL={APROV:'aprovado',FTR:'faturado',ANLD:'anulado',ENVD:'enviado',EMEXE:'em execução'};
+  const tagE=(e)=>`<span class="tag ${e==='FTR'?'ok':e==='ANLD'?'err':e==='APROV'?'warn':''}">${esc(ESTL[e]||e||'—')}</span>`;
+  let h=`<div class="card"><h3 style="margin-top:0">Autos de subempreiteiro no ERP <span class="tag">${r.temERP?`dados do ERP de ${esc(quando)}${dias>3?' — há '+dias+' dias':''}`:'sem fotografia do ERP'}</span></h3>
+    <p class="hint">O que o ERP (Gestão de Produção) já tem por subempreiteiro nesta obra: número, período, valor e estado. Ao criar um auto, a consola sugere o número a seguir ao último do ERP. Um auto aprovado aqui que apareça no ERP com o mesmo subempreiteiro e número fecha sozinho o fluxo (lançado → faturado) na próxima «Atualizar do ERP».</p>`;
+  if(!r.temERP){h+='<div class="msg warn">Esta obra ainda não tem fotografia do ERP — o Admin faz «Atualizar do ERP» na Gestão de obras.</div></div>';m.innerHTML=h;return;}
+  if(r.alertas.length)h+=`<div class="msg err"><b>${r.alertas.length} auto(s) aprovado(s) na consola ainda sem registo no ERP (mais de ${r.diasAlerta} dias úteis):</b><br>${r.alertas.map(a=>`${esc(a.subNome)} · auto n.º ${a.numero} · ${eur(a.valor)} · ${esc(a.alerta)}`).join('<br>')}</div>`;
+  h+=`<div class="kv"><span>Subempreiteiros no ERP</span><span>${r.subs.length}</span><span>Autos no ERP</span><span>${r.subs.reduce((t,s)=>t+s.nAutos,0)}</span><span>Total ERP (sem anulados)</span><span><b>${eur(r.totalERP)}</b></span><span>Autos na consola</span><span>${r.consola.length}</span></div></div>`;
+  for(const s of r.subs){
+    const sc=(S.obra.subempreiteiros||[]).find(x=>String(x.codigo_erp)===String(s.subCod));
+    h+=`<div class="card"><h3 style="margin-top:0">${esc(s.subNome)} <span class="tag">ERP ${esc(s.subCod)}</span> ${s.subempreitadas.map(x=>`<span class="tag">${esc(x)}</span>`).join(' ')} <span class="tag ok" style="float:right">Σ ${eur(s.total)}</span></h3>
+      <div class="hint">${s.nAutos} auto(s) · último n.º ${s.ultimo?s.ultimo.numero:'—'}${s.ultimo?' · '+esc(s.ultimo.data):''} · <b>próximo sugerido: n.º ${s.sugerido}</b>${s.naoFaturados?` · <span class="tag warn">${s.naoFaturados} por faturar</span>`:''}${s.anulados?` · ${s.anulados} anulado(s)`:''}${sc?'':' · <span class="tag warn">sem subempreiteiro ligado na consola (liga o n.º ERP em Subempreiteiros)</span>'}</div>
+      <table style="margin-top:6px"><thead><tr><th>N.º</th><th>Período</th><th>Data</th><th class="num">Valor</th><th>ERP</th><th>Consola</th></tr></thead><tbody>
+      ${s.autos.map(a=>{const c=r.consola.find(x=>String(x.subCod)===String(s.subCod)&&x.numero===a.numero);return `<tr><td><b>${a.numero!=null?a.numero:'—'}</b></td><td>${esc(a.de||'')}${a.ate?' → '+esc(a.ate):''}</td><td>${esc(a.data)}</td><td class="num">${eur(a.valor)}</td><td>${tagE(a.estado)}${a.doc?` <span class="hint">${esc(a.doc)}</span>`:''}</td><td>${c?`<span class="tag ${c.aprovacao==='aprovado'?'ok':''}">${esc(c.autoId)} · ${esc(c.aprovacao||'registado')}</span>`:'<span class="hint">anterior à consola</span>'}</td></tr>`;}).join('')}
+      </tbody></table></div>`;
+  }
+  const soConsola=r.consola.filter(c=>!c.noERP);
+  if(soConsola.length)h+=`<div class="card"><h3 style="margin-top:0">Na consola e ainda não no ERP <span class="tag">${soConsola.length}</span></h3><table><thead><tr><th>Auto</th><th>Subempreiteiro</th><th>N.º</th><th>Período</th><th class="num">Valor</th><th>Consola</th><th>Situação</th></tr></thead><tbody>
+    ${soConsola.map(c=>`<tr><td>${esc(c.autoId)}</td><td>${esc(c.subNome)}${c.subCod?` <span class="tag">ERP ${esc(c.subCod)}</span>`:' <span class="tag warn">sem n.º ERP</span>'}</td><td>${c.numero}</td><td>${esc(c.periodo)}</td><td class="num">${eur(c.valor)}</td><td>${esc(c.aprovacao||'registado')}${c.aprovEm?' '+esc(c.aprovEm):''}</td><td>${c.alerta?`<span class="tag err">${esc(c.alerta)}</span>`:(c.aprovacao==='aprovado'?'<span class="tag warn">aprovado, ainda não lançado no ERP</span>':'<span class="hint">ainda não aprovado</span>')}</td></tr>`).join('')}
+    </tbody></table></div>`;
+  m.innerHTML=h;
+}
 async function pastaEstado(email,papel){
   const pap=String(papel||'').toLowerCase().indexOf('controller')>=0?'CONTROLLER':'DO';
   try{const dir=await DB.get('root:'+String(email||'').toLowerCase());if(!dir)return {nome:'',permissao:'',caminho:'',papel:pap};
