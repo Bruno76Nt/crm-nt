@@ -1,4 +1,4 @@
-// CRM_NT · módulo AUTOS · autos.js · build 2026-10-28
+// CRM_NT · módulo AUTOS · autos.js · build 2026-10-29
 // A Consola de Autos v0.30 levantada para dentro do CRM_NT: o código da consola está aqui tal e qual
 // (gerado por build_autos.py a partir de consola_v0.30.html, com os patches assinalados P1–P13);
 // o CRM entra só onde a consola não podia: login (nome/papel), obras do CRM, tabela de subempreiteiros,
@@ -582,21 +582,39 @@ function acumInicialUI(i,esp,depois){
   const itens=(s.artigos[esp]||[]).map(it=>{const a=artigoPorItem(it)||(s.fora_orcamento||[]).find(f=>f.item===it);if(!a)return null;return {item:it,descricao:a.descricao,uni:a.uni,qtd:qtdAdj(s,it,esp)??a.qtd,preco:s.precos?.[it]?.[esp]??0};}).filter(Boolean);
   const dlg=$('#dlg');
   dlg.innerHTML=`<h3 style="margin-top:0">Acumulados anteriores — ${esc(s.nome)} / ${esp}</h3>
-    <p class="hint">Quantidades já executadas (e pagas) nos Autos 1 a ${n-1}, emitidos fora da consola. Entram na coluna H (ACUM. ANTERIOR) do Auto n.º ${n}; o Controller recebe o aviso de que foram introduzidas manualmente. Podem ser alteradas até à emissão do Auto n.º ${n}.</p>
+    <p class="hint">Quantidades já executadas (e pagas) nos Autos 1 a ${n-1}, emitidos fora da consola. Entram na coluna H (ACUM. ANTERIOR) do Auto n.º ${n}; o Controller recebe o aviso de que foram introduzidas manualmente. Podem ser alteradas até à emissão do Auto n.º ${n} — se o rascunho já existir, a coluna H é atualizada. Valores negativos são permitidos (correções a autos antigos) e ficam assinalados.</p>
     <div class="scroll" style="max-height:55vh"><table><thead><tr><th>Item</th><th>Descrição</th><th>Uni</th><th class="num">Qtd adj.</th><th class="num">Acumulado anterior</th><th class="num">Valor</th></tr></thead><tbody>
-    ${itens.map(x=>`<tr><td>${esc(x.item)}</td><td>${esc(x.descricao)}</td><td>${esc(x.uni)}</td><td class="num">${fmt(x.qtd)}</td><td class="num"><input type="number" step="0.01" min="0" class="acI" data-item="${esc(x.item)}" data-q="${x.qtd}" data-p="${x.preco}" value="${cur[x.item]??''}" style="width:110px"></td><td class="num acV" data-item="${esc(x.item)}">${fmt((cur[x.item]||0)*x.preco)}</td></tr>`).join('')}
+    ${itens.map(x=>`<tr><td>${esc(x.item)}</td><td>${esc(x.descricao)}</td><td>${esc(x.uni)}</td><td class="num">${fmt(x.qtd)}</td><td class="num"><input type="number" step="0.01" class="acI" data-item="${esc(x.item)}" data-q="${x.qtd}" data-p="${x.preco}" value="${cur[x.item]??''}" style="width:110px"></td><td class="num acV" data-item="${esc(x.item)}">${fmt((cur[x.item]||0)*x.preco)}</td></tr>`).join('')}
     </tbody></table></div>
     <div class="row" style="margin-top:8px"><b>Valor ao preço adjudicado: <span id="acTot">—</span></b><span class="sp" style="flex:1"></span><span id="acMsg" class="hint"></span></div>
     <div class="row"><label><span>Valor realmente faturado nos Autos 1 a ${n-1} (€, sem IVA)</span><input id="acFat" type="number" step="0.01" min="0" style="width:160px" value="${s.acum_inicial_valor?.[esp]??(S._sugFat??'')}"></label><span class="hint">Preenche se os Autos antigos foram pagos a preços diferentes dos adjudicados; a diferença entra na DR do Controller como ajuste. Vazio = igual ao valor ao preço adjudicado.</span></div>
     <div class="right" style="margin-top:8px"><button class="sec" id="dCancel">Cancelar</button><button id="dOk">Guardar acumulados</button></div>`;
-  const recalc=()=>{let tot=0,exc=0;dlg.querySelectorAll('.acI').forEach(inp=>{const v=+inp.value||0,p=+inp.dataset.p,q=+inp.dataset.q;tot+=v*p;dlg.querySelector(`.acV[data-item="${CSS.escape(inp.dataset.item)}"]`).textContent=fmt(v*p);const ex=v>q+1e-6;if(ex)exc++;inp.style.color=ex?'var(--err)':'';});
-    $('#acTot').textContent=fmt(tot)+' €';$('#acMsg').innerHTML=exc?`<span class="tag warn">${exc} artigo(s) acima da quantidade adjudicada</span>`:'';};
+  const recalc=()=>{let tot=0,exc=0,neg=0;dlg.querySelectorAll('.acI').forEach(inp=>{const v=+inp.value||0,p=+inp.dataset.p,q=+inp.dataset.q;tot+=v*p;dlg.querySelector(`.acV[data-item="${CSS.escape(inp.dataset.item)}"]`).textContent=fmt(v*p);const ex=v>q+1e-6;if(ex)exc++;if(v<0)neg++;inp.style.color=(ex||v<0)?'var(--err)':'';});
+    $('#acTot').textContent=fmt(tot)+' €';$('#acMsg').innerHTML=(exc?`<span class="tag warn">${exc} artigo(s) acima da quantidade adjudicada</span> `:'')+(neg?`<span class="tag warn">${neg} artigo(s) com acumulado negativo</span>`:'');};
   recalc();dlg.querySelectorAll('.acI').forEach(inp=>inp.oninput=recalc);
   dlg.showModal();$('#dCancel').onclick=()=>{dlg.close();if(depois)depois();};
-  $('#dOk').onclick=async()=>{const o={};let neg=false;dlg.querySelectorAll('.acI').forEach(inp=>{const v=inp.value===''?0:+inp.value;if(v<0)neg=true;if(v)o[inp.dataset.item]=r2(v);});
-    if(neg)return toast('Acumulados não podem ser negativos','err');
+  $('#dOk').onclick=async()=>{const o={};dlg.querySelectorAll('.acI').forEach(inp=>{const v=inp.value===''?0:+inp.value;if(v)o[inp.dataset.item]=r2(v);});
     const fat=$('#acFat').value;s.acum_inicial_valor=s.acum_inicial_valor||{};if(fat==='')delete s.acum_inicial_valor[esp];else{if(+fat<0)return toast('Valor faturado não pode ser negativo','err');s.acum_inicial_valor[esp]=r2(+fat);}
-    s.acum_inicial[esp]=o;s.acum_inicial_em=s.acum_inicial_em||{};s.acum_inicial_em[esp]=hoje();await guardarObra();dlg.close();toast('Acumulados anteriores guardados','ok');if(depois)depois();};
+    s.acum_inicial[esp]=o;s.acum_inicial_em=s.acum_inicial_em||{};s.acum_inicial_em[esp]=hoje();await guardarObra();
+    let extra='';try{const r=await atualizarHRascunho_(s,esp,o);if(r)extra=` · rascunho ${r.id} atualizado (coluna H em ${r.n} linha(s))`;}catch(e){console.error(e);extra=' · ATENÇÃO: não consegui atualizar o rascunho ('+e.message+') — apaga-o e cria de novo';}
+    dlg.close();toast('Acumulados anteriores guardados'+extra,extra.startsWith(' · ATENÇÃO')?'warn':'ok',extra?7000:undefined);if(depois)depois();};
+}
+// resultados das fórmulas da folha AUTO (G, I, K, L, M, N e totais) — para a consola poder alterar H ou J sem passar pelo Excel
+function recalcFolhaAuto_(ws){
+  const num=v=>{const x=(v&&typeof v==='object'&&'result' in v)?v.result:v;return (x==null||x===''||isNaN(x))?0:Number(x);};const setR=(cell,res)=>{const f=cell.formula;if(f)cell.value={formula:f,result:r2(res)};};
+  let tG=0,tI=0,tL=0,rTot=null;
+  for(let rr=LINHA_1;rr<=ws.rowCount;rr++){const k=String(cv(ws.getCell(rr,1))??'');if(!k){if(String(cv(ws.getCell(rr,3))??'').trim()==='TOTAIS'){rTot=rr;break;}continue;}if(k.startsWith('#'))continue;
+    const E=num(ws.getCell(rr,5).value),F=num(ws.getCell(rr,6).value),H=num(ws.getCell(rr,8).value),Jv=ws.getCell(rr,10).value;const Jn=(Jv&&typeof Jv==='object'&&Jv.formula)?num(Jv):num(Jv);
+    const G=E*F,I=H*F,K=H+Jn,L=Jn*F;setR(ws.getCell(rr,7),G);setR(ws.getCell(rr,9),I);setR(ws.getCell(rr,11),K);setR(ws.getCell(rr,12),L);setR(ws.getCell(rr,13),E-K);setR(ws.getCell(rr,14),E?K/E:0);tG+=G;tI+=I;tL+=L;}
+  if(rTot){setR(ws.getCell(rTot,7),tG);setR(ws.getCell(rTot,9),tI);setR(ws.getCell(rTot,12),tL);}
+}
+// acumulados iniciais alterados com o rascunho do 1.º Auto já criado: reescrever a coluna H desse rascunho
+async function atualizarHRascunho_(s,esp,acum){
+  if(!S.obraDir)return null;if(!S.autos)await listarAutos();const ras=rascunho(s.id,esp);if(!ras)return null;
+  const dir=await autosDir();const fh=await dir.getFileHandle(ras.id+'.xlsx');const f=await fh.getFile();const wb=new ExcelJS.Workbook();await wb.xlsx.load(await f.arrayBuffer());const ws=wb.getWorksheet('AUTO');if(!ws)return null;
+  let n=0;for(let rr=LINHA_1;rr<=ws.rowCount;rr++){const k=String(cv(ws.getCell(rr,1))??'');if(!k){if(String(cv(ws.getCell(rr,3))??'').trim()==='TOTAIS')break;continue;}if(k.startsWith('#'))continue;ws.getCell(rr,8).value=r2(acum[k]||0);n++;}
+  recalcFolhaAuto_(ws);
+  const buf=await wb.xlsx.writeBuffer();const w=await fh.createWritable();await w.write(buf);await w.close();return {id:ras.id,n};
 }
 function viewSubempreitadas(){
   const m=$('#main');const subs=S.obra.subempreiteiros;
@@ -985,7 +1003,7 @@ function htmlAutosSerie(s,esp){
   let h=`<div class="card"><div class="row" style="align-items:center;margin-bottom:6px"><b>${esp}</b><span class="tag">${nArt} artigos adjudicados</span>
     ${ras?`<span class="tag warn">rascunho ${ras.id} em curso</span>`
          :(nArt?`<button class="sm" data-novo="${s.id}|${esp}">Novo Auto n.º ${(s.proximo_auto?.[esp])||1}</button>${ult?`<button class="sec sm" data-subst="${ult.id}">Substitutivo do ${ult.numero}</button>`:''}`
-               :`<span class="hint">sem artigos adjudicados nesta especialidade — faça a adjudicação em Subempreitadas antes de criar Autos</span>`)}</div>`;
+               :`<span class="hint">sem artigos adjudicados nesta especialidade — faça a adjudicação em Subempreitadas antes de criar Autos</span>`)}${!ult&&(s.primeiro_auto?.[esp]||1)>1?`<button class="sec sm" data-acum="${s.id}|${esp}" title="Autos 1 a ${(s.primeiro_auto?.[esp]||1)-1} fora da consola: quantidades já pagas (entram na coluna H do 1.º Auto)">Acumulados anteriores…${s.acum_inicial?.[esp]?'':' <span class="tag warn">por introduzir</span>'}</button>`:''}</div>`;
   if(lst.length){h+=`<table><thead><tr><th>Auto</th><th>Estado</th><th>Data</th><th>Período</th><th class="num">Valor mês</th><th class="num">Acumulado</th><th>Avisos</th><th>Emitido em</th><th></th></tr></thead><tbody>`;
     for(const a of lst){const d=a.dados;
       h+=`<tr class="${a.estado==='SUBSTITUIDO'?'rem':''}"><td>${a.id}</td><td><span class="tag ${a.estado==='EMITIDO'?'ok':a.estado==='RASCUNHO'?'warn':''}">${a.estado}</span></td>
@@ -999,6 +1017,7 @@ function bindAutosActions(m){
   m.querySelectorAll('[data-novo]').forEach(b=>b.onclick=()=>novoAuto(...b.dataset.novo.split('|')));
   m.querySelectorAll('[data-subst]').forEach(b=>b.onclick=()=>novoSubstitutivo(b.dataset.subst));
   m.querySelectorAll('[data-emit]').forEach(b=>b.onclick=()=>emitirUI(b.dataset.emit));
+  m.querySelectorAll('[data-acum]').forEach(b=>b.onclick=()=>{const [sid,e]=b.dataset.acum.split('|');const i=S.obra.subempreiteiros.findIndex(x=>x.id===sid);if(i<0)return;acumInicialUI(i,e,()=>refreshAutos());});
   m.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(!confirm(`Apagar o rascunho ${b.dataset.del}.xlsx? As medições já escritas perdem‑se.`))return;(await autosDir()).removeEntry(b.dataset.del+'.xlsx');toast('Rascunho apagado');refreshAutos();});
   m.querySelectorAll('[data-ver]').forEach(b=>b.onclick=()=>verAuto(b.dataset.ver));
   m.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>abrirNoExcel(b.dataset.open));
