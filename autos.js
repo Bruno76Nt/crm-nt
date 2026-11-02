@@ -1,4 +1,4 @@
-// CRM_NT · módulo AUTOS · autos.js · build 2026-10-29
+// CRM_NT · módulo AUTOS · autos.js · build 2026-11-02
 // A Consola de Autos v0.30 levantada para dentro do CRM_NT: o código da consola está aqui tal e qual
 // (gerado por build_autos.py a partir de consola_v0.30.html, com os patches assinalados P1–P13);
 // o CRM entra só onde a consola não podia: login (nome/papel), obras do CRM, tabela de subempreiteiros,
@@ -286,12 +286,12 @@ async function abrirObra(nomePasta){
   const h=await S.root.getDirectoryHandle(nomePasta);
   let o=await FS.readJson(h,'obra.json');
   if(!o){const m=nomePasta.match(/^(\d+)[_ -]+(.*)$/);o=novaObra(m?m[1]:'',m?m[2].replace(/_/g,' '):nomePasta,25);await FS.writeJson(h,'obra.json',o);toast('obra.json criado a partir do nome da pasta','warn');}
-  S.obraDir=h;S.obra=o;S.orc=await FS.readJson(h,'orcamento.json');herdarOrcCRM_();
+  S.obraDir=h;S.obra=o;S.orc=await FS.readJson(h,'orcamento.json');herdarOrcCRM_();exec3dFlag_();
   S.papel=papelAtual();if(!S.ent)S.ent=await FS.readJson(S.root,'entidades.json');
   if(S.ent&&await ligarEntidades(o))await guardarObra();
   go(S.emb?(S.papel==='CONTROLLER'?'cautos':'obraautos'):(S.papel==='CONTROLLER'?'cautos':'orcamento'));
 }
-async function guardarObra(){S.obra.atualizado_em=hoje();await FS.writeJson(S.obraDir,'obra.json',S.obra);}
+async function guardarObra(){S.obra.atualizado_em=hoje();await FS.writeJson(S.obraDir,'obra.json',S.obra);try{if(S.exec3d)sincSubs3d_();}catch(e){}}
 
 /* ---------- orçamento: leitura do ficheiro ERP ---------- */
 const COLS_ERP=['Item','Descricao','Artigo','QtdContratada','UnMedida','PUVenda','PUCustoSubMont','PUCustoSubEmass','PUCustoSubPav','PUCustoSubOut'];
@@ -963,7 +963,7 @@ async function lerAutoXlsx(a){
   const totais={valor_anterior:r2(linhas.reduce((t,l)=>t+l.acum_anterior*l.preco,0)),valor_mes:r2(linhas.reduce((t,l)=>t+l.valor_mes,0)),valor_acumulado:r2(linhas.reduce((t,l)=>t+l.valor_acumulado,0))};
   if(inicial&&s.acum_inicial_valor?.[a.esp]!=null)totais.valor_anterior_faturado=r2(s.acum_inicial_valor[a.esp]);
   const dados={versao:1,consola:VERSAO,id:a.id,obra:{numero:S.obra.obra.numero,nome:S.obra.obra.nome},sub:a.sub,sub_nome:s.nome,especialidade:a.esp,numero:a.numero,substitutivo_de:a.S?nomeAuto(a.sub,a.esp,a.numero,false):null,
-    data_auto:dataStr,periodo,emitido_em:null,emitido_por:S.cfg?.nome||null,xlsx:{ficheiro:a.id+'.xlsx',sha256:await sha256(buf),tamanho:buf.byteLength},linhas,cabecalhos_livres:cab,colunas_livres:colsL,totais,avisos,estado:'EMITIDO'};
+    data_auto:dataStr,periodo,emitido_em:null,emitido_por:S.cfg?.nome||null,xlsx:{ficheiro:a.id+'.xlsx',sha256:await sha256(buf),tamanho:buf.byteLength},linhas,cabecalhos_livres:cab,colunas_livres:colsL,totais,avisos:avisos.concat(((S.obra.exec3d&&S.obra.exec3d[a.id]&&S.obra.exec3d[a.id].avisos)||[]).map(v=>({codigo:v.codigo,item:v.item,msg:(v.codigo==='QUANTIDADE_HERDADA'?'Quantidade herdada de '+v.de:'Adjudicação reduzida — passou para '+v.para)+' ('+Math.abs(v.qtd||0)+')'+(v.motivo?' · '+v.motivo:'')}))),estado:'EMITIDO',medicao_3d:(S.obra.exec3d&&S.obra.exec3d[a.id])?{em:S.obra.exec3d[a.id].em,lotes:S.obra.exec3d[a.id].lotes,linhas:S.obra.exec3d[a.id].linhas}:null};
   return {bloq,avisos,dados};
 }
 async function emitirAuto(a,dados){
@@ -971,6 +971,11 @@ async function emitirAuto(a,dados){
   const dir=await autosDir();await FS.writeJson(dir,a.id+'.json',dados);
   const s=S.obra.subempreiteiros.find(x=>x.id===a.sub);
   if(!a.S){s.proximo_auto=s.proximo_auto||{};s.proximo_auto[a.esp]=a.numero+1;await guardarObra();}
+  // 3D-2b: o auto levou medições enviadas do 3D → a consola converte-as no auto n (em cada modelo)
+  const m3=S.obra.exec3d&&S.obra.exec3d[a.id];
+  if(m3&&CRM.exec3dEmitir&&!m3.emitido_crm){let nr=0;const er=[];for(const mid of (m3.modelos||[null])){try{const r=await CRM.exec3dEmitir(String(S.obra.obra.numero),{modelo_id:mid,sub_codigo:m3.sub_codigo,especialidade:m3.especialidade,n:a.numero});if(r&&r.ok)nr+=r.n_registos||0;else er.push(r?r.erro:'sem resposta');}catch(e){er.push(e.message);}}
+    if(!er.length){m3.emitido_crm=hoje();toast(`V3D: medições convertidas no auto n.º ${a.numero} (${nr} fase(s))`,'ok',5000);}else toast('V3D: não converteu no CRM_NT — '+er.join(' · ')+'. Volta a emitir mais tarde.','warn',9000);
+    await guardarObra();}
 }
 
 /* ---------- abrir no Excel ---------- */
@@ -1002,21 +1007,92 @@ function htmlAutosSerie(s,esp){
   const lst=serie(s.id,esp);const ras=rascunho(s.id,esp);const ult=ultimoEmitido(s.id,esp);const nArt=(s.artigos?.[esp]||[]).length;
   let h=`<div class="card"><div class="row" style="align-items:center;margin-bottom:6px"><b>${esp}</b><span class="tag">${nArt} artigos adjudicados</span>
     ${ras?`<span class="tag warn">rascunho ${ras.id} em curso</span>`
-         :(nArt?`<button class="sm" data-novo="${s.id}|${esp}">Novo Auto n.º ${(s.proximo_auto?.[esp])||1}</button>${ult?`<button class="sec sm" data-subst="${ult.id}">Substitutivo do ${ult.numero}</button>`:''}`
+         :(S.exec3d?`<button class="sec sm" data-v3d="${s.id}|${esp}" title="adjudicação e medições desta série no 3D">3D…</button>`:'')+(nArt?`<button class="sm" data-novo="${s.id}|${esp}">Novo Auto n.º ${(s.proximo_auto?.[esp])||1}</button>${ult?`<button class="sec sm" data-subst="${ult.id}">Substitutivo do ${ult.numero}</button>`:''}`
                :`<span class="hint">sem artigos adjudicados nesta especialidade — faça a adjudicação em Subempreitadas antes de criar Autos</span>`)}${!ult&&(s.primeiro_auto?.[esp]||1)>1?`<button class="sec sm" data-acum="${s.id}|${esp}" title="Autos 1 a ${(s.primeiro_auto?.[esp]||1)-1} fora da consola: quantidades já pagas (entram na coluna H do 1.º Auto)">Acumulados anteriores…${s.acum_inicial?.[esp]?'':' <span class="tag warn">por introduzir</span>'}</button>`:''}</div>`;
   if(lst.length){h+=`<table><thead><tr><th>Auto</th><th>Estado</th><th>Data</th><th>Período</th><th class="num">Valor mês</th><th class="num">Acumulado</th><th>Avisos</th><th>Emitido em</th><th></th></tr></thead><tbody>`;
     for(const a of lst){const d=a.dados;
       h+=`<tr class="${a.estado==='SUBSTITUIDO'?'rem':''}"><td>${a.id}</td><td><span class="tag ${a.estado==='EMITIDO'?'ok':a.estado==='RASCUNHO'?'warn':''}">${a.estado}</span></td>
         <td>${d?d.data_auto:''}</td><td>${d?d.periodo:''}</td><td class="num">${d?eur(d.totais.valor_mes):''}</td><td class="num">${d?eur(d.totais.valor_acumulado):''}</td>
         <td>${d&&d.avisos.length?`<span class="tag warn">${d.avisos.length}</span>`:''}</td><td>${d?new Date(d.emitido_em).toLocaleString('pt-PT'):''}</td>
-        <td style="white-space:nowrap"><button class="sec sm" data-open="${a.id}">Excel</button><button class="sec sm" data-copy="${a.id}" title="copiar caminho">⧉</button>${d?`<button class="sec sm" data-ver="${a.id}">ver</button>`:`<button class="sm" data-emit="${a.id}">Emitir</button><button class="sm danger" data-del="${a.id}">Apagar</button>`}</td></tr>`;}
+        <td style="white-space:nowrap"><button class="sec sm" data-open="${a.id}">Excel</button><button class="sec sm" data-copy="${a.id}" title="copiar caminho">⧉</button>${d?`<button class="sec sm" data-ver="${a.id}">ver</button>`:`${S.exec3d?`<button class="sec sm" data-m3d="${a.id}" title="preencher a coluna J com as medições que o DO enviou do 3D">Medição do 3D</button>`:''}<button class="sm" data-emit="${a.id}">Emitir</button><button class="sm danger" data-del="${a.id}">Apagar</button>`}${S.obra.exec3d&&S.obra.exec3d[a.id]&&!d?`<span class="tag ok" title="coluna J preenchida a partir do 3D">3D</span>`:''}</td></tr>`;}
     h+=`</tbody></table>`;}
   return h+'</div>';
+}
+// ===== 3D-2b · ligação ao V3D =====
+const v3dCod_=s=>String(s&&(s.codigo_erp||s.id)||'');
+async function exec3dFlag_(){S.exec3d=false;S.e3=null;try{const cod=String(S.obra&&S.obra.obra.numero||'');if(!cod||!CRM.exec3dFlag)return;const r=await CRM.exec3dFlag(cod);S.exec3d=!!(r&&r.ok&&r.ativo);
+  if(S.exec3d){await sincSubs3d_(true);await carregarE3_();if(S.view==='subs'||S.view==='envios'||S.view==='autos')refreshAutos();}}catch(e){S.exec3d=false;}}
+async function carregarE3_(){try{const r=await CRM.exec3dConsola(String(S.obra.obra.numero));S.e3=r&&r.ok?r:null;}catch(e){S.e3=null;}return S.e3;}
+let _sinc3dT=null;
+function sincSubs3d_(ja){if(!S.exec3d||!CRM.exec3dSubsSync)return Promise.resolve();if(ja)return sinc3dAgora_();clearTimeout(_sinc3dT);_sinc3dT=setTimeout(sinc3dAgora_,700);return Promise.resolve();}
+async function sinc3dAgora_(){if(!S.exec3d||!S.obra)return;
+  const subs=[];for(const s of (S.obra.subempreiteiros||[]))for(const e of (s.especialidades||[]))subs.push({sub_codigo:v3dCod_(s),sub_nome:s.nome,especialidade:e});
+  try{const r=await CRM.exec3dSubsSync(String(S.obra.obra.numero),{subs});if(r&&r.mantidos&&r.mantidos.length)toast('V3D: '+r.mantidos.length+' série(s) mantidas no 3D (têm adjudicações ou medições): '+r.mantidos.map(x=>x.sub_codigo+' · '+x.especialidade).join(', '),'warn',7000);}catch(e){}}
+function e3Serie_(subCod,esp){const k=subCod+'|'+esp;const out={series:[],pend:[]};((S.e3&&S.e3.modelos)||[]).forEach(m=>{(m.series||[]).forEach(x=>{if(x.key===k)out.series.push(Object.assign({modelo_id:m.modelo_id},x));});(m.pendentes||[]).forEach(x=>{if(x.key===k)out.pend.push(Object.assign({modelo_id:m.modelo_id},x));});});return out;}
+async function dlg3dSerie_(sid,esp){
+  const s=S.obra.subempreiteiros.find(x=>x.id===sid);if(!s)return;const dlg=$('#dlg');const subCod=v3dCod_(s);
+  dlg.innerHTML=`<h3 style="margin-top:0">3D · ${esc(s.nome)} · ${esp}</h3><div class="muted">a pedir ao CRM_NT…</div>`;dlg.showModal();await carregarE3_();
+  const E=e3Serie_(subCod,esp);const arts={};E.series.forEach(x=>x.artigos.forEach(l=>{const a=arts[l.item]=arts[l.item]||{item:l.item,un:l.unidade,adj:0,pago:0,env:0,prep:0,avisos:[]};a.adj+=l.adjudicado;a.pago+=l.pago;a.env+=l.enviado;a.prep+=l.por_enviar;a.avisos=a.avisos.concat(l.avisos||[]);}));
+  const L=Object.values(arts).sort((a,b)=>a.item.localeCompare(b.item,'pt',{numeric:true}));
+  const precoDe=(cod,item)=>{const o=S.obra.subempreiteiros.find(x=>v3dCod_(x)===cod);return o&&o.precos&&o.precos[item]?o.precos[item][esp]:null;};
+  const rows=L.map(a=>{const cons=Number(s.qtds?.[a.item]?.[esp]||0);const her=a.avisos.filter(x=>x.tipo==='herdado');const p=s.precos?.[a.item]?.[esp];const prop=p==null&&her.length?precoDe(her[0].de,a.item):null;
+    return {a,cons,dif:r2(a.adj-cons),her,p,prop};});
+  const pend=E.pend.reduce((t,x)=>t+x.lotes.length,0);
+  dlg.innerHTML=`<h3 style="margin-top:0">3D · ${esc(s.nome)} · ${esp} <span class="tag">${esc(subCod)}</span></h3>
+    <p class="hint">Adjudicado no V3D (quantidade congelada, sem preços) comparado com o adjudicado nesta consola. Os preços são sempre os da consola.</p>
+    ${L.length?`<table><thead><tr><th>Item</th><th class="num">Adjudicado 3D</th><th class="num">Na consola</th><th class="num">Diferença</th><th class="num">Em auto</th><th class="num">Enviado</th><th>Avisos</th><th class="num">Preço</th></tr></thead><tbody>
+    ${rows.map(r=>`<tr><td>${esc(r.a.item)}</td><td class="num">${fmt(r.a.adj)} ${esc(r.a.un||'')}</td><td class="num">${fmt(r.cons)}</td><td class="num">${Math.abs(r.dif)>0.005?`<b>${r.dif>0?'+':''}${fmt(r.dif)}</b>`:'—'}</td><td class="num">${fmt(r.a.pago)}</td><td class="num">${fmt(r.a.env)}</td>
+      <td>${r.a.avisos.map(x=>`<span class="tag ${x.tipo==='herdado'?'':'warn'}">${x.tipo==='herdado'?'herdado de '+esc(x.de):x.tipo==='transferido'?'passou para '+esc(x.para):x.tipo}${x.qtd?' '+fmt(Math.abs(x.qtd)):''}${x.motivo?' · '+esc(x.motivo):''}</span>`).join(' ')}</td>
+      <td class="num">${r.p!=null?fmt(r.p):r.her.length?`<input class="p3d" data-item="${esc(r.a.item)}" type="number" step="0.01" style="width:90px" value="${r.prop!=null?r.prop:''}" placeholder="preço">${r.prop!=null?'<div class="hint">proposto: o do '+esc(r.her[0].de)+'</div>':''}`:'<span class="hint">sem preço</span>'}</td></tr>`).join('')}
+    </tbody></table>`:`<div class="msg warn">Nada adjudicado no 3D a esta série.</div>`}
+    ${pend?`<div class="msg ok">${pend} medição(ões) enviada(s) do 3D à espera de auto — abre o rascunho e usa «Medição do 3D».</div>`:''}
+    <div class="right"><button class="sec" id="dCancel">Fechar</button>${rows.some(r=>Math.abs(r.dif)>0.005)?`<button id="dOk">Usar as quantidades do 3D na consola</button>`:''}</div>`;
+  $('#dCancel').onclick=()=>dlg.close();
+  if($('#dOk'))$('#dOk').onclick=async()=>{s.qtds=s.qtds||{};s.artigos=s.artigos||{};s.artigos[esp]=s.artigos[esp]||[];s.precos=s.precos||{};
+    for(const r of rows){s.qtds[r.a.item]=s.qtds[r.a.item]||{};s.qtds[r.a.item][esp]=r2(r.a.adj);if(r.a.adj>0&&!s.artigos[esp].includes(r.a.item))s.artigos[esp].push(r.a.item);}
+    dlg.querySelectorAll('.p3d').forEach(i=>{if(i.value!==''){const it=i.dataset.item;s.precos[it]=s.precos[it]||{};s.precos[it][esp]=+i.value;}});
+    await guardarObra();dlg.close();toast('Adjudicado da consola atualizado a partir do 3D','ok',5000);refreshAutos();};
+}
+async function medicao3dUI(id){
+  const a=S.autos.find(x=>x.id===id);if(!a)return;const s=S.obra.subempreiteiros.find(x=>x.id===a.sub);const dlg=$('#dlg');
+  const subCod=v3dCod_(s);
+  dlg.innerHTML=`<h3 style="margin-top:0">Medição do 3D → ${id}</h3><div class="muted">a pedir ao CRM_NT as medições enviadas do 3D…</div>`;dlg.showModal();
+  await carregarE3_();const E=e3Serie_(subCod,a.esp);
+  if(!S.e3){dlg.innerHTML=`<h3 style="margin-top:0">Medição do 3D → ${id}</h3><div class="msg err">Sem resposta do CRM_NT.</div><div class="right"><button id="dCancel">Fechar</button></div>`;$('#dCancel').onclick=()=>dlg.close();return;}
+  if(!E.pend.length){dlg.innerHTML=`<h3 style="margin-top:0">Medição do 3D → ${id}</h3><div class="msg warn">O DO ainda não enviou medições do 3D para ${esc(s?s.nome:subCod)} · ${a.esp}. No 3D da obra: separador Subempreiteiros › cartão do sub › «Enviar para a consola».</div><div class="right"><button id="dCancel">Fechar</button></div>`;$('#dCancel').onclick=()=>dlg.close();return;}
+  const porItem={};const avisos=[];E.pend.forEach(p=>(p.linhas||[]).forEach(l=>{const x=porItem[String(l.item)]=porItem[String(l.item)]||{item:String(l.item),total:0,ajuste:0,un:l.unidade||'',n_fases:0};x.total+=Number(l.total||0);x.ajuste+=Number(l.ajuste||0);x.n_fases+=Number(l.n_fases||0);(l.avisos||[]).forEach(v=>avisos.push(Object.assign({item:l.item},v)));}));
+  const dir=await autosDir();const fh=await dir.getFileHandle(a.id+'.xlsx');const f=await fh.getFile();const wb=new ExcelJS.Workbook();await wb.xlsx.load(await f.arrayBuffer());const ws=wb.getWorksheet('AUTO');
+  if(!ws){dlg.innerHTML=`<h3>Medição do 3D</h3><div class="msg err">O rascunho não tem a folha AUTO.</div><div class="right"><button id="dCancel">Fechar</button></div>`;$('#dCancel').onclick=()=>dlg.close();return;}
+  const plano=[];const semLinha=[];const resto=Object.assign({},porItem);
+  for(let rr=LINHA_1;rr<=ws.rowCount;rr++){const k=String(cv(ws.getCell(rr,1))??'');if(!k||k.startsWith('#'))continue;const l=resto[k];if(!l)continue;
+    const E2=Number(cv(ws.getCell(rr,5))||0),H=Number(cv(ws.getCell(rr,8))||0);const cap=Math.max(0,r2(E2-H));const este=r2(l.total);const fat=E2>0?Math.min(este,cap):este;const exc=r2(este-fat);
+    plano.push({rr,item:k,este,fat,exc,ajuste:r2(l.ajuste),un:l.un,n_fases:l.n_fases,J:cv(ws.getCell(rr,10))});delete resto[k];}
+  for(const k of Object.keys(resto))semLinha.push(k);
+  const jaTem=plano.filter(p=>p.J!=null&&p.J!=='').length;const lotes=E.pend.reduce((t,x)=>t.concat(x.lotes),[]);
+  dlg.innerHTML=`<h3 style="margin-top:0">Medição do 3D → ${id}</h3>
+    <p class="hint">${lotes.length} medição(ões) enviada(s) do 3D (${lotes.map(l=>esc(String(l.quando||'').slice(0,10).split('-').reverse().join('/'))+' · '+esc(l.quem||'')).join('; ')}). Quantidade equivalente = Σ qtd do elemento × % das fases medidas. A coluna J fica limitada ao adjudicado (E − H); o excesso fica registado.</p>
+    <table><thead><tr><th>Item</th><th class="num">Do 3D</th><th class="num">Escrito em J</th><th class="num">Excesso</th><th>Notas</th></tr></thead><tbody>
+    ${plano.map(p=>`<tr><td>${esc(p.item)}</td><td class="num">${fmt(p.este)} ${esc(p.un)}</td><td class="num"><b>${fmt(p.fat)}</b></td><td class="num">${p.exc>0.005?`<span class="tag warn">${fmt(p.exc)}</span>`:''}</td><td>${p.ajuste?`<span class="tag">ajuste ${p.ajuste>0?'+':''}${fmt(p.ajuste)} (fases revistas)</span> `:''}${p.J!=null&&p.J!==''?` <span class="tag">J tinha ${esc(String(typeof p.J==='object'?'fórmula':p.J))}</span>`:''}</td></tr>`).join('')}
+    </tbody></table>
+    ${avisos.length?`<div class="msg warn">${avisos.map(v=>`${esc(v.item)}: ${v.codigo==='QUANTIDADE_HERDADA'?'quantidade herdada de '+esc(v.de):v.codigo==='ADJUDICACAO_REDUZIDA'?'adjudicação reduzida (passou para '+esc(v.para)+')':esc(v.codigo)} ${fmt(Math.abs(v.qtd||0))}${v.motivo?' · '+esc(v.motivo):''}`).join('<br>')}</div>`:''}
+    ${semLinha.length?`<div class="msg warn">Medido no 3D mas sem linha neste auto (artigo não adjudicado a este subempreiteiro nesta especialidade): ${semLinha.map(esc).join(', ')} — usa «3D…» na série para atualizar o adjudicado.</div>`:''}
+    ${jaTem?`<div class="msg warn">${jaTem} linha(s) já tinham valor em J — vão ser substituídas pelo 3D.</div>`:''}
+    <div class="right"><button class="sec" id="dCancel">Cancelar</button><button id="dOk">Escrever J e guardar o rascunho</button></div>`;
+  $('#dCancel').onclick=()=>dlg.close();
+  $('#dOk').onclick=async()=>{try{
+    for(const p of plano){const J=ws.getCell(p.rr,10);J.value=p.fat;J.protection={locked:false};}
+    recalcFolhaAuto_(ws);
+    const buf=await wb.xlsx.writeBuffer();const w=await fh.createWritable();await w.write(buf);await w.close();
+    S.obra.exec3d=S.obra.exec3d||{};S.obra.exec3d[a.id]={sub_codigo:subCod,especialidade:a.esp,n:a.numero,em:hoje(),modelos:[...new Set(E.pend.map(x=>x.modelo_id))],lotes:lotes.map(l=>l.id),avisos,linhas:plano.map(p=>({item:p.item,este:p.este,fat:p.fat,exc:p.exc,ajuste:p.ajuste}))};await guardarObra();
+    dlg.close();toast(`${id}: coluna J preenchida a partir do 3D em ${plano.length} linha(s)${semLinha.length?` · ${semLinha.length} artigo(s) sem linha`:''}`,'ok',6000);refreshAutos();
+  }catch(e){toast('Erro a escrever o rascunho: '+e.message,'err');console.error(e);}};
 }
 function bindAutosActions(m){
   m.querySelectorAll('[data-novo]').forEach(b=>b.onclick=()=>novoAuto(...b.dataset.novo.split('|')));
   m.querySelectorAll('[data-subst]').forEach(b=>b.onclick=()=>novoSubstitutivo(b.dataset.subst));
   m.querySelectorAll('[data-emit]').forEach(b=>b.onclick=()=>emitirUI(b.dataset.emit));
+  m.querySelectorAll('[data-m3d]').forEach(b=>b.onclick=()=>medicao3dUI(b.dataset.m3d));
+  m.querySelectorAll('[data-v3d]').forEach(b=>b.onclick=()=>{const [sid,e]=b.dataset.v3d.split('|');dlg3dSerie_(sid,e);});
   m.querySelectorAll('[data-acum]').forEach(b=>b.onclick=()=>{const [sid,e]=b.dataset.acum.split('|');const i=S.obra.subempreiteiros.findIndex(x=>x.id===sid);if(i<0)return;acumInicialUI(i,e,()=>refreshAutos());});
   m.querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{if(!confirm(`Apagar o rascunho ${b.dataset.del}.xlsx? As medições já escritas perdem‑se.`))return;(await autosDir()).removeEntry(b.dataset.del+'.xlsx');toast('Rascunho apagado');refreshAutos();});
   m.querySelectorAll('[data-ver]').forEach(b=>b.onclick=()=>verAuto(b.dataset.ver));
@@ -1304,7 +1380,9 @@ function crmAdapter_(callSec){const c=(fn,...a)=>Promise.resolve().then(()=>call
   enviar:(env,x)=>c('autosEnviar',env,x),envios:()=>c('autosEnviosRecebidos'),descarregar:(id,x)=>c('autosDescarregarEnvio',id,!!x),marcarImportado:(id,r)=>c('autosMarcarImportado',id,r),
   aprovar:(cod,id,ok,m)=>c('autosAprovar',cod,id,ok,m),registarERP:(cod,id,doc)=>c('autosRegistarERP',cod,id,doc),registarEnvioSub:(cod,id)=>c('autosRegistarEnvioSub',cod,id),
   estadoObra:(cod)=>c('autosEstadoObra',cod),fluxo:()=>c('autosFluxo'),erpAutosSub:(cod)=>c('erpAutosSubObra',cod),
-  orcConsola:(cod)=>c('orcConsola',cod)};}
+  orcConsola:(cod)=>c('orcConsola',cod),
+  // 3D-2b · V3D (só usado quando exec3dFlag diz que a obra tem a flag)
+  exec3dFlag:(cod)=>c('exec3dFlag',cod),exec3dConsola:(cod)=>c('exec3dConsola',cod),exec3dEmitir:(cod,o)=>c('exec3dEmitir',cod,o),exec3dSubsSync:(cod,o)=>c('exec3dSubsSync',cod,o)};}
 // ---- orçamento do CRM_NT (fonte única): carregar a versão corrente para a pasta da obra (cache local = orcamento.json) ----
 async function carregarOrcCRM_(silencioso){
   const msg=silencioso?null:$('#impMsg');if(msg)msg.innerHTML='<div class="msg">a pedir o orçamento ao CRM_NT…</div>';
