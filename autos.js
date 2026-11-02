@@ -1746,7 +1746,12 @@ async function importarERPAdmin_(file){
     if(map.codigo<0||map.nome<0||map.nif<0)return toast('Código, Subempreiteiro e NIF são obrigatórios','warn');
     const linhas=t.rows.map(r=>({codigo:String(r[map.codigo]??'').trim(),nome:String(r[map.nome]??'').trim(),nif:String(r[map.nif]??'').trim(),pais:map.pais>=0?String(r[map.pais]??'').trim():''})).filter(l=>l.codigo&&l.nome);
     $('#dOk').disabled=true;const x=await CRM.subsImportar(linhas);if(!x||x.erro){$('#dOk').disabled=false;return toast(x&&x.erro||'erro','err');}
-    dlg.close();toast(`Importado: ${x.novos} novo(s), ${x.atualizados} atualizado(s), ${x.ignorados} ignorado(s) (NIF não PT), ${x.semNif} sem NIF`,'ok');await sincEnt_();viewAdminConfig();};
+    const res=`Importado: ${x.novos} novo(s), ${x.atualizados} atualizado(s), ${x.ligados||0} provisório(s) ligado(s) ao ERP, ${x.ignorados} ignorado(s) (NIF não PT), ${x.semNif} sem NIF`;
+    if(!(x.conflitos||[]).length){dlg.close();toast(res,'ok',7000);await sincEnt_();viewAdminConfig();return;}
+    dlg.innerHTML=`<h3 style="margin-top:0">Importação feita — ${x.n_conflitos||x.conflitos.length} linha(s) por resolver</h3><p>${esc(res)}.</p><p class="hint">Estas linhas não entraram porque o NIF já existe na tabela do CRM_NT com outro código. Verifica no ERP se o fornecedor está duplicado (dois códigos com o mesmo NIF); as restantes linhas entraram normalmente.</p>
+      <div class="scroll" style="max-height:45vh"><table><thead><tr><th>Código ERP</th><th>Subempreiteiro</th><th>NIF</th><th>Já existe como</th><th>Motivo</th></tr></thead><tbody>${x.conflitos.map(c=>`<tr><td>${esc(c.codigo)}</td><td>${esc(c.nome)}</td><td>${esc(c.nif)}</td><td>${esc(c.existente||'')} ${esc(c.existente_nome||'')}</td><td class="hint">${esc(c.motivo||'')}</td></tr>`).join('')}</tbody></table></div>
+      <div class="right" style="margin-top:8px"><button id="dFim">Fechar</button></div>`;
+    $('#dFim').onclick=async()=>{dlg.close();await sincEnt_();viewAdminConfig();};};
 }
 
 /* ---------- montagem no CRM_NT ---------- */
