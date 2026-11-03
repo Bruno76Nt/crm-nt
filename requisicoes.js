@@ -37,7 +37,7 @@ function guiaProposta(l){ var q=Number(l.qtd_aprovada)||0; if(/^placa/i.test(l.c
 function reduzFoto(file){ return new Promise(function(res,rej){ var fr=new FileReader(); fr.onerror=rej; fr.onload=function(){ var im=new Image(); im.onerror=rej; im.onload=function(){ var M=1600, k=Math.min(1,M/Math.max(im.width,im.height)); var c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k); c.getContext('2d').drawImage(im,0,0,c.width,c.height); res(c.toDataURL('image/jpeg',0.7)); }; im.src=fr.result; }; fr.readAsDataURL(file); }); }
 
 // ======================= separador da obra =======================
-function abrevDesc(d){ return String(d||'').replace(/\s*\bLM\d+\b/g,'').replace(/(\bM\d+)\/\d+/g,'$1').replace(/\s*\+\s*/g,'+').replace(/\s{2,}/g,' ').trim(); }
+function abrevDesc(d){var s=String(d||'').replace(/\s+/g,' ').trim();var m=s.match(/^([^a-zà-ÿ]{6,}?)\s+(?=[A-ZÀ-Ý][a-zà-ÿ])/);if(m)s=m[1];else{var k=s.search(/\s(?:Fornecimento|Execução|Execucao|Aplicação|Aplicacao|Maior valia|Inclui|Inclusive|Revestimento|Constituíd|Formad)/);if(k>6)s=s.slice(0,k);}s=s.replace(/\s*\bLM\d+\b(?=\s*(?:\+|$))/g,'').replace(/(\bM\d+)\/\d+/g,'$1').replace(/\s*\+\s*/g,'+').replace(/\s{2,}/g,' ').trim();if(s.length>60)s=s.slice(0,58).trim()+'…';return s;}
 var FAMS=['Estrutura','Placas','Isolamento','Outros'], FAM_DE={canal:'Estrutura',montante:'Estrutura',tecto:'Estrutura',perfil:'Estrutura',estrutura:'Estrutura',placa:'Placas',placas:'Placas',isolamento:'Isolamento'};
 function obra(el, cod, opts){
   css_(); opts=opts||{}; var call=opts.callSec; var S={cod:cod,filtro:'vivas',vista:'lista',sel:null,nova:null,arv:null,modo:'3d',rec:null,d:null};
