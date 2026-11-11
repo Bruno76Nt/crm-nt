@@ -1,4 +1,4 @@
-// CRM_NT · módulo AUTOS · autos.js · build 2026-11-11 (AU-20: substitutivo com versões — S = v1, S2 = v2, S3 = v3…)
+// CRM_NT · módulo AUTOS · autos.js · build 2026-11-11 (AU-20b: substitutivo com versões — S = v1, S2 = v2, S3 = v3…)
 // A Consola de Autos v0.30 levantada para dentro do CRM_NT: o código da consola está aqui tal e qual
 // (gerado por build_autos.py a partir de consola_v0.30.html, com os patches assinalados P1–P13);
 // o CRM entra só onde a consola não podia: login (nome/papel), obras do CRM, tabela de subempreiteiros,
@@ -274,7 +274,7 @@ async function ligarEntidades(o){let n=0;for(const s of (o.subempreiteiros||[]))
 async function resumoObra(h,o){
   const r={emitidos:0,rascunhos:0,exec:0,adj:0,ultimoPer:null};if(!o)return r;
   try{const ad=await h.getDirectoryHandle('autos');const xl=new Set(),js={};for await(const [n,fh] of ad.entries()){const m=n.match(RE_AUTO);if(!m||fh.kind!=='file')continue;const id=n.replace(/\.(xlsx|json)$/,'');if(m[5]==='xlsx')xl.add(id);else js[id]=fh;}
-    const porSerie={};for(const id of Object.keys(js)){const d=JSON.parse(await (await js[id].getFile()).text());r.emitidos++;const k=d.sub+'|'+d.especialidade;const S_=d.substitutivo_de?1:0;
+    const porSerie={};for(const id of Object.keys(js)){const d=JSON.parse(await (await js[id].getFile()).text());r.emitidos++;const k=d.sub+'|'+d.especialidade;const S_=versaoS((id.match(/_\d{3}(S\d*)?$/)||[])[1]);   // AU-20b: a versão (0 original · 1 S · 2 S2…)
       const cur=porSerie[k];if(!cur||d.numero>cur.numero||(d.numero===cur.numero&&S_>cur.S_))porSerie[k]={numero:d.numero,S_,v:d.totais?.valor_acumulado||0};if(!r.ultimoPer||d.periodo>r.ultimoPer)r.ultimoPer=d.periodo;}
     for(const id of xl)if(!js[id])r.rascunhos++;
     r.exec=Object.values(porSerie).reduce((t,x)=>t+x.v,0);}catch(e){}
