@@ -1,4 +1,4 @@
-// CRM_NT · módulo AUTOS · autos.js · build 2026-11-04
+// CRM_NT · módulo AUTOS · autos.js · build 2026-11-11 (AU-20: substitutivo com versões — S = v1, S2 = v2, S3 = v3…)
 // A Consola de Autos v0.30 levantada para dentro do CRM_NT: o código da consola está aqui tal e qual
 // (gerado por build_autos.py a partir de consola_v0.30.html, com os patches assinalados P1–P13);
 // o CRM entra só onde a consola não podia: login (nome/papel), obras do CRM, tabela de subempreiteiros,
@@ -693,11 +693,13 @@ function selSub(i){
    ========================================================= */
 const COL_LIVRE=15;                // O = 1.ª coluna livre
 const LINHA_1=17;                  // 1.ª linha de artigos
-const RE_AUTO=/^(.+)_(MONTAGEM|MASSAS|PAVIMENTOS)_(\d{3})(S?)\.(xlsx|json)$/;
+const RE_AUTO=/^(.+)_(MONTAGEM|MASSAS|PAVIMENTOS)_(\d{3})(S|S[2-9]|S[1-9]\d)?\.(xlsx|json)$/;   // AU-20: S = substitutivo v1, S2 = v2…
+function versaoS(suf){return !suf?0:(suf==='S'?1:(+String(suf).slice(1)||1));}   // '' → 0 (original) · 'S' → 1 · 'S2' → 2
+function sufS(v){v=+v||0;return v<=0?'':(v===1?'S':'S'+v);}
 function colL(n){let s='';while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26);}return s;}
 function colN(s){let n=0;for(const c of s)n=n*26+(c.charCodeAt(0)-64);return n;}
 function pad3(n){return String(n).padStart(3,'0');}
-function nomeAuto(sub,esp,n,S){return `${sub}_${esp}_${pad3(n)}${S?'S':''}`;}
+function nomeAuto(sub,esp,n,S){return `${sub}_${esp}_${pad3(n)}${sufS(S===true?1:S)}`;}   // S: false/0 = original · true/1 = S · 2 = S2…
 function ymd(d){return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');}
 function periodoDe(dataStr,diaFecho){const [y,m,d]=dataStr.split('-').map(Number);let yy=y,mm=m;if(d>diaFecho){mm++;if(mm>12){mm=1;yy++;}}return `${yy}-${String(mm).padStart(2,'0')}`;}
 function proximoFecho(diaFecho){const t=new Date();let y=t.getFullYear(),m=t.getMonth();if(t.getDate()>diaFecho){m++;if(m>11){m=0;y++;}}const ult=new Date(Date.UTC(y,m+1,0)).getUTCDate();return new Date(Date.UTC(y,m,Math.min(diaFecho,ult)));}
@@ -740,7 +742,7 @@ async function listarAutos(){
   const dir=await autosDir();const map={};
   for await(const [name,h] of dir.entries()){
     const m=name.match(RE_AUTO);if(!m||h.kind!=='file')continue;
-    const id=`${m[1]}_${m[2]}_${m[3]}${m[4]}`;map[id]=map[id]||{id,sub:m[1],esp:m[2],numero:+m[3],S:!!m[4],xlsx:null,json:null};
+    const id=`${m[1]}_${m[2]}_${m[3]}${m[4]||''}`;map[id]=map[id]||{id,sub:m[1],esp:m[2],numero:+m[3],S:!!m[4],V:versaoS(m[4]),xlsx:null,json:null};
     if(m[5]==='xlsx')map[id].xlsx=h;else map[id].json=h;
   }
   const out=[];
@@ -750,9 +752,9 @@ async function listarAutos(){
     else continue;
     out.push(a);
   }
-  // substituído: existe json de <id>S
-  for(const a of out)if(!a.S&&a.estado==='EMITIDO'&&out.find(b=>b.S&&b.json&&b.sub===a.sub&&b.esp===a.esp&&b.numero===a.numero))a.estado='SUBSTITUIDO';
-  out.sort((a,b)=>a.sub.localeCompare(b.sub)||a.esp.localeCompare(b.esp)||a.numero-b.numero||(a.S?1:-1));
+  // substituído: existe uma versão MAIS RECENTE emitida do mesmo auto (S anula o original, S2 anula o S…)
+  for(const a of out)if(a.estado==='EMITIDO'&&out.find(b=>b.json&&b.sub===a.sub&&b.esp===a.esp&&b.numero===a.numero&&b.V>a.V))a.estado='SUBSTITUIDO';
+  out.sort((a,b)=>a.sub.localeCompare(b.sub)||a.esp.localeCompare(b.esp)||a.numero-b.numero||a.V-b.V);
   S.autos=out;return out;
 }
 function serie(sub,esp){return (S.autos||[]).filter(a=>a.sub===sub&&a.esp===esp);}
@@ -783,10 +785,11 @@ async function gerarAutoXlsx({s,esp,numero,S:subst,anterior,base,data,srcXlsx}){
   const B={top:{style:'thin'},left:{style:'thin'},bottom:{style:'thin'},right:{style:'thin'}};
   const F=c=>({type:'pattern',pattern:'solid',fgColor:{argb:c}});
   const fillH=F('FF1F4E78'),fillJ=F('FFFFF2CC'),fillCap=F('FFD9D9D9'),fillTot=F('FFBDD7EE');
-  const id=nomeAuto(s.id,esp,numero,subst);
+  const vS=subst===true?1:(+subst||0);   // AU-20: versão do substitutivo (0 = não é)
+  const id=nomeAuto(s.id,esp,numero,vS);
   ws.getCell('B2').value='AUTO DE SUBEMPREITEIRO';ws.getCell('B2').font={bold:true,size:14};
-  ws.getCell('B3').value=subst?`SUBSTITUTIVO do Auto n.º ${numero} — anula o anterior`:'';ws.getCell('B3').font={bold:true,color:{argb:'FFC00000'}};
-  const kv=[['Obra:',`${o.obra.numero} - ${o.obra.nome}`],['Subempreiteiro:',s.nome],['Especialidade:',esp],['Auto n.º:',numero+(subst?' (substitutivo)':'')]];
+  ws.getCell('B3').value=subst?`SUBSTITUTIVO v${vS} do Auto n.º ${numero} — anula o anterior`:'';ws.getCell('B3').font={bold:true,color:{argb:'FFC00000'}};
+  const kv=[['Obra:',`${o.obra.numero} - ${o.obra.nome}`],['Subempreiteiro:',s.nome],['Especialidade:',esp],['Auto n.º:',numero+(subst?` (substitutivo v${vS})`:'')]];
   kv.forEach(([k,v],i)=>{ws.getCell(4+i,2).value=k;ws.getCell(4+i,2).font={bold:true};ws.getCell(4+i,3).value=v;});
   ws.getCell('B8').value='Data do Auto:';ws.getCell('B8').font={bold:true};
   const dataIni=new Date(data+'T00:00:00Z');
@@ -911,8 +914,10 @@ async function lerAutoXlsx(a){
   // série
   const emitidos=serie(a.sub,a.esp).filter(x=>x.estado==='EMITIDO');
   const anterior=a.S?emitidos.filter(x=>x.numero<a.numero).pop()||null:(emitidos.length?emitidos[emitidos.length-1]:null);
-  const original=a.S?serie(a.sub,a.esp).find(x=>!x.S&&x.numero===a.numero&&x.json):null;
+  const original=a.S?serie(a.sub,a.esp).filter(x=>x.numero===a.numero&&x.json&&x.V<a.V).sort((p,q)=>p.V-q.V).pop()||null:null;   // AU-20: a versão anterior emitida
   if(a.S){if(!original)bloq.push(`Não existe o Auto ${a.numero} emitido para substituir.`);
+    else if(original.V!==a.V-1)bloq.push(`Este ficheiro é o substitutivo v${a.V}, mas o v${a.V-1} não está emitido.`);
+    if(serie(a.sub,a.esp).some(x=>x.numero===a.numero&&x.json&&x.V>a.V))bloq.push(`Já existe um substitutivo mais recente do Auto ${a.numero} emitido.`);
     if(emitidos.some(x=>x.numero>a.numero))bloq.push('Só o último Auto emitido da série pode ser substituído.');}
   else{const esperado=(s.proximo_auto?.[a.esp])||1;if(a.numero!==esperado)bloq.push(`Número de sequência: esperado ${esperado}, ficheiro é ${a.numero}.`);}
   if(dataStr&&anterior&&dataStr<=anterior.dados.data_auto)bloq.push(`Data ${dataStr} não é posterior à do Auto anterior (${anterior.dados.data_auto}).`);
@@ -962,7 +967,7 @@ async function lerAutoXlsx(a){
   const colsL=[];for(let c=COL_LIVRE;c<=Math.max(ws.columnCount,COL_LIVRE);c++){const w=ws.getColumn(c).width;if(w)colsL.push({col:colL(c),width:w});}
   const totais={valor_anterior:r2(linhas.reduce((t,l)=>t+l.acum_anterior*l.preco,0)),valor_mes:r2(linhas.reduce((t,l)=>t+l.valor_mes,0)),valor_acumulado:r2(linhas.reduce((t,l)=>t+l.valor_acumulado,0))};
   if(inicial&&s.acum_inicial_valor?.[a.esp]!=null)totais.valor_anterior_faturado=r2(s.acum_inicial_valor[a.esp]);
-  const dados={versao:1,consola:VERSAO,id:a.id,obra:{numero:S.obra.obra.numero,nome:S.obra.obra.nome},sub:a.sub,sub_nome:s.nome,especialidade:a.esp,numero:a.numero,substitutivo_de:a.S?nomeAuto(a.sub,a.esp,a.numero,false):null,
+  const dados={versao:1,consola:VERSAO,id:a.id,obra:{numero:S.obra.obra.numero,nome:S.obra.obra.nome},sub:a.sub,sub_nome:s.nome,especialidade:a.esp,numero:a.numero,substitutivo_de:a.S?(original?original.id:nomeAuto(a.sub,a.esp,a.numero,a.V-1)):null,substitutivo_versao:a.V||0,
     data_auto:dataStr,periodo,emitido_em:null,emitido_por:S.cfg?.nome||null,xlsx:{ficheiro:a.id+'.xlsx',sha256:await sha256(buf),tamanho:buf.byteLength},linhas,cabecalhos_livres:cab,colunas_livres:colsL,totais,avisos:avisos.concat(((S.obra.exec3d&&S.obra.exec3d[a.id]&&S.obra.exec3d[a.id].avisos)||[]).map(v=>({codigo:v.codigo,item:v.item,msg:(v.codigo==='QUANTIDADE_HERDADA'?'Quantidade herdada de '+v.de:'Adjudicação reduzida — passou para '+v.para)+' ('+Math.abs(v.qtd||0)+')'+(v.motivo?' · '+v.motivo:'')}))),estado:'EMITIDO',medicao_3d:(S.obra.exec3d&&S.obra.exec3d[a.id])?{em:S.obra.exec3d[a.id].em,lotes:S.obra.exec3d[a.id].lotes,linhas:S.obra.exec3d[a.id].linhas}:null};
   return {bloq,avisos,dados};
 }
@@ -1007,7 +1012,7 @@ function htmlAutosSerie(s,esp){
   const lst=serie(s.id,esp);const ras=rascunho(s.id,esp);const ult=ultimoEmitido(s.id,esp);const nArt=(s.artigos?.[esp]||[]).length;
   let h=`<div class="card"><div class="row" style="align-items:center;margin-bottom:6px"><b>${esp}</b><span class="tag">${nArt} artigos adjudicados</span>
     ${ras?`<span class="tag warn">rascunho ${ras.id} em curso</span>`
-         :(S.exec3d?`<button class="sec sm" data-v3d="${s.id}|${esp}" title="adjudicação e medições desta série no 3D">3D…</button>`:'')+(nArt?`<button class="sm" data-novo="${s.id}|${esp}">Novo Auto n.º ${(s.proximo_auto?.[esp])||1}</button>${ult?`<button class="sec sm" data-subst="${ult.id}">Substitutivo do ${ult.numero}</button>`:''}`
+         :(S.exec3d?`<button class="sec sm" data-v3d="${s.id}|${esp}" title="adjudicação e medições desta série no 3D">3D…</button>`:'')+(nArt?`<button class="sm" data-novo="${s.id}|${esp}">Novo Auto n.º ${(s.proximo_auto?.[esp])||1}</button>${ult?`<button class="sec sm" data-subst="${ult.id}" title="${ult.S?`o ${ult.id} (substitutivo v${ult.V}) fica anulado quando o v${ult.V+1} for emitido`:'anula o auto e parte dos valores dele'}">Substitutivo do ${ult.numero}${ult.S?` (v${ult.V+1})`:''}</button>`:''}`
                :`<span class="hint">sem artigos adjudicados nesta especialidade — faça a adjudicação em Subempreitadas antes de criar Autos</span>`)}${!ult&&(s.primeiro_auto?.[esp]||1)>1?`<button class="sec sm" data-acum="${s.id}|${esp}" title="Autos 1 a ${(s.primeiro_auto?.[esp]||1)-1} fora da consola: quantidades já pagas (entram na coluna H do 1.º Auto)">Acumulados anteriores…${s.acum_inicial?.[esp]?'':' <span class="tag warn">por introduzir</span>'}</button>`:''}</div>`;
   if(lst.length){h+=`<table><thead><tr><th>Auto</th><th>Estado</th><th>Data</th><th>Período</th><th class="num">Valor mês</th><th class="num">Acumulado</th><th>Avisos</th><th>Emitido em</th><th></th></tr></thead><tbody>`;
     for(const a of lst){const d=a.dados;
@@ -1127,7 +1132,7 @@ function htmlAutosEnvio(o){
       <td>${env?`${new Date(env.gerado_em).toLocaleString('pt-PT')}<br><small class="hint">${esc(env.enviado_por||'')}</small>`:''}</td>
       <td style="white-space:nowrap"><button class="sec sm" data-open="${a.id}">Excel</button><button class="sec sm" data-copy="${a.id}" title="copiar caminho">⧉</button>${d?`<button class="sec sm" data-ver="${a.id}">ver</button>`:`<button class="sm" data-emit="${a.id}">Emitir</button><button class="sm danger" data-del="${a.id}">Apagar</button>`}</td></tr>`;};
   const cab=`<thead><tr><th>Auto</th><th>Subempreiteiro · esp.</th><th>Estado</th><th>Data</th><th>Período</th><th class="num">Valor mês</th><th class="num">Acumulado</th><th>Avisos</th><th>Emitido em</th><th>Enviado em</th><th></th></tr></thead>`;
-  const ord=(x,y)=>x.sub.localeCompare(y.sub)||x.esp.localeCompare(y.esp)||x.numero-y.numero||(x.S?1:0)-(y.S?1:0);
+  const ord=(x,y)=>x.sub.localeCompare(y.sub)||x.esp.localeCompare(y.esp)||x.numero-y.numero||(x.V||0)-(y.V||0);
   const por=[],ja=[];for(const a of [...S.autos].sort(ord)){const env=a.dados?enviadoEm(o,a):null;(env?ja:por).push([a,env]);}
   const nEm=por.filter(([a])=>a.estado!=='RASCUNHO').length,nRas=por.length-nEm;
   return `<div class="card"><h3 style="margin-top:0">Por enviar <span class="tag ${nEm?'warn':''}">${nEm} emitido(s)</span>${nRas?`<span class="tag">${nRas} rascunho(s)</span>`:''}</h3>
@@ -1177,10 +1182,11 @@ async function novoAuto(subId,esp){
 }
 async function novoSubstitutivo(id){
   const a=S.autos.find(x=>x.id===id);const s=S.obra.subempreiteiros.find(x=>x.id===a.sub);
-  if(!confirm(`Criar substitutivo do ${id}? O ${id} fica anulado quando o substitutivo for emitido.`))return;
+  const vNovo=(a.V||0)+1;   // AU-20: substitutivo de um substitutivo = versão seguinte (S → S2 → S3…)
+  if(!confirm(`Criar o substitutivo v${vNovo} do Auto n.º ${a.numero}?\n\nO ${id} fica anulado quando o substitutivo for emitido.`))return;
   const anterior=serie(a.sub,a.esp).filter(x=>x.estado==='EMITIDO'&&x.numero<a.numero).pop();
-  const data=await pedirData(`Substitutivo do Auto n.º ${a.numero} — ${s.nome} / ${a.esp}`,a.dados.data_auto,anterior?.dados.data_auto||null);if(!data)return;
-  try{const r=await gerarAutoXlsx({s,esp:a.esp,numero:a.numero,S:true,anterior:anterior?anterior.dados:null,base:a.dados,data,srcXlsx:a.xlsx||null});toast(`Rascunho ${r.id}.xlsx criado com os valores do ${id}`,'ok');refreshAutos();}
+  const data=await pedirData(`Substitutivo v${vNovo} do Auto n.º ${a.numero} — ${s.nome} / ${a.esp}`,a.dados.data_auto,anterior?.dados.data_auto||null);if(!data)return;
+  try{const r=await gerarAutoXlsx({s,esp:a.esp,numero:a.numero,S:vNovo,anterior:anterior?anterior.dados:null,base:a.dados,data,srcXlsx:a.xlsx||null});toast(`Rascunho ${r.id}.xlsx criado com os valores do ${id}`,'ok');refreshAutos();}
   catch(e){toast('Erro: '+e.message,'err');console.error(e);}
 }
 async function emitirUI(id){
@@ -1521,7 +1527,7 @@ async function exportarDRPrecos_(arts,P,per){
 // ---- AU-12 · auto a ecrã inteiro (Controller: copiar para o Eticadata; DO/Admin: consulta) ----
 function subDoAuto_(d){const subs=(S.obra&&S.obra.subempreiteiros)||[];return subs.find(x=>x.id===d.sub)||subs.find(x=>x.nome===d.sub_nome)||{};}
 function autoCabecalho_(a){const d=a.dados,s=subDoAuto_(d),t=d.totais||{};
-  const cab=[['Auto n.º',`${a.numero}${a.S?'S':''}`],['Identificador',a.id],['Subempreiteiro',d.sub_nome],['NIF',s.nif||'—'],['E-mail',s.email||'—'],['Código ERP',s.codigo_erp||s.codigo||'—'],['Especialidade',d.especialidade],['Período',d.periodo],['Data do auto',d.data_auto],['Emitido',`${new Date(d.emitido_em).toLocaleString('pt-PT')}${d.emitido_por?' · '+d.emitido_por:''}`],['Valor do mês',eur(t.valor_mes)],['Acumulado',eur(t.valor_acumulado)]];
+  const cab=[['Auto n.º',`${a.numero}${a.S?` · substitutivo v${a.V||1}`:''}`],['Identificador',a.id],['Subempreiteiro',d.sub_nome],['NIF',s.nif||'—'],['E-mail',s.email||'—'],['Código ERP',s.codigo_erp||s.codigo||'—'],['Especialidade',d.especialidade],['Período',d.periodo],['Data do auto',d.data_auto],['Emitido',`${new Date(d.emitido_em).toLocaleString('pt-PT')}${d.emitido_por?' · '+d.emitido_por:''}`],['Valor do mês',eur(t.valor_mes)],['Acumulado',eur(t.valor_acumulado)]];
   return cab;}
 // AU-19 · artigos com quantidade no mês salientados (linha amarela) + colunas Mês/Valor mês em azul; «só com mês» filtra
 const temMes_=l=>Math.abs(+l.mes||0)>1e-9||Math.abs(+l.valor_mes||0)>0.004;
@@ -1690,12 +1696,12 @@ async function carregarEnvioMemoria_(envioId){
   if(!S.memAutos&&S.obraDir)S._local={obra:S.obra,orc:S.orc,autos:S.autos,obraDir:S.obraDir};
   S._envCache=S._envCache||{};let env=S._envCache[envioId];
   if(!env){const d=await CRM.descarregar(envioId,false);if(!d||!d.ok)throw new Error(d&&d.erro||'sem resposta');env=d.envio;S._envCache[envioId]=env;}
-  const autos=(env.autos||[]).map(a=>{const m=String(a.id).match(RE_AUTO_ID_);return {id:a.id,sub:a.sub,esp:a.especialidade,numero:a.numero,S:!!(m&&m[4]),estado:'EMITIDO',dados:a};});
-  for(const a of autos)if(!a.S&&autos.find(b=>b.S&&b.sub===a.sub&&b.esp===a.esp&&b.numero===a.numero))a.estado='SUBSTITUIDO';
+  const autos=(env.autos||[]).map(a=>{const m=String(a.id).match(RE_AUTO_ID_);return {id:a.id,sub:a.sub,esp:a.especialidade,numero:a.numero,S:!!(m&&m[4]),V:versaoS(m&&m[4]),estado:'EMITIDO',dados:a};});
+  for(const a of autos)if(autos.find(b=>b.sub===a.sub&&b.esp===a.esp&&b.numero===a.numero&&b.V>a.V))a.estado='SUBSTITUIDO';
   for(const a of autos)a.estado0=a.estado;
   S.obra=env.obra;S.orc=env.orcamento;S.memAutos=autos;S.autos=autos;S.obraDir=null;return env;
 }
-const RE_AUTO_ID_=/^(.+)_(MONTAGEM|MASSAS|PAVIMENTOS)_(\d{3})(S?)$/;
+const RE_AUTO_ID_=/^(.+)_(MONTAGEM|MASSAS|PAVIMENTOS)_(\d{3})(S|S[2-9]|S[1-9]\d)?$/;
 async function verAutoCRM_(cod,id,envioId){
   if(!envioId)return toast('Este auto não tem envio guardado no CRM','warn');
   try{await carregarEnvioMemoria_(+envioId);verAuto(id);}catch(e){toast(e.message,'err');}
@@ -1925,7 +1931,7 @@ function desenharPastas_(){
     else if(S.fxP==='enviados')est+=`<br><small class="hint">${esc(a.sub_email||'')}</small>`;
     if(S.fxP==='devolvidos')est+=`<br><small class="hint">«${esc(motivoDev_(a))}»</small>`;
     t+=`<tr class="clk" data-fr="${esc(a.obra)}|${esc(a.auto_id)}">${bulk?`<td><input type="checkbox" data-fs="${esc(a.obra)}|${esc(a.auto_id)}" ${S.fxSel.has(a.obra+'|'+a.auto_id)?'checked':''}></td>`:''}${S.emb?'':`<td><b>${esc(a.obra)}</b><br><small class="hint">${esc(a.obra_nome)}</small></td>`}${S.papel==='DO'||S.emb?'':`<td>${esc(a.do_nome)}</td>`}
-      <td>${esc(a.sub_nome)}<br><small class="hint">${esc(a.especialidade)} · auto ${a.numero}${a.substitutivo?' <span class="tag warn">substitutivo</span>':''}</small></td><td>${esc(a.periodo)}</td><td class="num"><b>${eur(a.valor_mes)}</b></td><td class="num">${eur(a.valor_acumulado)}</td><td>${est}</td><td style="white-space:nowrap;text-align:right">${fxAcoes_(a)}</td></tr>`;}
+      <td>${esc(a.sub_nome)}<br><small class="hint">${esc(a.especialidade)} · auto ${a.numero}${a.substitutivo?` <span class="tag warn">substitutivo v${a.subst_versao||1}</span>`:''}</small></td><td>${esc(a.periodo)}</td><td class="num"><b>${eur(a.valor_mes)}</b></td><td class="num">${eur(a.valor_acumulado)}</td><td>${est}</td><td style="white-space:nowrap;text-align:right">${fxAcoes_(a)}</td></tr>`;}
   if(!lst.length)t+=`<tr><td colspan="9" class="hint" style="text-align:center;padding:18px">Nada nesta pasta${F.do||F.sub||F.mes||F.q||(F.obra&&!S.emb)?' com estes filtros':''}.</td></tr>`;
   t+=`</tbody></table></div><div class="fxT">${lst.length} auto(s) · valor do mês <b>${eur(soma(lst))}</b></div></div>`;
   m.innerHTML=`<div class="crumb">CRM_NT › Autos › Fluxo${S.emb?' › '+esc(S.emb.cod)+' '+esc(S.emb.nome):''}</div><h2>Fluxo de autos${S.emb?' — '+esc(S.emb.cod)+' '+esc(S.emb.nome):''}</h2>
